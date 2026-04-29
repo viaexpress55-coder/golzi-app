@@ -9,6 +9,7 @@ import HomeScreen from '../screens/home/HomeScreen';
 import PlansScreen from '../screens/plans/PlansScreen';
 import RankingScreen from '../screens/ranking/RankingScreen';
 import LiveScreen from '../screens/live/LiveScreen';
+import MundialScreen from '../screens/mundial/MundialScreen';
 
 export type RootStackParams = {
   Splash: undefined;
@@ -84,7 +85,7 @@ function MainTabs() {
         name="Mundial"
         options={{ tabBarLabel: 'Mundial', tabBarIcon: ({ focused }) => <Icon label="MUN" focused={focused} /> }}
       >
-        {() => <Placeholder name="MUNDIAL" />}
+        {() => <MundialScreen />}
       </Tab.Screen>
       <Tab.Screen
         name="Liga"

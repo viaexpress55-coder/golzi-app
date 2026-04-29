@@ -13,18 +13,20 @@
 //   export FIRESTORE_EMULATOR_HOST="localhost:8080"
 //   export FIREBASE_AUTH_EMULATOR_HOST="localhost:9099"
 
-import * as admin from 'firebase-admin';
+import admin from 'firebase-admin';
 import { Timestamp, GeoPoint } from 'firebase-admin/firestore';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const serviceAccount = require('./service-account.json');
 
-// ── Inicializar Admin SDK ──
-// En emulador local no necesita credenciales reales
-if (!admin.apps.length) {
-  admin.initializeApp({
-    projectId: 'golzi-2026',
-  });
-}
+const app = admin.apps.length === 0
+  ? admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      projectId: 'golzi-2026',
+    })
+  : admin.apps[0]!;
 
-const db = admin.firestore();
+const db = admin.firestore(app);
 
 // ═══════════════════════════════════════════════════════════════════
 // COLECCIÓN: users

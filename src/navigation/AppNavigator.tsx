@@ -11,6 +11,7 @@ import RankingScreen from '../screens/ranking/RankingScreen';
 import LiveScreen from '../screens/live/LiveScreen';
 import MundialScreen from '../screens/mundial/MundialScreen';
 import LigaScreen from '../screens/league/LigaScreen';
+import ProfileScreen from '../screens/profile/ProfileScreen';
 
 export type RootStackParams = {
   Splash: undefined;
@@ -98,7 +99,7 @@ function MainTabs() {
         name="Perfil"
         options={{ tabBarLabel: 'Perfil', tabBarIcon: ({ focused }) => <Icon label="PRF" focused={focused} /> }}
       >
-        {() => <Placeholder name="PERFIL" />}
+        {() => <ProfileScreen />}
       </Tab.Screen>
     </Tab.Navigator>
   );

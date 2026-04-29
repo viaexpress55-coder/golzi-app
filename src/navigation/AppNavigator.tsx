@@ -8,6 +8,7 @@ import RegisterScreen from '../screens/register/RegisterScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import PlansScreen from '../screens/plans/PlansScreen';
 import RankingScreen from '../screens/ranking/RankingScreen';
+import LiveScreen from '../screens/live/LiveScreen';
 
 export type RootStackParams = {
   Splash: undefined;
@@ -71,7 +72,7 @@ function MainTabs() {
         name="Live"
         options={{ tabBarLabel: 'En Vivo', tabBarIcon: ({ focused }) => <Icon label="LIVE" focused={focused} /> }}
       >
-        {() => <Placeholder name="EN VIVO" />}
+        {() => <LiveScreen />}
       </Tab.Screen>
       <Tab.Screen
         name="Ranking"

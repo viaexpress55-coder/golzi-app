@@ -7,6 +7,7 @@ import SplashScreen from '../screens/splash/SplashScreen';
 import RegisterScreen from '../screens/register/RegisterScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import PlansScreen from '../screens/plans/PlansScreen';
+import RankingScreen from '../screens/ranking/RankingScreen';
 
 export type RootStackParams = {
   Splash: undefined;
@@ -76,7 +77,7 @@ function MainTabs() {
         name="Ranking"
         options={{ tabBarLabel: 'Ranking', tabBarIcon: ({ focused }) => <Icon label="RNK" focused={focused} /> }}
       >
-        {() => <Placeholder name="RANKING" />}
+        {() => <RankingScreen />}
       </Tab.Screen>
       <Tab.Screen
         name="Mundial"

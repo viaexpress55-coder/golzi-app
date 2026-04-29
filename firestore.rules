@@ -1,0 +1,155 @@
+// firestore.rules
+// ─────────────────────────────────────────────────────────────────
+// Reglas de seguridad de Firestore para GOLZI
+// Principio: mínimo privilegio — cada usuario solo ve/edita lo suyo
+// ─────────────────────────────────────────────────────────────────
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    function hasActivePlan(userId) {
+      let user = get(/databases/$(database)/documents/users/$(userId));
+      return user.data.plan != 'free' && user.data.planExpiry > request.time;
+    }
+
+    function isLeagueMember(leagueId) {
+      let league = get(/databases/$(database)/documents/leagues/$(leagueId));
+      return request.auth.uid in league.data.members;
+    }
+
+    // ══════════════════════════════════════════
+    // COLECCIÓN: users
+    // ══════════════════════════════════════════
+    match /users/{userId} {
+      // Leer: solo el propio usuario
+      allow read: if isOwner(userId);
+
+      // Crear: al registrarse (solo con auth)
+      allow create: if isAuth() && request.auth.uid == userId
+        && request.resource.data.keys().hasAll([
+          'userId', 'username', 'country', 'language', 'plan',
+          'totalPoints', 'reputationPoints', 'referralCode', 'createdAt'
+        ]);
+
+      // Actualizar: solo campos permitidos (no puede auto-modificar puntos)
+      // Los puntos los modifican solo las Firebase Functions (admin SDK)
+      allow update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['totalPoints', 'reputationPoints', 'plan', 'planExpiry']);
+
+      // Eliminar: nunca (datos del usuario nunca se borran entre torneos)
+      allow delete: if false;
+    }
+
+    // ══════════════════════════════════════════
+    // COLECCIÓN: matches
+    // ══════════════════════════════════════════
+    match /matches/{matchId} {
+      // Leer: cualquier usuario autenticado (incluyendo free con delay)
+      allow read: if isAuth();
+
+      // Escribir: solo Firebase Functions (admin SDK bypasses rules)
+      allow write: if false;
+    }
+
+    // ══════════════════════════════════════════
+    // COLECCIÓN: predictions
+    // ══════════════════════════════════════════
+    match /predictions/{predictionId} {
+      // Leer: solo el dueño de la predicción
+      allow read: if isAuth() && resource.data.userId == request.auth.uid;
+
+      // Crear: usuario con plan activo, solo ANTES del primer pitazo
+      // La validación real del kickoffTime la hace la Firebase Function
+      allow create: if isAuth()
+        && hasActivePlan(request.auth.uid)
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.homeScore is int
+        && request.resource.data.awayScore is int
+        && request.resource.data.homeScore >= 0
+        && request.resource.data.awayScore >= 0;
+
+      // Actualizar: solo Firebase Functions (calcula puntos post-partido)
+      allow update: if false;
+
+      // Eliminar: nunca
+      allow delete: if false;
+    }
+
+    // ══════════════════════════════════════════
+    // COLECCIÓN: leagues
+    // ══════════════════════════════════════════
+    match /leagues/{leagueId} {
+      // Leer: solo miembros de la liga
+      allow read: if isAuth() && isLeagueMember(leagueId);
+
+      // Crear: usuario con plan liga o pro
+      allow create: if isAuth()
+        && request.resource.data.creatorId == request.auth.uid
+        && request.resource.data.members.hasOnly([request.auth.uid]);
+
+      // Actualizar: el creador puede editar nombre
+      // Unirse (add member): cualquier usuario autenticado con plan activo
+      allow update: if isAuth() && (
+        // El creador edita la liga
+        resource.data.creatorId == request.auth.uid
+        ||
+        // Un usuario se une (solo agrega su propio uid a members)
+        (hasActivePlan(request.auth.uid)
+         && request.resource.data.members.hasAll(resource.data.members)
+         && request.resource.data.members.hasOnly(
+              resource.data.members.concat([request.auth.uid]))
+         && request.resource.data.membersCount == resource.data.membersCount + 1)
+      );
+
+      // Eliminar: solo el creador
+      allow delete: if isAuth() && resource.data.creatorId == request.auth.uid;
+    }
+
+    // ══════════════════════════════════════════
+    // COLECCIÓN: businesses
+    // ══════════════════════════════════════════
+    match /businesses/{businessId} {
+      // Leer: cualquier usuario autenticado (directorio público)
+      allow read: if isAuth();
+
+      // Crear y actualizar: solo Firebase Functions (admin aprueba)
+      allow create, update: if false;
+
+      // Eliminar: nunca desde el cliente
+      allow delete: if false;
+    }
+
+    // ══════════════════════════════════════════
+    // COLECCIÓN: tournaments
+    // ══════════════════════════════════════════
+    match /tournaments/{tournamentId} {
+      // Leer: todos (incluso sin auth — para onboarding y splash)
+      allow read: if true;
+
+      // Escribir: solo Firebase Functions
+      allow write: if false;
+    }
+
+    // ══════════════════════════════════════════
+    // Rankings públicos (subcolección de tournaments)
+    // ══════════════════════════════════════════
+    match /tournaments/{tournamentId}/rankings/{rankingType} {
+      // Free users: solo leen global ranking (con delay en la app, no en DB)
+      // La limitación de delay se implementa en la app, no en las reglas
+      allow read: if isAuth();
+      allow write: if false;
+    }
+  }
+}

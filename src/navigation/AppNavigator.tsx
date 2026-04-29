@@ -10,6 +10,7 @@ import PlansScreen from '../screens/plans/PlansScreen';
 import RankingScreen from '../screens/ranking/RankingScreen';
 import LiveScreen from '../screens/live/LiveScreen';
 import MundialScreen from '../screens/mundial/MundialScreen';
+import LigaScreen from '../screens/league/LigaScreen';
 
 export type RootStackParams = {
   Splash: undefined;
@@ -91,7 +92,7 @@ function MainTabs() {
         name="Liga"
         options={{ tabBarLabel: 'Liga', tabBarIcon: ({ focused }) => <Icon label="LIG" focused={focused} /> }}
       >
-        {() => <Placeholder name="MI LIGA" />}
+        {() => <LigaScreen />}
       </Tab.Screen>
       <Tab.Screen
         name="Perfil"

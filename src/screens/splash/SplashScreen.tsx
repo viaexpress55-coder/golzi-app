@@ -17,7 +17,9 @@ import {
   Barlow_300Light,
   Barlow_400Regular,
 } from '@expo-google-fonts/barlow';
-
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParams } from '../../navigation/AppNavigator';
 // ─── Paleta idéntica al HTML de referencia ──────────────
 const C = {
   dark:    '#05080F',
@@ -43,12 +45,8 @@ function getCD() {
 
 const LANGS = ['🇪🇸', '🇺🇸', '🇧🇷', '🇫🇷', '🇩🇪', '🇸🇦', '🇯🇵'];
 
-interface Props {
-  onEnter?: () => void;
-  onExplore?: () => void;
-}
-
-export default function SplashScreen({ onEnter, onExplore }: Props) {
+export default function SplashScreen() {
+  const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const [cd, setCD]     = useState(getCD());
   const [lang, setLang] = useState(0);
 
@@ -117,7 +115,7 @@ export default function SplashScreen({ onEnter, onExplore }: Props) {
         {/* ── Botón principal con degradado dorado ── */}
         <TouchableOpacity
           style={s.btnWrap}
-          onPress={onEnter}
+          onPress={() => navigation.navigate('Register')}
           activeOpacity={0.85}
         >
           <LinearGradient
@@ -133,7 +131,7 @@ export default function SplashScreen({ onEnter, onExplore }: Props) {
         {/* ── Botón ghost ── */}
         <TouchableOpacity
           style={s.btnGhost}
-          onPress={onExplore}
+          onPress={() => navigation.navigate('Register')}
           activeOpacity={0.8}
         >
           <Text style={s.btnGhostTxt}>Explorar gratis</Text>

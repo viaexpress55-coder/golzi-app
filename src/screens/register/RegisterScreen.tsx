@@ -7,7 +7,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { Barlow_400Regular, Barlow_500Medium, Barlow_600SemiBold } from '@expo-google-fonts/barlow';
-
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParams } from '../../navigation/AppNavigator';
 const C = {
   dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
   text:'#F0F4FF', muted:'#6B7A99', muted2:'#9AAABB',
@@ -24,9 +26,9 @@ const COUNTRIES = [
   { flag:'🌍',  name:'Otro' },
 ];
 
-interface Props { onBack?: () => void; onContinue?: () => void; }
 
-export default function RegisterScreen({ onBack, onContinue }: Props) {
+export default function RegisterScreen() {
+  const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const [username, setUsername] = useState('');
   const [country, setCountry]   = useState(0);
   const [error, setError]       = useState('');
@@ -45,14 +47,14 @@ export default function RegisterScreen({ onBack, onContinue }: Props) {
       return;
     }
     setError('');
-    onContinue?.();
+    navigation.navigate('Plans')
   }
 
   return (
     <View style={s.root}>
       <View style={s.glow1} />
       <View style={s.topBar}>
-        <TouchableOpacity onPress={onBack} style={s.backBtn}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={s.backBtn}>
           <Text style={s.backTxt}>← Atrás</Text>
         </TouchableOpacity>
         <Text style={s.topLogo}>GOLZI</Text>
@@ -101,7 +103,7 @@ export default function RegisterScreen({ onBack, onContinue }: Props) {
           <TouchableOpacity style={s.socialBtn}><Text style={s.socialTxt}>G  Google</Text></TouchableOpacity>
           <TouchableOpacity style={s.socialBtn}><Text style={s.socialTxt}>  Apple</Text></TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={onContinue} style={s.anonBtn}>
+        <TouchableOpacity onPress={() => navigation.navigate('Plans')} style={s.anonBtn}>
           <Text style={s.anonTxt}>Continuar sin cuenta →</Text>
         </TouchableOpacity>
         <Text style={s.fine}>

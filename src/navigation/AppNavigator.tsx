@@ -14,47 +14,44 @@ import LigaScreen from '../screens/league/LigaScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 
-
 export type RootStackParams = {
-  Splash: undefined;
+  Splash:   undefined;
   Register: undefined;
-  Plans: undefined;
-  Main: undefined;
-  Login: undefined;
+  Plans:    undefined;
+  Main:     undefined;
+  Login:    undefined;
 };
 
 export type MainTabParams = {
   Predictor: undefined;
-  Live: undefined;
-  Ranking: undefined;
-  Mundial: undefined;
-  Liga: undefined;
-  Perfil: undefined;
+  Live:      undefined;
+  Ranking:   undefined;
+  Mundial:   undefined;
+  Liga:      undefined;
+  Perfil:    undefined;
 };
 
 const Stack = createStackNavigator<RootStackParams>();
-const Tab = createBottomTabNavigator<MainTabParams>();
+const Tab   = createBottomTabNavigator<MainTabParams>();
 
 const C = {
-  dark: '#05080F',
+  darker:  '#020408',
   surface: '#0D1117',
-  gold: '#FFD700',
-  muted: '#6B7A99',
-  border: 'rgba(255,255,255,0.07)',
+  gold:    '#FFD700',
+  muted:   '#6B7A99',
+  border2: 'rgba(255,255,255,0.07)',
 };
 
 function Placeholder({ name }: { name: string }) {
   return (
-    <View style={{ flex: 1, backgroundColor: C.dark, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: 28, color: C.gold, letterSpacing: 2 }}>{name}</Text>
+    <View style={{ flex:1, backgroundColor:C.darker, alignItems:'center', justifyContent:'center' }}>
+      <Text style={{ fontSize:28, color:C.gold, letterSpacing:2 }}>{name}</Text>
     </View>
   );
 }
 
-function Icon({ label, focused }: { label: string; focused: boolean }) {
-  return (
-    <Text style={{ fontSize: 16, color: focused ? C.gold : C.muted }}>{label}</Text>
-  );
+function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
+  return <Text style={{ fontSize:17, opacity: focused ? 1 : 0.35 }}>{emoji}</Text>;
 }
 
 function MainTabs() {
@@ -62,45 +59,80 @@ function MainTabs() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: { backgroundColor: C.surface, borderTopWidth: 1, borderTopColor: C.border, height: 58 },
-        tabBarActiveTintColor: C.gold,
+        tabBarStyle: {
+          backgroundColor: 'rgba(8,10,16,0.98)',
+          borderTopWidth: 1,
+          borderTopColor: C.border2,
+          height: 54,
+          paddingBottom: 4,
+          paddingTop: 4,
+        },
+        tabBarActiveTintColor:   C.gold,
         tabBarInactiveTintColor: C.muted,
-        tabBarLabelStyle: { fontSize: 9, textTransform: 'uppercase' },
+        tabBarLabelStyle: {
+          fontSize: 8,
+          letterSpacing: 1,
+          textTransform: 'uppercase',
+          fontWeight: '600',
+        },
       }}
     >
       <Tab.Screen
         name="Predictor"
-        options={{ tabBarLabel: 'Predecir', tabBarIcon: ({ focused }) => <Icon label="GOL" focused={focused} /> }}
+        options={{
+          tabBarLabel: 'Predecir',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="⚽" focused={focused} />,
+        }}
       >
         {() => <HomeScreen />}
       </Tab.Screen>
+
       <Tab.Screen
         name="Live"
-        options={{ tabBarLabel: 'En Vivo', tabBarIcon: ({ focused }) => <Icon label="LIVE" focused={focused} /> }}
+        options={{
+          tabBarLabel: 'En Vivo',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="📡" focused={focused} />,
+        }}
       >
         {() => <LiveScreen />}
       </Tab.Screen>
+
       <Tab.Screen
         name="Ranking"
-        options={{ tabBarLabel: 'Ranking', tabBarIcon: ({ focused }) => <Icon label="RNK" focused={focused} /> }}
+        options={{
+          tabBarLabel: 'Ranking',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} />,
+        }}
       >
         {() => <RankingScreen />}
       </Tab.Screen>
+
       <Tab.Screen
         name="Mundial"
-        options={{ tabBarLabel: 'Mundial', tabBarIcon: ({ focused }) => <Icon label="MUN" focused={focused} /> }}
+        options={{
+          tabBarLabel: 'Mundial',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🌍" focused={focused} />,
+        }}
       >
         {() => <MundialScreen />}
       </Tab.Screen>
+
       <Tab.Screen
         name="Liga"
-        options={{ tabBarLabel: 'Liga', tabBarIcon: ({ focused }) => <Icon label="LIG" focused={focused} /> }}
+        options={{
+          tabBarLabel: 'Liga',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🔗" focused={focused} />,
+        }}
       >
         {() => <LigaScreen />}
       </Tab.Screen>
+
       <Tab.Screen
         name="Perfil"
-        options={{ tabBarLabel: 'Perfil', tabBarIcon: ({ focused }) => <Icon label="PRF" focused={focused} /> }}
+        options={{
+          tabBarLabel: 'Perfil',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
+        }}
       >
         {() => <ProfileScreen />}
       </Tab.Screen>
@@ -112,11 +144,11 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Plans" component={PlansScreen} />
-        <Stack.Screen name="Main" component={MainTabs} />
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Splash"    component={SplashScreen}   />
+        <Stack.Screen name="Register"  component={RegisterScreen}  />
+        <Stack.Screen name="Plans"     component={PlansScreen}     />
+        <Stack.Screen name="Login"     component={LoginScreen}     />
+        <Stack.Screen name="Main"      component={MainTabs}        />
       </Stack.Navigator>
     </NavigationContainer>
   );

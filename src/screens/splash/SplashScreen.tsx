@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  Pressable, Animated, Dimensions,
+  Pressable, Animated, Dimensions, Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
-import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
-import { Barlow_300Light, Barlow_400Regular } from '@expo-google-fonts/barlow';
 import { RootStackParams } from '../../navigation/AppNavigator';
+import { useAppFonts } from '../../hooks/useFontsLoaded';
 
 const { width } = Dimensions.get('window');
 
@@ -50,11 +48,7 @@ export default function SplashScreen() {
   // Fade in general
   const fadeAnim  = useRef(new Animated.Value(0)).current;
 
-  const [fontsLoaded] = useFonts({
-    BebasNeue_400Regular, BarlowCondensed_400Regular,
-    BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
-    Barlow_300Light, Barlow_400Regular,
-  });
+  const fontsLoaded = useAppFonts();
 
   useEffect(() => {
     // Countdown
@@ -63,23 +57,23 @@ export default function SplashScreen() {
     // Float animation
     Animated.loop(
       Animated.sequence([
-        Animated.timing(floatAnim, { toValue:1, duration:1500, useNativeDriver:true }),
-        Animated.timing(floatAnim, { toValue:0, duration:1500, useNativeDriver:true }),
+        Animated.timing(floatAnim, { toValue:1, duration:1500, useNativeDriver:false }),
+        Animated.timing(floatAnim, { toValue:0, duration:1500, useNativeDriver:false }),
       ])
     ).start();
 
     // Shine animation
     Animated.loop(
-      Animated.timing(shineAnim, { toValue:1, duration:3000, useNativeDriver:true })
+      Animated.timing(shineAnim, { toValue:1, duration:3000, useNativeDriver:false })
     ).start();
 
     // Fade in
-    Animated.timing(fadeAnim, { toValue:1, duration:800, useNativeDriver:true }).start();
+    Animated.timing(fadeAnim, { toValue:1, duration:800, useNativeDriver:false }).start();
 
     return () => clearInterval(t);
   }, []);
 
-  if (!fontsLoaded) return <View style={s.root} />;
+  if (!fontsLoaded) return null;
 
   const trophyY = floatAnim.interpolate({ inputRange:[0,1], outputRange:[0,-7] });
   const shineX  = shineAnim.interpolate({ inputRange:[-1,1], outputRange:[-width, width] });
@@ -96,12 +90,16 @@ export default function SplashScreen() {
       <Animated.View style={[s.inner, { opacity: fadeAnim }]}>
 
         {/* Trofeo animado */}
-        <Animated.Text style={[s.trophy, { transform:[{ translateY: trophyY }] }]}>
-          🏆
-        </Animated.Text>
+        <Animated.View style={{ transform:[{ translateY: trophyY }] }}>
+  <Image
+    source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
+    style={s.trophy}
+    resizeMode="contain"
+  />
+</Animated.View>
 
         {/* Logo */}
-        <Text style={s.logo}>GOLZI</Text>
+
         <Text style={s.tagline}>FIFA WORLD CUP 2026</Text>
 
         {/* Countdown */}
@@ -192,12 +190,10 @@ const s = StyleSheet.create({
 
   // Trofeo
   trophy:{
-    fontSize:58,
-    marginBottom:8,
-    textShadowColor:'rgba(255,215,0,0.6)',
-    textShadowOffset:{ width:0, height:0 },
-    textShadowRadius:24,
-  },
+  width:220,
+  height:220,
+  marginBottom:8,
+},
 
   // Logo
   logo:{

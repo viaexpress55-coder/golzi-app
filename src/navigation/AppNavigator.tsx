@@ -14,6 +14,7 @@ import LigaScreen from '../screens/league/LigaScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 
+
 export type RootStackParams = {
   Splash: undefined;
   Register: undefined;

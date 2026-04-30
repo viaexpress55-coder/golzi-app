@@ -1,4 +1,4 @@
- import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   TextInput, ScrollView, Pressable,
@@ -10,6 +10,8 @@ import { Barlow_400Regular, Barlow_500Medium, Barlow_600SemiBold } from '@expo-g
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
+import { registerWithEmail } from '../../services/auth';
+
 const C = {
   dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
   text:'#F0F4FF', muted:'#6B7A99', muted2:'#9AAABB',
@@ -26,12 +28,14 @@ const COUNTRIES = [
   { flag:'🌍',  name:'Otro' },
 ];
 
-
 export default function RegisterScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const [username, setUsername] = useState('');
-  const [country, setCountry]   = useState(0);
-  const [error, setError]       = useState('');
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
+  const [country,  setCountry]  = useState(0);
+  const [error,    setError]    = useState('');
+  const [loading,  setLoading]  = useState(false);
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
@@ -41,13 +45,29 @@ export default function RegisterScreen() {
 
   if (!fontsLoaded) return <View style={s.root} />;
 
-  function handleContinue() {
+  async function handleContinue() {
     if (username.trim().length < 3) {
       setError('El nombre debe tener al menos 3 caracteres');
       return;
     }
-    setError('');
-    navigation.navigate('Plans')
+    if (!email || !email.includes('@')) {
+      setError('Ingresa un email valido');
+      return;
+    }
+    if (!password || password.length < 6) {
+      setError('La contrasena debe tener al menos 6 caracteres');
+      return;
+    }
+    try {
+      setLoading(true);
+      setError('');
+      await registerWithEmail(email, password, username, COUNTRIES[country].name);
+      navigation.navigate('Plans');
+    } catch (e: any) {
+      setError(e.message || 'Error al registrar');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -55,16 +75,17 @@ export default function RegisterScreen() {
       <View style={s.glow1} />
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={s.backBtn}>
-          <Text style={s.backTxt}>← Atrás</Text>
+          <Text style={s.backTxt}>← Atras</Text>
         </TouchableOpacity>
         <Text style={s.topLogo}>GOLZI</Text>
         <View style={{ width: 60 }} />
       </View>
       <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={s.header}>
-          <Text style={s.title}>ÚNETE</Text>
+          <Text style={s.title}>UNETE</Text>
           <Text style={s.subtitle}>Crea tu perfil Golzair</Text>
         </View>
+
         <Text style={s.label}>NOMBRE DE USUARIO</Text>
         <View style={s.inputWrap}>
           <Text style={s.inputPrefix}>@</Text>
@@ -79,8 +100,35 @@ export default function RegisterScreen() {
             maxLength={24}
           />
         </View>
+
+        <Text style={[s.label, { marginTop: 12 }]}>EMAIL</Text>
+        <View style={s.inputWrap}>
+          <TextInput
+            style={s.input}
+            placeholder="tu@email.com"
+            placeholderTextColor={C.muted}
+            value={email}
+            onChangeText={v => { setEmail(v); setError(''); }}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+        </View>
+
+        <Text style={[s.label, { marginTop: 12 }]}>CONTRASENA</Text>
+        <View style={s.inputWrap}>
+          <TextInput
+            style={s.input}
+            placeholder="min. 6 caracteres"
+            placeholderTextColor={C.muted}
+            value={password}
+            onChangeText={v => { setPassword(v); setError(''); }}
+            secureTextEntry
+          />
+        </View>
+
         {error ? <Text style={s.errorTxt}>{error}</Text> : null}
-        <Text style={[s.label, { marginTop: 18 }]}>TU PAÍS</Text>
+
+        <Text style={[s.label, { marginTop: 18 }]}>TU PAIS</Text>
         <View style={s.countryGrid}>
           {COUNTRIES.map((c, i) => (
             <Pressable key={i} style={[s.countryBtn, country === i && s.countryBtnOn]} onPress={() => setCountry(i)}>
@@ -89,11 +137,13 @@ export default function RegisterScreen() {
             </Pressable>
           ))}
         </View>
-        <TouchableOpacity style={s.btnWrap} onPress={handleContinue} activeOpacity={0.85}>
+
+        <TouchableOpacity style={s.btnWrap} onPress={handleContinue} activeOpacity={0.85} disabled={loading}>
           <LinearGradient colors={['#FFD700','#E8A000']} start={{ x:0, y:0 }} end={{ x:1, y:1 }} style={s.btnMain}>
-            <Text style={s.btnMainTxt}>CONTINUAR →</Text>
+            <Text style={s.btnMainTxt}>{loading ? 'CREANDO CUENTA...' : 'CONTINUAR'}</Text>
           </LinearGradient>
         </TouchableOpacity>
+
         <View style={s.dividerRow}>
           <View style={s.dividerLine} />
           <Text style={s.dividerTxt}>o entrar con</Text>
@@ -107,8 +157,8 @@ export default function RegisterScreen() {
           <Text style={s.anonTxt}>Continuar sin cuenta →</Text>
         </TouchableOpacity>
         <Text style={s.fine}>
-          Al registrarte aceptas los Términos de Uso.{'\n'}
-          GOLZI es un juego de predicciones · Sin apuestas.
+          Al registrarte aceptas los Terminos de Uso.{'\n'}
+          GOLZI es un juego de predicciones. Sin apuestas.
         </Text>
       </ScrollView>
     </View>

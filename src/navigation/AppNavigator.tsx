@@ -12,12 +12,14 @@ import LiveScreen from '../screens/live/LiveScreen';
 import MundialScreen from '../screens/mundial/MundialScreen';
 import LigaScreen from '../screens/league/LigaScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import LoginScreen from '../screens/auth/LoginScreen';
 
 export type RootStackParams = {
   Splash: undefined;
   Register: undefined;
   Plans: undefined;
   Main: undefined;
+  Login: undefined;
 };
 
 export type MainTabParams = {
@@ -113,6 +115,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Plans" component={PlansScreen} />
         <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="Login" component={LoginScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

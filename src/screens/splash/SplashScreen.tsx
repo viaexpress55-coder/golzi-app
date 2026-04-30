@@ -131,7 +131,7 @@ export default function SplashScreen() {
         {/* ── Botón ghost ── */}
         <TouchableOpacity
           style={s.btnGhost}
-          onPress={() => navigation.navigate('Register')}
+          onPress={() => navigation.navigate('Login')}
           activeOpacity={0.8}
         >
           <Text style={s.btnGhostTxt}>Explorar gratis</Text>

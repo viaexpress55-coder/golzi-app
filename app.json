@@ -28,7 +28,11 @@
     },
     "plugins": [
       "@react-native-google-signin/google-signin",
-      "expo-font"
+      "expo-font",
+      ["@stripe/stripe-react-native", {
+        "merchantIdentifier": "merchant.com.golzi.app",
+        "enableGooglePay": true
+      }]
     ],
     "extra": {
       "eas": {

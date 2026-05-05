@@ -2,6 +2,7 @@ import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { Platform } from 'react-native';
+import './src/locales/i18n';
 
 if (Platform.OS === 'web') {
   const link = document.createElement('link');

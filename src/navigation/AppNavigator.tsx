@@ -13,6 +13,7 @@ import MundialScreen from '../screens/mundial/MundialScreen';
 import LigaScreen from '../screens/league/LigaScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
+import PaymentScreen from '../screens/plans/PaymentScreen';
 
 export type RootStackParams = {
   Splash:   undefined;
@@ -20,6 +21,7 @@ export type RootStackParams = {
   Plans:    undefined;
   Main:     undefined;
   Login:    undefined;
+  Payment: undefined;
 };
 
 export type MainTabParams = {
@@ -60,13 +62,13 @@ function MainTabs() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: 'rgba(8,10,16,0.98)',
-          borderTopWidth: 1,
-          borderTopColor: C.border2,
-          height: 54,
-          paddingBottom: 4,
-          paddingTop: 4,
-        },
+  backgroundColor: 'rgba(8,10,16,0.98)',
+  borderTopWidth: 1,
+  borderTopColor: C.border2,
+  height: 80,
+  paddingBottom: 20,
+  paddingTop: 4,
+},
         tabBarActiveTintColor:   C.gold,
         tabBarInactiveTintColor: C.muted,
         tabBarLabelStyle: {
@@ -149,6 +151,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Plans"     component={PlansScreen}     />
         <Stack.Screen name="Login"     component={LoginScreen}     />
         <Stack.Screen name="Main"      component={MainTabs}        />
+        <Stack.Screen name="Payment" component={PaymentScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

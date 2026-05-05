@@ -245,7 +245,7 @@ const s = StyleSheet.create({
   confirmedScore:{ backgroundColor:'rgba(0,255,135,0.12)', borderWidth:1, borderColor:'rgba(0,255,135,0.3)', borderRadius:8, paddingHorizontal:12, paddingVertical:4 },
   confirmedScoreTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:20, color:C.green, letterSpacing:2 },
   scoreInputRow:{ flexDirection:'row', alignItems:'center', gap:4 },
-  scoreInput:{ width:32, height:32, backgroundColor:'rgba(255,215,0,0.12)', borderWidth:1, borderColor:'rgba(255,215,0,0.35)', borderRadius:6, color:C.gold, fontFamily:'BebasNeue_400Regular', fontSize:18, textAlign:'center' } as any,
+  scoreInput:{ width:48, height:48, backgroundColor:'rgba(255,215,0,0.12)', borderWidth:1, borderColor:'rgba(255,215,0,0.35)', borderRadius:6, color:C.gold, fontFamily:'BebasNeue_400Regular', fontSize:28, textAlign:'center' } as any,
   scoreSep:{ fontFamily:'BebasNeue_400Regular', fontSize:15, color:C.muted },
   cardFooter:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:11, paddingBottom:8 },
   cardTime:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:9, color:C.muted, letterSpacing:0.3 },

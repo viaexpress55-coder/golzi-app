@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { registerWithEmail } from '../../services/auth';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
@@ -20,19 +21,20 @@ const C = {
 };
 
 const COUNTRIES = [
-  { flag:'🇨🇴', name:'Colombia', code:'CO' },
-  { flag:'🇲🇽', name:'Mexico',   code:'MX' },
-  { flag:'🇧🇷', name:'Brasil',   code:'BR' },
-  { flag:'🇦🇷', name:'Argentina',code:'AR' },
-  { flag:'🇺🇸', name:'USA',      code:'US' },
-  { flag:'🇻🇪', name:'Venezuela',code:'VE' },
-  { flag:'🇵🇪', name:'Peru',     code:'PE' },
-  { flag:'🇨🇱', name:'Chile',    code:'CL' },
-  { flag:'🌍',  name:'Otro',     code:'OT' },
+  { flag:'🇨🇴', name:'Colombia',  code:'CO' },
+  { flag:'🇲🇽', name:'Mexico',    code:'MX' },
+  { flag:'🇧🇷', name:'Brasil',    code:'BR' },
+  { flag:'🇦🇷', name:'Argentina', code:'AR' },
+  { flag:'🇺🇸', name:'USA',       code:'US' },
+  { flag:'🇻🇪', name:'Venezuela', code:'VE' },
+  { flag:'🇵🇪', name:'Peru',      code:'PE' },
+  { flag:'🇨🇱', name:'Chile',     code:'CL' },
+  { flag:'🌍',  name:'Otro',      code:'OT' },
 ];
 
 export default function RegisterScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
@@ -74,11 +76,10 @@ export default function RegisterScreen() {
 
       <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
-        <Text style={s.title}>UNETE</Text>
-        <Text style={s.subtitle}>Crea tu perfil Golzair</Text>
+        <Text style={s.title}>{t('register_title')}</Text>
+        <Text style={s.subtitle}>{t('register_subtitle')}</Text>
 
-        {/* Username */}
-        <Text style={s.label}>NOMBRE DE USUARIO</Text>
+        <Text style={s.label}>{t('register_username')}</Text>
         <View style={s.inputWrap}>
           <Text style={s.prefix}>@</Text>
           <TextInput style={s.input} placeholder="tu_nombre" placeholderTextColor={C.muted}
@@ -86,16 +87,14 @@ export default function RegisterScreen() {
             autoCapitalize="none" autoCorrect={false} maxLength={24} />
         </View>
 
-        {/* Email */}
-        <Text style={[s.label, { marginTop:10 }]}>EMAIL</Text>
+        <Text style={[s.label, { marginTop:10 }]}>{t('login_email')}</Text>
         <View style={s.inputWrap}>
           <TextInput style={s.input} placeholder="tu@email.com" placeholderTextColor={C.muted}
             value={email} onChangeText={v => { setEmail(v); setError(''); }}
             autoCapitalize="none" keyboardType="email-address" />
         </View>
 
-        {/* Password */}
-        <Text style={[s.label, { marginTop:10 }]}>CONTRASENA</Text>
+        <Text style={[s.label, { marginTop:10 }]}>{t('login_password')}</Text>
         <View style={s.inputWrap}>
           <TextInput style={s.input} placeholder="min. 6 caracteres" placeholderTextColor={C.muted}
             value={password} onChangeText={v => { setPassword(v); setError(''); }}
@@ -104,8 +103,7 @@ export default function RegisterScreen() {
 
         {error ? <Text style={s.error}>{error}</Text> : null}
 
-        {/* Pais */}
-        <Text style={[s.label, { marginTop:14 }]}>TU PAIS</Text>
+        <Text style={[s.label, { marginTop:14 }]}>{t('register_country')}</Text>
         <View style={s.countryGrid}>
           {COUNTRIES.map((c, i) => (
             <Pressable key={i} style={[s.countryBtn, country === i && s.countryBtnOn]} onPress={() => setCountry(i)}>
@@ -115,31 +113,28 @@ export default function RegisterScreen() {
           ))}
         </View>
 
-        {/* Boton */}
         <TouchableOpacity style={s.btnWrap} onPress={handleContinue} activeOpacity={0.85} disabled={loading}>
           <LinearGradient colors={['#FFD700','#E8A000']} start={{x:0,y:0}} end={{x:1,y:0}} style={s.btn}>
-            <Text style={s.btnTxt}>{loading ? 'CREANDO CUENTA...' : 'CONTINUAR'}</Text>
+            <Text style={s.btnTxt}>{loading ? t('loading') : t('register_btn')}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* Divider */}
         <View style={s.divRow}>
           <View style={s.divLine} />
-          <Text style={s.divTxt}>o entrar con</Text>
+          <Text style={s.divTxt}>{t('register_or')}</Text>
           <View style={s.divLine} />
         </View>
 
-        {/* Social */}
         <View style={s.socialRow}>
           <TouchableOpacity style={s.socialBtn}><Text style={s.socialTxt}>G  Google</Text></TouchableOpacity>
           <TouchableOpacity style={s.socialBtn}><Text style={s.socialTxt}>  Apple</Text></TouchableOpacity>
         </View>
 
         <TouchableOpacity onPress={() => navigation.navigate('Login')} style={s.loginBtn}>
-          <Text style={s.loginTxt}>Ya tengo cuenta? Iniciar sesion →</Text>
+          <Text style={s.loginTxt}>{t('login_have_account')}</Text>
         </TouchableOpacity>
 
-        <Text style={s.fine}>Al registrarte aceptas los Terminos de Uso.{'\n'}GOLZI es un juego de predicciones · Sin apuestas.</Text>
+        <Text style={s.fine}>{t('register_terms')}</Text>
       </ScrollView>
     </View>
   );

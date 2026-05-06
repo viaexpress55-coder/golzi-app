@@ -9,6 +9,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { logout } from '../../services/auth';
 import LanguageSelector from '../../components/LanguageSelector';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
@@ -17,11 +18,11 @@ const C = {
   border:'rgba(255,215,0,0.14)', border2:'rgba(255,255,255,0.07)',
 };
 
-const STATS = [
-  { label:'Predicciones', value:'47', color:C.gold  },
-  { label:'Exactas',      value:'4',  color:C.green },
-  { label:'Puntos',       value:'421',color:C.cyan  },
-  { label:'Racha',        value:'3',  color:C.gold  },
+const STATS = (t: any) => [
+  { label:t('profile_predictions'), value:'47', color:C.gold  },
+  { label:t('profile_exact'),       value:'4',  color:C.green },
+  { label:t('profile_points'),      value:'421',color:C.cyan  },
+  { label:t('profile_streak'),      value:'3',  color:C.gold  },
 ];
 
 const HISTORY = [
@@ -44,6 +45,7 @@ const TABS = ['PERFIL', 'HISTORIAL', 'BADGES'];
 
 export default function ProfileScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+  const { t } = useTranslation();
   const [tab, setTab] = useState(0);
 
   const [fontsLoaded] = useFonts({
@@ -97,7 +99,7 @@ export default function ProfileScreen() {
         </LinearGradient>
 
         <View style={s.statsRow}>
-          {STATS.map((st,i) => (
+          {STATS(t).map((st,i) => (
             <View key={i} style={s.statCard}>
               <Text style={[s.statVal, { color:st.color }]}>{st.value}</Text>
               <Text style={s.statLbl}>{st.label}</Text>
@@ -116,13 +118,13 @@ export default function ProfileScreen() {
         {tab === 0 && (
           <View>
             <View style={s.infoCard}>
-              <Text style={s.infoTitle}>INFORMACION</Text>
+              <Text style={s.infoTitle}>{t('profile_info')}</Text>
               {[
-                { label:'Usuario',      value:'@viaexpress'    },
-                { label:'Pais',         value:'Colombia'       },
-                { label:'Plan',         value:'PLAYER'         },
-                { label:'Miembro desde',value:'Abr 2026'       },
-                { label:'Liga activa',  value:'Los Golzaires'  },
+                { label:t('profile_user'),    value:'@viaexpress'   },
+{ label:t('profile_country'), value:'Colombia'      },
+{ label:t('profile_plan'),    value:'PLAYER'        },
+{ label:t('profile_member'),  value:'Abr 2026'      },
+{ label:t('profile_league'),  value:'Los Golzaires' },
               ].map((row,i) => (
                 <View key={i} style={[s.infoRow, i===4 && {borderBottomWidth:0}]}>
                   <Text style={s.infoLbl}>{row.label}</Text>
@@ -132,7 +134,7 @@ export default function ProfileScreen() {
             </View>
 
             <View style={s.infoCard}>
-              <Text style={s.infoTitle}>IDIOMA</Text>
+              <Text style={s.infoTitle}>{t('profile_language')}</Text>
               <LanguageSelector />
             </View>
 
@@ -142,13 +144,13 @@ export default function ProfileScreen() {
                 start={{x:0,y:0}} end={{x:1,y:1}}
                 style={s.upgradeBtnInner}
               >
-                <Text style={s.upgradeTxt}>MEJORAR A LIGA — $4.99/torneo</Text>
-                <Text style={s.upgradeSub}>Crea tus propias ligas privadas</Text>
+                <Text style={s.upgradeTxt}>{t('profile_upgrade')}</Text>
+                <Text style={s.upgradeSub}>{t('profile_upgrade_sub')}</Text>
               </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity style={s.logoutBtn} onPress={handleLogout}>
-              <Text style={s.logoutTxt}>Cerrar sesion</Text>
+              <Text style={s.logoutTxt}>{t('profile_logout')}</Text>
             </TouchableOpacity>
           </View>
         )}

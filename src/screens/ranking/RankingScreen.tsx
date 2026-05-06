@@ -6,6 +6,7 @@ import { db } from '../../services/firebase';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { Barlow_400Regular } from '@expo-google-fonts/barlow';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
@@ -19,12 +20,13 @@ const FLAGS: Record<string,string> = {
   US:'🇺🇸', VE:'🇻🇪', PE:'🇵🇪', CL:'🇨🇱',
 };
 
-const TABS = ['GLOBAL', 'MI LIGA', 'PAIS'];
-
 export default function RankingScreen() {
+  const { t } = useTranslation();
   const [tab,     setTab]     = useState(0);
   const [players, setPlayers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const TABS = [t('ranking_title'), t('liga_title'), t('profile_country')];
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
@@ -54,30 +56,26 @@ export default function RankingScreen() {
 
   return (
     <View style={s.root}>
-      {/* Glow */}
       <View style={s.bgGlow} />
 
-      {/* Header */}
       <View style={s.header}>
         <View style={s.headerLeft}>
           <Text style={s.headerIcon}>🏆</Text>
-          <Text style={s.headerTitle}>RANKING</Text>
+          <Text style={s.headerTitle}>{t('ranking_title')}</Text>
         </View>
         <Text style={s.headerSub}>{players.length} GOLZAIRES</Text>
       </View>
 
-      {/* Tabs */}
       <View style={s.tabRow}>
-        {TABS.map((t,i) => (
+        {TABS.map((tab_name,i) => (
           <TouchableOpacity key={i} style={[s.tab, tab===i && s.tabOn]} onPress={() => setTab(i)}>
-            <Text style={[s.tabTxt, tab===i && s.tabTxtOn]}>{t}</Text>
+            <Text style={[s.tabTxt, tab===i && s.tabTxtOn]}>{tab_name}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Mi posicion hero */}
         {players.length > 0 && (
           <LinearGradient
             colors={['rgba(255,215,0,0.1)','rgba(255,165,0,0.05)']}
@@ -85,12 +83,12 @@ export default function RankingScreen() {
             style={s.myHero}
           >
             <View style={s.myHeroLeft}>
-              <Text style={s.myHeroLabel}>TU POSICION</Text>
+              <Text style={s.myHeroLabel}>{t('ranking_position')}</Text>
               <Text style={s.myHeroPos}>#—</Text>
             </View>
             <View style={s.myHeroMid}>
               <Text style={s.myHeroName}>Tu cuenta</Text>
-              <Text style={s.myHeroSub}>Completa predicciones para subir</Text>
+              <Text style={s.myHeroSub}>{t('ranking_complete')}</Text>
             </View>
             <View style={s.myHeroRight}>
               <Text style={s.myHeroPts}>0</Text>
@@ -99,7 +97,6 @@ export default function RankingScreen() {
           </LinearGradient>
         )}
 
-        {/* Podio top 3 */}
         {top3.length > 0 && (
           <View style={s.podium}>
             {[top3[1], top3[0], top3[2]].filter(Boolean).map((p,i) => {
@@ -120,10 +117,8 @@ export default function RankingScreen() {
           </View>
         )}
 
-        {/* Separador */}
         <View style={s.divider} />
 
-        {/* Resto */}
         {rest.map(p => (
           <View key={p.id} style={s.row}>
             <Text style={[s.rowPos, { color:C.muted }]}>{p.pos}</Text>
@@ -148,7 +143,7 @@ export default function RankingScreen() {
           </View>
         )}
 
-        <Text style={s.footer}>Actualizado en tiempo real · {players.length} participantes</Text>
+        <Text style={s.footer}>{t('ranking_updated')} · {players.length} participantes</Text>
       </ScrollView>
     </View>
   );

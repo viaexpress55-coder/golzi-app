@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { Barlow_400Regular } from '@expo-google-fonts/barlow';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
@@ -13,84 +14,85 @@ const C = {
 
 const GROUPS = [
   { name:'A', teams:[
-    { flag:'🇺🇸', name:'USA',       pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇲🇽', name:'Mexico',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇨🇦', name:'Canada',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇵🇦', name:'Panama',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇺🇸', name:'USA',        pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇲🇽', name:'Mexico',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇨🇦', name:'Canada',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇵🇦', name:'Panama',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'B', teams:[
-    { flag:'🇦🇷', name:'Argentina', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇨🇱', name:'Chile',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇵🇪', name:'Peru',      pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇦🇺', name:'Australia', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇦🇷', name:'Argentina',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇨🇱', name:'Chile',      pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇵🇪', name:'Peru',       pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇦🇺', name:'Australia',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'C', teams:[
-    { flag:'🇧🇷', name:'Brasil',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇨🇴', name:'Colombia',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇵🇾', name:'Paraguay',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇺🇾', name:'Uruguay',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇧🇷', name:'Brasil',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇨🇴', name:'Colombia',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇵🇾', name:'Paraguay',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇺🇾', name:'Uruguay',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'D', teams:[
-    { flag:'🇫🇷', name:'Francia',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇧🇪', name:'Belgica',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇩🇪', name:'Alemania',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇦🇱', name:'Albania',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇫🇷', name:'Francia',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇧🇪', name:'Belgica',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇩🇪', name:'Alemania',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇦🇱', name:'Albania',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'E', teams:[
-    { flag:'🇪🇸', name:'Espana',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇵🇹', name:'Portugal',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇹🇷', name:'Turquia',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇬🇪', name:'Georgia',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇪🇸', name:'Espana',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇵🇹', name:'Portugal',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇹🇷', name:'Turquia',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇬🇪', name:'Georgia',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'F', teams:[
-    { flag:'🇳🇱', name:'Holanda',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇦🇹', name:'Austria',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇭🇺', name:'Hungria',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇸🇳', name:'Senegal',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇳🇱', name:'Holanda',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇦🇹', name:'Austria',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇭🇺', name:'Hungria',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇸🇳', name:'Senegal',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'G', teams:[
     { flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', name:'Inglaterra', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇨🇭', name:'Suiza',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇩🇰', name:'Dinamarca', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇸🇷', name:'Surinam',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇨🇭', name:'Suiza',      pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇩🇰', name:'Dinamarca',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇸🇷', name:'Surinam',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'H', teams:[
-    { flag:'🇵🇱', name:'Polonia',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇭🇷', name:'Croacia',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇸🇰', name:'Eslovaquia',pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇷🇴', name:'Rumania',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇵🇱', name:'Polonia',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇭🇷', name:'Croacia',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇸🇰', name:'Eslovaquia', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇷🇴', name:'Rumania',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'I', teams:[
-    { flag:'🇲🇦', name:'Marruecos', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇩🇿', name:'Argelia',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇬🇳', name:'Guinea',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇲🇦', name:'Marruecos',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇩🇿', name:'Argelia',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇬🇳', name:'Guinea',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
     { flag:'🇨🇮', name:'Costa Marfil',pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'J', teams:[
-    { flag:'🇯🇵', name:'Japon',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇰🇷', name:'Corea Sur', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇦🇺', name:'Australia', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇸🇦', name:'Arabia S.', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇯🇵', name:'Japon',      pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇰🇷', name:'Corea Sur',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇦🇺', name:'Australia',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇸🇦', name:'Arabia S.',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'K', teams:[
-    { flag:'🇮🇷', name:'Iran',      pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇺🇿', name:'Uzbekistan',pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇴🇲', name:'Oman',      pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇰🇿', name:'Kazajstan', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇮🇷', name:'Iran',       pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇺🇿', name:'Uzbekistan', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇴🇲', name:'Oman',       pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇰🇿', name:'Kazajstan',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'L', teams:[
-    { flag:'🇳🇬', name:'Nigeria',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇬🇭', name:'Ghana',     pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇨🇲', name:'Camerun',   pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇿🇦', name:'Sudafrica', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇳🇬', name:'Nigeria',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇬🇭', name:'Ghana',      pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇨🇲', name:'Camerun',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇿🇦', name:'Sudafrica',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
 ];
 
-const TABS = ['GRUPOS', 'FIXTURE', 'EQUIPOS'];
-
 export default function MundialScreen() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState(0);
   const [selGroup, setSelGroup] = useState<string|null>(null);
+
+  const TABS = ['GRUPOS', t('liga_title'), t('mundial_teams')];
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
@@ -104,27 +106,24 @@ export default function MundialScreen() {
     <View style={s.root}>
       <View style={s.bgGlow} />
 
-      {/* Header */}
       <View style={s.header}>
         <View style={s.headerLeft}>
           <Text style={s.headerIcon}>🌍</Text>
-          <Text style={s.headerTitle}>MUNDIAL 2026</Text>
+          <Text style={s.headerTitle}>{t('mundial_title')}</Text>
         </View>
-        <Text style={s.headerSub}>48 EQUIPOS</Text>
+        <Text style={s.headerSub}>48 {t('mundial_teams')}</Text>
       </View>
 
-      {/* Tabs */}
       <View style={s.tabRow}>
-        {TABS.map((t,i) => (
+        {TABS.map((tabName,i) => (
           <TouchableOpacity key={i} style={[s.tab, tab===i && s.tabOn]} onPress={() => setTab(i)}>
-            <Text style={[s.tabTxt, tab===i && s.tabTxtOn]}>{t}</Text>
+            <Text style={[s.tabTxt, tab===i && s.tabTxtOn]}>{tabName}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* GRUPOS */}
         {tab === 0 && GROUPS.map(g => (
           <View key={g.name} style={s.groupCard}>
             <TouchableOpacity
@@ -135,17 +134,15 @@ export default function MundialScreen() {
               <Text style={s.groupArrow}>{selGroup === g.name ? '▲' : '▼'}</Text>
             </TouchableOpacity>
 
-            {/* Preview teams */}
             <View style={s.groupPreview}>
-              {g.teams.map((t,i) => (
+              {g.teams.map((team,i) => (
                 <View key={i} style={s.previewTeam}>
-                  <Text style={s.previewFlag}>{t.flag}</Text>
-                  <Text style={s.previewName}>{t.name}</Text>
+                  <Text style={s.previewFlag}>{team.flag}</Text>
+                  <Text style={s.previewName}>{team.name}</Text>
                 </View>
               ))}
             </View>
 
-            {/* Tabla expandida */}
             {selGroup === g.name && (
               <View style={s.table}>
                 <View style={s.tableHeader}>
@@ -157,18 +154,18 @@ export default function MundialScreen() {
                   <Text style={s.th}>GD</Text>
                   <Text style={[s.th, { color:C.gold }]}>PTS</Text>
                 </View>
-                {g.teams.map((t,i) => (
+                {g.teams.map((team,i) => (
                   <View key={i} style={[s.tableRow, i<2 && s.tableRowQ, i===g.teams.length-1 && {borderBottomWidth:0}]}>
                     <View style={[s.tdTeam, { flex:2 }]}>
-                      <Text style={s.tdFlag}>{t.flag}</Text>
-                      <Text style={s.tdName}>{t.name}</Text>
+                      <Text style={s.tdFlag}>{team.flag}</Text>
+                      <Text style={s.tdName}>{team.name}</Text>
                     </View>
-                    <Text style={s.td}>{t.pj}</Text>
-                    <Text style={s.td}>{t.g}</Text>
-                    <Text style={s.td}>{t.e}</Text>
-                    <Text style={s.td}>{t.p}</Text>
-                    <Text style={s.td}>{t.gf-t.gc>0?'+':''}{t.gf-t.gc}</Text>
-                    <Text style={[s.td, { color:C.gold, fontFamily:'BebasNeue_400Regular' }]}>{t.pts}</Text>
+                    <Text style={s.td}>{team.pj}</Text>
+                    <Text style={s.td}>{team.g}</Text>
+                    <Text style={s.td}>{team.e}</Text>
+                    <Text style={s.td}>{team.p}</Text>
+                    <Text style={s.td}>{team.gf-team.gc>0?'+':''}{team.gf-team.gc}</Text>
+                    <Text style={[s.td, { color:C.gold, fontFamily:'BebasNeue_400Regular' }]}>{team.pts}</Text>
                   </View>
                 ))}
                 <View style={s.classifyLegend}>
@@ -180,7 +177,6 @@ export default function MundialScreen() {
           </View>
         ))}
 
-        {/* FIXTURE */}
         {tab === 1 && (
           <View style={s.comingSoon}>
             <Text style={s.comingSoonIcon}>📅</Text>
@@ -190,13 +186,12 @@ export default function MundialScreen() {
           </View>
         )}
 
-        {/* EQUIPOS */}
         {tab === 2 && (
           <View style={s.teamsGrid}>
-            {GROUPS.flatMap(g => g.teams).map((t,i) => (
+            {GROUPS.flatMap(g => g.teams).map((team,i) => (
               <View key={i} style={s.teamCard}>
-                <Text style={s.teamCardFlag}>{t.flag}</Text>
-                <Text style={s.teamCardName}>{t.name}</Text>
+                <Text style={s.teamCardFlag}>{team.flag}</Text>
+                <Text style={s.teamCardName}>{team.name}</Text>
               </View>
             ))}
           </View>

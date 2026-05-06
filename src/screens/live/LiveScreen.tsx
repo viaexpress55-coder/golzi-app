@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { Barlow_400Regular } from '@expo-google-fonts/barlow';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
@@ -25,7 +26,7 @@ const OTHERS = [
 ];
 
 export default function LiveScreen() {
-  const [mins, setMins]   = useState(90);
+  const { t } = useTranslation();
   const [pulse, setPulse] = useState(true);
 
   const [fontsLoaded] = useFonts({
@@ -35,40 +36,34 @@ export default function LiveScreen() {
   });
 
   useEffect(() => {
-    const t = setInterval(() => setPulse(p => !p), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setPulse(p => !p), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   if (!fontsLoaded) return <View style={s.root} />;
 
   return (
     <View style={s.root}>
-      {/* Header */}
       <View style={s.header}>
         <Text style={s.headerBack}>←</Text>
         <View style={s.headerCenter}>
-          <Text style={s.headerIcon}>📺</Text>
-          <Text style={s.headerTitle}>EN VIVO</Text>
+          <Text style={s.headerIcon}>📡</Text>
+          <Text style={s.headerTitle}>{t('live_title')}</Text>
         </View>
-        <Text style={s.headerIcon2}>📊</Text>
+        <Text style={s.headerIcon2}>📈</Text>
       </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Live badge */}
         <View style={s.liveBadge}>
           <View style={[s.liveDot, { opacity: pulse ? 1 : 0.3 }]} />
-          <Text style={s.liveTxt}>En Vivo · Grupo A</Text>
+          <Text style={s.liveTxt}>{t('live_title')} · Grupo A</Text>
         </View>
 
-        {/* Scoreboard */}
         <View style={s.scoreboard}>
-          {/* Top gradient line */}
           <View style={s.scoreTopLine} />
-
           <Text style={s.scoreVenue}>ESTADIO AZTECA · CIUDAD DE MEXICO</Text>
 
-          {/* Teams + Score */}
           <View style={s.scoreRow}>
             <View style={s.scoreteam}>
               <Text style={s.scoreFlag}>🇲🇽</Text>
@@ -89,7 +84,6 @@ export default function LiveScreen() {
             </View>
           </View>
 
-          {/* Posesion */}
           <View style={s.possBox}>
             <Text style={s.possLabel}>POSESION DEL BALON</Text>
             <View style={s.possBar}>
@@ -102,7 +96,6 @@ export default function LiveScreen() {
             </View>
           </View>
 
-          {/* Events feed */}
           <View style={s.eventFeed}>
             {EVENTS.map((e, i) => (
               <View key={i} style={s.eventRow}>
@@ -114,18 +107,16 @@ export default function LiveScreen() {
           </View>
         </View>
 
-        {/* Mi prediccion */}
         <View style={s.myPred}>
           <View>
-            <Text style={s.myPredLabel}>TU PREDICCION</Text>
+            <Text style={s.myPredLabel}>{t('live_your_prediction')}</Text>
             <Text style={s.myPredScore}>MEX 2 — 1 CAN ✓</Text>
-            <Text style={s.myPredSub}>¡Vas ganando! Si termina asi...</Text>
+            <Text style={s.myPredSub}>{t('live_winning')}</Text>
           </View>
           <Text style={s.myPredPts}>+10</Text>
         </View>
 
-        {/* Otros partidos */}
-        <Text style={s.sectionLabel}>OTROS PARTIDOS HOY</Text>
+        <Text style={s.sectionLabel}>{t('live_other_matches')}</Text>
         {OTHERS.map((m, i) => (
           <View key={i} style={s.miniMatch}>
             <Text style={s.miniTeams}>{m.hName} vs {m.aName}</Text>

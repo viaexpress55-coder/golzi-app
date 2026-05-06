@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { Barlow_400Regular } from '@expo-google-fonts/barlow';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
@@ -23,14 +24,15 @@ const MY_LEAGUE = {
   ],
 };
 
-const TABS = ['MI LIGA', 'UNIRSE', 'CREAR'];
-
 export default function LigaScreen() {
+  const { t } = useTranslation();
   const [tab,     setTab]     = useState(0);
   const [code,    setCode]    = useState('');
   const [ligaNm,  setLigaNm]  = useState('');
   const [joined,  setJoined]  = useState(false);
   const [created, setCreated] = useState(false);
+
+  const TABS = [t('liga_title'), 'UNIRSE', 'CREAR'];
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
@@ -44,32 +46,28 @@ export default function LigaScreen() {
     <View style={s.root}>
       <View style={s.bgGlow} />
 
-      {/* Header */}
       <View style={s.header}>
         <View style={s.headerLeft}>
           <Text style={s.headerIcon}>🔗</Text>
-          <Text style={s.headerTitle}>MI LIGA</Text>
+          <Text style={s.headerTitle}>{t('liga_title')}</Text>
         </View>
         <View style={s.planTag}>
           <Text style={s.planTagTxt}>{MY_LEAGUE.plan}</Text>
         </View>
       </View>
 
-      {/* Tabs */}
       <View style={s.tabRow}>
-        {TABS.map((t,i) => (
+        {TABS.map((tabName,i) => (
           <TouchableOpacity key={i} style={[s.tab, tab===i && s.tabOn]} onPress={() => setTab(i)}>
-            <Text style={[s.tabTxt, tab===i && s.tabTxtOn]}>{t}</Text>
+            <Text style={[s.tabTxt, tab===i && s.tabTxtOn]}>{tabName}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* MI LIGA */}
         {tab === 0 && (
           <View>
-            {/* Liga hero */}
             <LinearGradient
               colors={['rgba(255,215,0,0.1)','rgba(255,165,0,0.05)']}
               start={{x:0,y:0}} end={{x:1,y:1}}
@@ -77,16 +75,14 @@ export default function LigaScreen() {
             >
               <View style={s.ligaHeroLeft}>
                 <Text style={s.ligaName}>{MY_LEAGUE.name}</Text>
-                <Text style={s.ligaInfo}>{MY_LEAGUE.members.length} participantes · Plan {MY_LEAGUE.plan}</Text>
+                <Text style={s.ligaInfo}>{MY_LEAGUE.members.length} participantes · {t('plan_liga')} {MY_LEAGUE.plan}</Text>
               </View>
-              {/* QR placeholder */}
               <View style={s.qrBox}>
                 <Text style={s.qrTxt}>QR</Text>
                 <Text style={s.qrCode}>{MY_LEAGUE.code}</Text>
               </View>
             </LinearGradient>
 
-            {/* Codigo */}
             <View style={s.codeRow}>
               <Text style={s.codeLabel}>CODIGO DE INVITACION</Text>
               <View style={s.codeBadge}>
@@ -112,12 +108,11 @@ export default function LigaScreen() {
           </View>
         )}
 
-        {/* UNIRSE */}
         {tab === 1 && (
           <View>
             {joined ? (
               <View style={s.successBox}>
-                <Text style={s.successIcon}>🎉</Text>
+                <Text style={s.successIcon}>🏆</Text>
                 <Text style={s.successTitle}>UNIDO A LA LIGA</Text>
                 <Text style={s.successSub}>Ya eres parte. Empieza a predecir.</Text>
                 <TouchableOpacity style={s.successBtn} onPress={() => { setJoined(false); setTab(0); }}>
@@ -142,7 +137,9 @@ export default function LigaScreen() {
                   </LinearGradient>
                 </TouchableOpacity>
                 <View style={s.divRow}>
-                  <View style={s.divLine} /><Text style={s.divTxt}>o escanea el QR</Text><View style={s.divLine} />
+                  <View style={s.divLine} />
+                  <Text style={s.divTxt}>o escanea el QR</Text>
+                  <View style={s.divLine} />
                 </View>
                 <TouchableOpacity style={s.qrScanBtn}>
                   <Text style={s.qrScanTxt}>ESCANEAR QR</Text>
@@ -155,7 +152,6 @@ export default function LigaScreen() {
           </View>
         )}
 
-        {/* CREAR */}
         {tab === 2 && (
           <View>
             {created ? (
@@ -173,17 +169,17 @@ export default function LigaScreen() {
             ) : (
               <View>
                 <Text style={s.formTitle}>CREAR LIGA PRIVADA</Text>
-                <Text style={s.formSub}>Necesitas plan LIGA o superior</Text>
+                <Text style={s.formSub}>Necesitas plan {t('plan_liga')} o superior</Text>
                 <Text style={s.inputLabel}>NOMBRE DE LA LIGA</Text>
                 <View style={s.inputWrap}>
                   <TextInput style={s.input} placeholder="Ej: Los Campeones 2026" placeholderTextColor={C.muted}
                     value={ligaNm} onChangeText={setLigaNm} maxLength={30} />
                 </View>
                 <View style={s.featuresBox}>
-                  <Text style={s.featuresTitle}>PLAN LIGA — $4.99/torneo</Text>
+                  <Text style={s.featuresTitle}>{t('plan_liga')} — $4.99/{t('plan_per_tournament').replace('/','')}</Text>
                   {['Hasta 12 participantes','QR unico de invitacion','Ranking privado en tiempo real','Estadisticas de tu liga'].map((f,i) => (
                     <View key={i} style={s.featRow}>
-                      <Text style={s.featDot}>✓</Text>
+                      <Text style={s.featDot}>✔</Text>
                       <Text style={s.featTxt}>{f}</Text>
                     </View>
                   ))}

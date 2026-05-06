@@ -11,6 +11,7 @@ import { getAuth } from 'firebase/auth';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { Barlow_400Regular, Barlow_500Medium } from '@expo-google-fonts/barlow';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26', surface3:'#1E2535',
@@ -28,6 +29,7 @@ const AI_TIPS: Record<string, string> = {
 };
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const [matches,   setMatches]   = useState<any[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [selected,  setSelected]  = useState<string | null>(null);
@@ -82,14 +84,15 @@ export default function HomeScreen() {
     return (
       <View style={[s.root, { justifyContent:'center', alignItems:'center' }]}>
         <ActivityIndicator color={C.gold} size="large" />
-        <Text style={{ color:C.muted, marginTop:12, fontSize:13, fontFamily:'System' }}>Cargando partidos...</Text>
+        <Text style={{ color:C.muted, marginTop:12, fontSize:13, fontFamily:'System' }}>
+          {t('loading')}
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={s.root}>
-      {/* Header */}
       <View style={s.header}>
         <View style={s.headerLeft}>
           <Text style={s.headerIcon}>🎯</Text>
@@ -100,27 +103,22 @@ export default function HomeScreen() {
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Subheader */}
         <Text style={s.subHeader}>
-          {matches.length} PARTIDOS PENDIENTES
+          {matches.length} {t('home_matches')}
         </Text>
 
         {matches.map(m => (
           <View key={m.id}>
-            {/* Match Card */}
             <View style={[s.matchCard, m.status === 'finished' && s.matchDone]}>
-              {/* Línea superior rojo/dorado */}
               <View style={s.cardTopLine} />
 
-              {/* Stage label */}
               <Text style={s.stageLabel}>
                 {m.group || 'GRUPO'} · {m.stadium || 'ESTADIO'}
               </Text>
 
-              {/* Teams row */}
               <View style={s.teamsRow}>
                 <View style={s.teamBox}>
-                  <Text style={s.teamFlag}>{m.homeFlag || '🏳️'}</Text>
+                  <Text style={s.teamFlag}>{m.homeFlag || '🏳'}</Text>
                   <Text style={s.teamCode}>{m.homeTeam?.slice(0,3).toUpperCase()}</Text>
                   <Text style={s.teamName}>{m.homeTeam}</Text>
                 </View>
@@ -132,7 +130,6 @@ export default function HomeScreen() {
                       <Text style={s.confirmedScoreTxt}>{getScore(m.id)[0]}-{getScore(m.id)[1]}</Text>
                     </View>
                   )}
-                  {/* Score inputs when selected */}
                   {selected === m.id && !confirmed[m.id] && (
                     <View style={s.scoreInputRow}>
                       <TextInput
@@ -155,13 +152,12 @@ export default function HomeScreen() {
                 </View>
 
                 <View style={s.teamBox}>
-                  <Text style={s.teamFlag}>{m.awayFlag || '🏳️'}</Text>
+                  <Text style={s.teamFlag}>{m.awayFlag || '🏳'}</Text>
                   <Text style={s.teamCode}>{m.awayTeam?.slice(0,3).toUpperCase()}</Text>
                   <Text style={s.teamName}>{m.awayTeam}</Text>
                 </View>
               </View>
 
-              {/* Footer */}
               <View style={s.cardFooter}>
                 <Text style={s.cardTime}>
                   📅 {m.group} · {m.stadium}
@@ -173,7 +169,6 @@ export default function HomeScreen() {
                 )}
               </View>
 
-              {/* AI Strip */}
               {selected === m.id && !confirmed[m.id] && (
                 <View style={s.aiStrip}>
                   <Text style={s.aiStripTxt}>
@@ -182,7 +177,6 @@ export default function HomeScreen() {
                 </View>
               )}
 
-              {/* Confirm button */}
               {m.status !== 'finished' && (
                 <TouchableOpacity
                   style={s.confirmBtn}
@@ -190,12 +184,17 @@ export default function HomeScreen() {
                   activeOpacity={0.85}
                 >
                   <LinearGradient
-                    colors={confirmed[m.id] ? ['#00FF87','#00C853'] : selected === m.id ? [C.red,'#B00025'] : [C.red,'#B00025']}
+                    colors={confirmed[m.id] ? ['#00FF87','#00C853'] : [C.red,'#B00025']}
                     start={{ x:0, y:0 }} end={{ x:1, y:0 }}
                     style={s.confirmBtnInner}
                   >
                     <Text style={s.confirmBtnTxt}>
-                      {confirmed[m.id] ? '✓ PREDICCION ENVIADA' : selected === m.id ? '⚡ CONFIRMAR PREDICCION' : '⚡ PREDECIR PARTIDO'}
+                      {confirmed[m.id]
+                        ? `✔ ${t('home_sent')}`
+                        : selected === m.id
+                          ? `⚡ ${t('home_confirm')}`
+                          : `⚡ ${t('home_predict')}`
+                      }
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
@@ -204,11 +203,14 @@ export default function HomeScreen() {
           </View>
         ))}
 
-        {/* Puntos guia */}
         <View style={s.ptsGuide}>
-          <Text style={s.ptsGuideTitle}>SISTEMA DE PUNTOS</Text>
+          <Text style={s.ptsGuideTitle}>{t('home_points')}</Text>
           <View style={s.ptsRow}>
-            {[{v:'+10', l:'Marcador exacto'}, {v:'+5', l:'Solo ganador'}, {v:'+2', l:'Empate'}].map((p,i) => (
+            {[
+              {v:'+10', l:t('home_exact')},
+              {v:'+5',  l:t('home_winner')},
+              {v:'+2',  l:t('home_draw')},
+            ].map((p,i) => (
               <View key={i} style={s.ptsCard}>
                 <Text style={s.ptsVal}>{p.v}</Text>
                 <Text style={s.ptsLbl}>{p.l}</Text>

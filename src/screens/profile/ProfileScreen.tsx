@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { logout } from '../../services/auth';
+import LanguageSelector from '../../components/LanguageSelector';
 
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
@@ -31,9 +32,9 @@ const HISTORY = [
 ];
 
 const BADGES = [
-  { icon:'🎯', name:'Primer Exacto',  desc:'Primera prediccion exacta',  earned:true  },
+  { icon:'🎖', name:'Primer Exacto',  desc:'Primera prediccion exacta',  earned:true  },
   { icon:'🔥', name:'Racha x3',       desc:'3 correctas seguidas',        earned:true  },
-  { icon:'⚽', name:'Goleador',       desc:'10 predicciones exactas',     earned:false },
+  { icon:'⚡', name:'Goleador',       desc:'10 predicciones exactas',     earned:false },
   { icon:'🏆', name:'Campeon',        desc:'Gana una liga privada',       earned:false },
   { icon:'🌍', name:'Mundial',        desc:'Predice todos los partidos',  earned:false },
   { icon:'👑', name:'GOLZI Elite',    desc:'Top 10 global',               earned:false },
@@ -64,7 +65,6 @@ export default function ProfileScreen() {
     <View style={s.root}>
       <View style={s.bgGlow} />
 
-      {/* Header */}
       <View style={s.header}>
         <View style={s.headerLeft}>
           <Text style={s.headerIcon}>👤</Text>
@@ -77,7 +77,6 @@ export default function ProfileScreen() {
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Avatar hero */}
         <LinearGradient
           colors={['rgba(255,215,0,0.1)','rgba(255,165,0,0.05)']}
           start={{x:0,y:0}} end={{x:1,y:1}}
@@ -97,7 +96,6 @@ export default function ProfileScreen() {
           </View>
         </LinearGradient>
 
-        {/* Stats */}
         <View style={s.statsRow}>
           {STATS.map((st,i) => (
             <View key={i} style={s.statCard}>
@@ -107,7 +105,6 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        {/* Tabs */}
         <View style={s.tabRow}>
           {TABS.map((t,i) => (
             <TouchableOpacity key={i} style={[s.tab, tab===i && s.tabOn]} onPress={() => setTab(i)}>
@@ -116,7 +113,6 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        {/* PERFIL */}
         {tab === 0 && (
           <View>
             <View style={s.infoCard}>
@@ -135,8 +131,17 @@ export default function ProfileScreen() {
               ))}
             </View>
 
+            <View style={s.infoCard}>
+              <Text style={s.infoTitle}>IDIOMA</Text>
+              <LanguageSelector />
+            </View>
+
             <TouchableOpacity style={s.upgradeBtn}>
-              <LinearGradient colors={['rgba(255,215,0,0.12)','rgba(255,165,0,0.06)']} start={{x:0,y:0}} end={{x:1,y:1}} style={s.upgradeBtnInner}>
+              <LinearGradient
+                colors={['rgba(255,215,0,0.12)','rgba(255,165,0,0.06)']}
+                start={{x:0,y:0}} end={{x:1,y:1}}
+                style={s.upgradeBtnInner}
+              >
                 <Text style={s.upgradeTxt}>MEJORAR A LIGA — $4.99/torneo</Text>
                 <Text style={s.upgradeSub}>Crea tus propias ligas privadas</Text>
               </LinearGradient>
@@ -148,7 +153,6 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* HISTORIAL */}
         {tab === 1 && (
           <View>
             {HISTORY.map((h,i) => (
@@ -176,7 +180,6 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* BADGES */}
         {tab === 2 && (
           <View style={s.badgesGrid}>
             {BADGES.map((b,i) => (

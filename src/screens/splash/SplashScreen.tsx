@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { useAppFonts } from '../../hooks/useFontsLoaded';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
@@ -38,23 +39,19 @@ const LANG_FLAGS: Record<string,string> = {
 
 export default function SplashScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+  const { t } = useTranslation();
   const [cd, setCD]     = useState(getCD());
   const [lang, setLang] = useState('MX');
 
-  // Animacion trofeo flotando
   const floatAnim = useRef(new Animated.Value(0)).current;
-  // Animacion shine en boton
   const shineAnim = useRef(new Animated.Value(-1)).current;
-  // Fade in general
   const fadeAnim  = useRef(new Animated.Value(0)).current;
 
   const fontsLoaded = useAppFonts();
 
   useEffect(() => {
-    // Countdown
     const t = setInterval(() => setCD(getCD()), 1000);
 
-    // Float animation
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatAnim, { toValue:1, duration:1500, useNativeDriver:false }),
@@ -62,12 +59,10 @@ export default function SplashScreen() {
       ])
     ).start();
 
-    // Shine animation
     Animated.loop(
       Animated.timing(shineAnim, { toValue:1, duration:3000, useNativeDriver:false })
     ).start();
 
-    // Fade in
     Animated.timing(fadeAnim, { toValue:1, duration:800, useNativeDriver:false }).start();
 
     return () => clearInterval(t);
@@ -80,35 +75,29 @@ export default function SplashScreen() {
 
   return (
     <View style={s.root}>
-      {/* Fondo radial dorado arriba */}
       <View style={s.bgGlowGold} />
-      {/* Fondo radial cyan derecha */}
       <View style={s.bgGlowCyan} />
-      {/* Estadio gradiente abajo */}
       <View style={s.bgStadium} />
 
       <Animated.View style={[s.inner, { opacity: fadeAnim }]}>
 
-        {/* Trofeo animado */}
         <Animated.View style={{ transform:[{ translateY: trophyY }] }}>
-  <Image
-    source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
-    style={s.trophy}
-    resizeMode="contain"
-  />
-</Animated.View>
-
-        {/* Logo */}
+          <Image
+            source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
+            style={s.trophy}
+            resizeMode="contain"
+          />
+        </Animated.View>
 
         <Text style={s.tagline}>FIFA WORLD CUP 2026</Text>
 
-        {/* Countdown */}
+        {/* Countdown con i18n */}
         <View style={s.cdRow}>
           {[
-            { v:cd.d, l:'DIAS' },
-            { v:cd.h, l:'HRS'  },
-            { v:cd.m, l:'MIN'  },
-            { v:cd.s, l:'SEG'  },
+            { v:cd.d, l:t('splash_days') },
+            { v:cd.h, l:t('splash_hours') },
+            { v:cd.m, l:t('splash_mins') },
+            { v:cd.s, l:t('splash_secs') },
           ].map((item, i) => (
             <View key={i} style={s.cdUnit}>
               <Text style={s.cdNum}>{item.v}</Text>
@@ -117,7 +106,6 @@ export default function SplashScreen() {
           ))}
         </View>
 
-        {/* Selector de idioma */}
         <View style={s.langRow}>
           {LANGS.map(l => (
             <Pressable key={l} onPress={() => setLang(l)} style={s.langBtn}>
@@ -128,10 +116,8 @@ export default function SplashScreen() {
           ))}
         </View>
 
-        {/* Info */}
         <Text style={s.infoTxt}>16 CIUDADES SEDE · 48 EQUIPOS</Text>
 
-        {/* Boton principal con shine */}
         <TouchableOpacity
           style={s.btnWrap}
           onPress={() => navigation.navigate('Register')}
@@ -142,19 +128,17 @@ export default function SplashScreen() {
             start={{ x:0, y:0 }} end={{ x:1, y:0 }}
             style={s.btnMain}
           >
-            {/* Shine effect */}
             <Animated.View style={[s.shine, { transform:[{ translateX: shineX }] }]} />
-            <Text style={s.btnMainTxt}>⚽  ENTRAR COMO GOLZAIR</Text>
+            <Text style={s.btnMainTxt}>⚡  ENTRAR COMO GOLZAIR</Text>
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* Fine print */}
+        {/* Fine print con i18n */}
         <Text style={s.fine}>
-          Juego de predicciones deportivas · Sin apuestas · Sin azar{'\n'}
-          Disponible en 12 idiomas
+          {t('splash_subtitle')}{'\n'}
+          {t('splash_languages')}
         </Text>
 
-        {/* Ya tengo cuenta */}
         <TouchableOpacity onPress={() => navigation.navigate('Login')} style={s.loginBtn}>
           <Text style={s.loginTxt}>Ya tengo cuenta →</Text>
         </TouchableOpacity>
@@ -166,8 +150,6 @@ export default function SplashScreen() {
 
 const s = StyleSheet.create({
   root:{ flex:1, backgroundColor:C.darker },
-
-  // Fondos
   bgGlowGold:{
     position:'absolute', width:400, height:400, borderRadius:200,
     top:-100, alignSelf:'center',
@@ -182,33 +164,16 @@ const s = StyleSheet.create({
     position:'absolute', bottom:0, left:0, right:0, height:160,
     backgroundColor:'rgba(0,48,135,0.3)',
   },
-
   inner:{
     flex:1, alignItems:'center', justifyContent:'center',
     paddingHorizontal:24, paddingVertical:40,
   },
-
-  // Trofeo
-  trophy:{
-  width:220,
-  height:220,
-  marginBottom:8,
-},
-
-  // Logo
-  logo:{
-    fontFamily:'BebasNeue_400Regular',
-    fontSize:52, letterSpacing:3, lineHeight:56,
-    color:C.gold,
-    marginBottom:4,
-  },
+  trophy:{ width:220, height:220, marginBottom:8 },
   tagline:{
     fontFamily:'BarlowCondensed_600SemiBold',
     fontSize:11, letterSpacing:5, color:C.muted,
     textTransform:'uppercase', marginBottom:18,
   },
-
-  // Countdown
   cdRow:{ flexDirection:'row', gap:8, marginBottom:16 },
   cdUnit:{
     alignItems:'center', backgroundColor:'rgba(255,255,255,0.05)',
@@ -217,21 +182,15 @@ const s = StyleSheet.create({
   },
   cdNum:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold, lineHeight:30 },
   cdLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2, marginTop:1 },
-
-  // Idiomas
   langRow:{ flexDirection:'row', gap:8, flexWrap:'wrap', justifyContent:'center', marginBottom:8 },
   langBtn:{ padding:4 },
   langFlag:{ fontSize:22, opacity:0.4 },
   langFlagOn:{ opacity:1, transform:[{ scale:1.15 }] },
-
-  // Info
   infoTxt:{
     fontFamily:'BarlowCondensed_700Bold',
     fontSize:11, color:C.gold, letterSpacing:2,
     marginBottom:20, textTransform:'uppercase',
   },
-
-  // Boton
   btnWrap:{ width:'100%', marginBottom:12, overflow:'hidden', borderRadius:13 },
   btnMain:{
     borderRadius:13, paddingVertical:14,
@@ -246,15 +205,11 @@ const s = StyleSheet.create({
     fontFamily:'BebasNeue_400Regular',
     fontSize:19, letterSpacing:2, color:'#000',
   },
-
-  // Fine print
   fine:{
-    fontFamily:'Barlow_300Light',
+    fontFamily:'BarlowCondensed_400Regular',
     fontSize:9, color:C.muted, textAlign:'center',
     letterSpacing:0.5, lineHeight:15, marginBottom:10,
   },
-
-  // Login
   loginBtn:{ paddingVertical:8 },
   loginTxt:{
     fontFamily:'BarlowCondensed_600SemiBold',

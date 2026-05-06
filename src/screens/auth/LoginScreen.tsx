@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { loginWithEmail } from '../../services/auth';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
@@ -21,6 +22,7 @@ const C = {
 
 export default function LoginScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+  const { t } = useTranslation();
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
   const [error,    setError]    = useState('');
@@ -60,18 +62,18 @@ export default function LoginScreen() {
       <View style={s.glow1} />
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={s.backBtn}>
-          <Text style={s.backTxt}>← Atras</Text>
+          <Text style={s.backTxt}>{t('back')}</Text>
         </TouchableOpacity>
         <Text style={s.topLogo}>GOLZI</Text>
         <View style={{ width: 60 }} />
       </View>
       <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
         <View style={s.header}>
-          <Text style={s.title}>BIENVENIDO</Text>
-          <Text style={s.subtitle}>Inicia sesion en tu cuenta</Text>
+          <Text style={s.title}>{t('login_welcome')}</Text>
+          <Text style={s.subtitle}>{t('login_subtitle')}</Text>
         </View>
 
-        <Text style={s.label}>EMAIL</Text>
+        <Text style={s.label}>{t('login_email')}</Text>
         <View style={s.inputWrap}>
           <TextInput
             style={s.input}
@@ -84,7 +86,7 @@ export default function LoginScreen() {
           />
         </View>
 
-        <Text style={[s.label, { marginTop: 12 }]}>CONTRASENA</Text>
+        <Text style={s.label}>{t('login_password')}</Text>
         <View style={s.inputWrap}>
           <TextInput
             style={s.input}
@@ -100,16 +102,16 @@ export default function LoginScreen() {
 
         <TouchableOpacity style={s.btnWrap} onPress={handleLogin} activeOpacity={0.85} disabled={loading}>
           <LinearGradient colors={['#FFD700','#E8A000']} start={{ x:0, y:0 }} end={{ x:1, y:1 }} style={s.btnMain}>
-            <Text style={s.btnMainTxt}>{loading ? 'ENTRANDO...' : 'INICIAR SESION'}</Text>
+            <Text style={s.btnMainTxt}>{loading ? t('login_loading') : t('login_btn')}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Register')} style={s.registerBtn}>
-          <Text style={s.registerTxt}>No tienes cuenta? Registrate →</Text>
+          <Text style={s.registerTxt}>{t('login_register')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Main')} style={s.anonBtn}>
-          <Text style={s.anonTxt}>Continuar sin cuenta →</Text>
+          <Text style={s.anonTxt}>{t('login_guest')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

@@ -13,6 +13,9 @@ import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondense
 import { Barlow_400Regular, Barlow_500Medium } from '@expo-google-fonts/barlow';
 import { useTranslation } from 'react-i18next';
 
+// ✅ NUEVO IMPORT
+import { getUpcomingMatches, getLiveMatches, formatApiMatch } from '../../services/footballApi';
+
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26', surface3:'#1E2535',
   text:'#F0F4FF', muted:'#6B7A99', muted2:'#9AAABB',
@@ -45,11 +48,30 @@ export default function HomeScreen() {
   useEffect(() => {
     async function loadMatches() {
       try {
-        const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
-        const snap = await getDocs(q);
-        setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        // 🚀 API primero
+        const liveMatches = await getLiveMatches();
+        const upcomingMatches = await getUpcomingMatches(8);
+
+        const apiMatches = [...liveMatches, ...upcomingMatches];
+
+        if (apiMatches.length > 0) {
+          setMatches(apiMatches.map(formatApiMatch));
+        } else {
+          // 🔁 fallback Firestore
+          const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
+          const snap = await getDocs(q);
+          setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        }
       } catch (e) {
         console.error(e);
+        // 🔁 fallback si API falla
+        try {
+          const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
+          const snap = await getDocs(q);
+          setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        } catch (err) {
+          console.error(err);
+        }
       } finally {
         setLoading(false);
       }

@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { Platform } from 'react-native';
 import './src/locales/i18n';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotifications } from './src/services/notifications';
+import i18n from './src/locales/i18n';
 
 if (Platform.OS === 'web') {
   const link = document.createElement('link');
@@ -16,6 +17,16 @@ if (Platform.OS === 'web') {
 export default function App() {
   const notificationListener = useRef<any>();
   const responseListener = useRef<any>();
+
+  // ✅ NUEVO (force update para cambio de idioma)
+  const [, forceUpdate] = useState(0);
+
+  // ✅ NUEVO (escuchar cambio de idioma)
+  useEffect(() => {
+    const handler = () => forceUpdate(n => n + 1);
+    i18n.on('languageChanged', handler);
+    return () => i18n.off('languageChanged', handler);
+  }, []);
 
   useEffect(() => {
     // Registrar para notificaciones

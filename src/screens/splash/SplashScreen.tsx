@@ -9,6 +9,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { useAppFonts } from '../../hooks/useFontsLoaded';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../locales/i18n';
 
 const { width } = Dimensions.get('window');
 
@@ -32,16 +33,26 @@ function getCD() {
   };
 }
 
-const LANGS = ['MX','US','BR','FR','DE','SA','JP'];
-const LANG_FLAGS: Record<string,string> = {
-  MX:'🇲🇽', US:'🇺🇸', BR:'🇧🇷', FR:'🇫🇷', DE:'🇩🇪', SA:'🇸🇦', JP:'🇯🇵',
-};
+const LANGS = [
+  { code:'MX', flag:'🇲🇽', i18n:'es', name:'México' },
+  { code:'CO', flag:'🇨🇴', i18n:'es', name:'Colombia' },
+  { code:'AR', flag:'🇦🇷', i18n:'es', name:'Argentina' },
+  { code:'BR', flag:'🇧🇷', i18n:'pt', name:'Brasil' },
+  { code:'US', flag:'🇺🇸', i18n:'en', name:'USA' },
+  { code:'ES', flag:'🇪🇸', i18n:'es', name:'España' },
+  { code:'FR', flag:'🇫🇷', i18n:'fr', name:'Francia' },
+  { code:'DE', flag:'🇩🇪', i18n:'de', name:'Alemania' },
+  { code:'JP', flag:'🇯🇵', i18n:'ja', name:'Japón' },
+  { code:'KR', flag:'🇰🇷', i18n:'ko', name:'Corea' },
+  { code:'SA', flag:'🇸🇦', i18n:'ar', name:'Arabia' },
+  { code:'PT', flag:'🇵🇹', i18n:'pt', name:'Portugal' },
+];
 
 export default function SplashScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const { t } = useTranslation();
-  const [cd, setCD]     = useState(getCD());
-  const [lang, setLang] = useState('MX');
+  const [cd, setCD] = useState(getCD());
+  const [selectedLang, setSelectedLang] = useState(i18n.language);
 
   const floatAnim = useRef(new Animated.Value(0)).current;
   const shineAnim = useRef(new Animated.Value(-1)).current;
@@ -50,7 +61,7 @@ export default function SplashScreen() {
   const fontsLoaded = useAppFonts();
 
   useEffect(() => {
-    const t = setInterval(() => setCD(getCD()), 1000);
+    const timer = setInterval(() => setCD(getCD()), 1000);
 
     Animated.loop(
       Animated.sequence([
@@ -65,13 +76,18 @@ export default function SplashScreen() {
 
     Animated.timing(fadeAnim, { toValue:1, duration:800, useNativeDriver:false }).start();
 
-    return () => clearInterval(t);
+    return () => clearInterval(timer);
   }, []);
 
   if (!fontsLoaded) return null;
 
   const trophyY = floatAnim.interpolate({ inputRange:[0,1], outputRange:[0,-7] });
   const shineX  = shineAnim.interpolate({ inputRange:[-1,1], outputRange:[-width, width] });
+
+  function changeLang(lang: typeof LANGS[0]) {
+    i18n.changeLanguage(lang.i18n);
+    setSelectedLang(lang.i18n);
+  }
 
   return (
     <View style={s.root}>
@@ -91,7 +107,7 @@ export default function SplashScreen() {
 
         <Text style={s.tagline}>FIFA WORLD CUP 2026</Text>
 
-        {/* Countdown con i18n */}
+        {/* Countdown */}
         <View style={s.cdRow}>
           {[
             { v:cd.d, l:t('splash_days') },
@@ -106,14 +122,26 @@ export default function SplashScreen() {
           ))}
         </View>
 
+        {/* Selector de idioma con banderas */}
+        <Text style={s.langTitle}>SELECCIONA TU IDIOMA</Text>
         <View style={s.langRow}>
-          {LANGS.map(l => (
-            <Pressable key={l} onPress={() => setLang(l)} style={s.langBtn}>
-              <Text style={[s.langFlag, lang === l && s.langFlagOn]}>
-                {LANG_FLAGS[l]}
-              </Text>
-            </Pressable>
-          ))}
+          {LANGS.map(l => {
+            const isSelected = selectedLang === l.i18n;
+            return (
+              <Pressable
+                key={l.code}
+                onPress={() => changeLang(l)}
+                style={[s.langBtn, isSelected && s.langBtnOn]}
+              >
+                <Text style={[s.langFlag, isSelected && s.langFlagOn]}>
+                  {l.flag}
+                </Text>
+                {isSelected && (
+                  <Text style={s.langName}>{l.name}</Text>
+                )}
+              </Pressable>
+            );
+          })}
         </View>
 
         <Text style={s.infoTxt}>16 CIUDADES SEDE · 48 EQUIPOS</Text>
@@ -129,18 +157,17 @@ export default function SplashScreen() {
             style={s.btnMain}
           >
             <Animated.View style={[s.shine, { transform:[{ translateX: shineX }] }]} />
-            <Text style={s.btnMainTxt}>⚡  ENTRAR COMO GOLZAIR</Text>
+            <Text style={s.btnMainTxt}>⚡  {t('splash_enter')}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* Fine print con i18n */}
         <Text style={s.fine}>
           {t('splash_subtitle')}{'\n'}
           {t('splash_languages')}
         </Text>
 
         <TouchableOpacity onPress={() => navigation.navigate('Login')} style={s.loginBtn}>
-          <Text style={s.loginTxt}>Ya tengo cuenta →</Text>
+          <Text style={s.loginTxt}>{t('splash_have_account')}</Text>
         </TouchableOpacity>
 
       </Animated.View>
@@ -168,13 +195,13 @@ const s = StyleSheet.create({
     flex:1, alignItems:'center', justifyContent:'center',
     paddingHorizontal:24, paddingVertical:40,
   },
-  trophy:{ width:220, height:220, marginBottom:8 },
+  trophy:{ width:180, height:180, marginBottom:8 },
   tagline:{
     fontFamily:'BarlowCondensed_600SemiBold',
     fontSize:11, letterSpacing:5, color:C.muted,
-    textTransform:'uppercase', marginBottom:18,
+    textTransform:'uppercase', marginBottom:14,
   },
-  cdRow:{ flexDirection:'row', gap:8, marginBottom:16 },
+  cdRow:{ flexDirection:'row', gap:8, marginBottom:14 },
   cdUnit:{
     alignItems:'center', backgroundColor:'rgba(255,255,255,0.05)',
     borderWidth:1, borderColor:'rgba(255,215,0,0.2)',
@@ -182,16 +209,19 @@ const s = StyleSheet.create({
   },
   cdNum:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold, lineHeight:30 },
   cdLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2, marginTop:1 },
-  langRow:{ flexDirection:'row', gap:8, flexWrap:'wrap', justifyContent:'center', marginBottom:8 },
-  langBtn:{ padding:4 },
+  langTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:3, marginBottom:8 },
+  langRow:{ flexDirection:'row', gap:6, flexWrap:'wrap', justifyContent:'center', marginBottom:10 },
+  langBtn:{ padding:4, alignItems:'center', borderRadius:8, borderWidth:1, borderColor:'transparent' },
+  langBtnOn:{ borderColor:'rgba(255,215,0,0.4)', backgroundColor:'rgba(255,215,0,0.08)' },
   langFlag:{ fontSize:22, opacity:0.4 },
-  langFlagOn:{ opacity:1, transform:[{ scale:1.15 }] },
+  langFlagOn:{ opacity:1, transform:[{ scale:1.2 }] },
+  langName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.gold, letterSpacing:0.5, marginTop:2 },
   infoTxt:{
     fontFamily:'BarlowCondensed_700Bold',
     fontSize:11, color:C.gold, letterSpacing:2,
-    marginBottom:20, textTransform:'uppercase',
+    marginBottom:16, textTransform:'uppercase',
   },
-  btnWrap:{ width:'100%', marginBottom:12, overflow:'hidden', borderRadius:13 },
+  btnWrap:{ width:'100%', marginBottom:10, overflow:'hidden', borderRadius:13 },
   btnMain:{
     borderRadius:13, paddingVertical:14,
     alignItems:'center', overflow:'hidden',
@@ -208,7 +238,7 @@ const s = StyleSheet.create({
   fine:{
     fontFamily:'BarlowCondensed_400Regular',
     fontSize:9, color:C.muted, textAlign:'center',
-    letterSpacing:0.5, lineHeight:15, marginBottom:10,
+    letterSpacing:0.5, lineHeight:15, marginBottom:8,
   },
   loginBtn:{ paddingVertical:8 },
   loginTxt:{

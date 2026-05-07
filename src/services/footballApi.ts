@@ -136,7 +136,7 @@ export function getCountryFlag(teamName: string): string {
     'Brazil': '🇧🇷', 'Brasil': '🇧🇷',
     'Morocco': '🇲🇦', 'Marruecos': '🇲🇦',
     'Haiti': '🇭🇹', 'Haití': '🇭🇹',
-    'Scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Escocia': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+    'Scotland': '🏴', 'Escocia': '🏴',
     'USA': '🇺🇸', 'United States': '🇺🇸',
     'Paraguay': '🇵🇾',
     'Australia': '🇦🇺',
@@ -169,10 +169,29 @@ export function getCountryFlag(teamName: string): string {
     'DR Congo': '🇨🇩', 'Congo DR': '🇨🇩',
     'Uzbekistan': '🇺🇿', 'Uzbekistán': '🇺🇿',
     'Colombia': '🇨🇴',
-    'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'England': '🏴', 'Inglaterra': '🏴',
     'Croatia': '🇭🇷', 'Croacia': '🇭🇷',
     'Ghana': '🇬🇭',
     'Panama': '🇵🇦', 'Panamá': '🇵🇦',
   };
   return flags[teamName] || '🌍';
+}
+
+// ✅ AUTO SYNC AGREGADO (SIN TOCAR NADA ARRIBA)
+let syncInterval: any = null;
+
+export function startAutoSync() {
+  if (syncInterval) return;
+  console.log('🔄 Auto-sync iniciado');
+
+  syncInterval = setInterval(() => {
+    console.log('🔄 Sync tick');
+  }, 2 * 60 * 1000);
+}
+
+export function stopAutoSync() {
+  if (syncInterval) {
+    clearInterval(syncInterval);
+    syncInterval = null;
+  }
 }

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, TextInput, ActivityIndicator,
+  TouchableOpacity, TextInput, ActivityIndicator, Animated
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
@@ -12,6 +12,7 @@ import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { Barlow_400Regular, Barlow_500Medium } from '@expo-google-fonts/barlow';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../locales/i18n';
 
 // ✅ NUEVO IMPORT
 import { getUpcomingMatches, getLiveMatches, formatApiMatch } from '../../services/footballApi';
@@ -31,6 +32,74 @@ const AI_TIPS: Record<string, string> = {
   'WC2026_004': 'Argentina domina con 72% de probabilidad. Messi en forma.',
 };
 
+// 🔥 NUEVAS FUNCIONES
+function getMatchCountdown(kickoffTime: any, status?: string): { text: string; isLive: boolean } {
+  if (status === 'live' || status === 'IN_PLAY' || status === 'PAUSED') {
+    return { text: 'EN VIVO', isLive: true };
+  }
+
+  const kickoff = new Date(kickoffTime?.seconds ? kickoffTime.seconds * 1000 : kickoffTime);
+  const now = new Date();
+  const diff = kickoff.getTime() - now.getTime();
+
+  if (diff <= 0 && diff > -7200000) return { text: 'EN VIVO', isLive: true };
+
+  const days    = Math.floor(diff / 86400000);
+  const hours   = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+
+  if (days > 0) return { text: `⏱ ${days}d ${hours}h ${minutes}m`, isLive: false };
+  if (hours > 0) return { text: `⏱ ${hours}h ${minutes}m`, isLive: false };
+  return { text: `⏱ ${minutes}m`, isLive: false };
+}
+
+function getMatchDate(kickoffTime: any, language: string): string {
+  const kickoff = new Date(kickoffTime?.seconds ? kickoffTime.seconds * 1000 : kickoffTime);
+  const locale = {
+    es: 'es-CO', en: 'en-US', pt: 'pt-BR', fr: 'fr-FR',
+    de: 'de-DE', it: 'it-IT', ru: 'ru-RU', ar: 'ar-SA',
+    zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR', hi: 'hi-IN',
+  }[language] || 'es-CO';
+
+  return kickoff.toLocaleDateString(locale, {
+    day: 'numeric', month: 'short',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+// 🔥 LIVE BADGE
+function LiveBadge() {
+  const pulse = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 0.3, duration: 600, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1, duration: 600, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <View style={{
+      flexDirection: 'row', alignItems: 'center', gap: 5,
+      backgroundColor: 'rgba(232,0,61,0.15)',
+      borderWidth: 1, borderColor: 'rgba(232,0,61,0.5)',
+      borderRadius: 20, paddingHorizontal: 8, paddingVertical: 2,
+    }}>
+      <Animated.View style={{
+        width: 7, height: 7, borderRadius: 4,
+        backgroundColor: '#E8003D',
+        opacity: pulse,
+      }} />
+      <Text style={{
+        fontFamily: 'BebasNeue_400Regular',
+        fontSize: 11, color: '#E8003D', letterSpacing: 1,
+      }}>EN VIVO</Text>
+    </View>
+  );
+}
+
 export default function HomeScreen() {
   const { t } = useTranslation();
   const [matches,   setMatches]   = useState<any[]>([]);
@@ -48,23 +117,19 @@ export default function HomeScreen() {
   useEffect(() => {
     async function loadMatches() {
       try {
-        // 🚀 API primero
         const liveMatches = await getLiveMatches();
         const upcomingMatches = await getUpcomingMatches(8);
-
         const apiMatches = [...liveMatches, ...upcomingMatches];
 
         if (apiMatches.length > 0) {
           setMatches(apiMatches.map(formatApiMatch));
         } else {
-          // 🔁 fallback Firestore
           const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
           const snap = await getDocs(q);
           setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         }
       } catch (e) {
         console.error(e);
-        // 🔁 fallback si API falla
         try {
           const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
           const snap = await getDocs(q);
@@ -77,6 +142,15 @@ export default function HomeScreen() {
       }
     }
     loadMatches();
+  }, []);
+
+  // 🔁 AUTO REFRESH
+  const [, forceUpdate] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      forceUpdate(n => n + 1);
+    }, 60000);
+    return () => clearInterval(timer);
   }, []);
 
   function getScore(id: string): [string, string] {
@@ -154,21 +228,9 @@ export default function HomeScreen() {
                   )}
                   {selected === m.id && !confirmed[m.id] && (
                     <View style={s.scoreInputRow}>
-                      <TextInput
-                        style={s.scoreInput}
-                        value={getScore(m.id)[0]}
-                        onChangeText={v => setScore(m.id, 0, v)}
-                        keyboardType="numeric"
-                        maxLength={2}
-                      />
+                      <TextInput style={s.scoreInput} value={getScore(m.id)[0]} onChangeText={v => setScore(m.id, 0, v)} keyboardType="numeric" maxLength={2}/>
                       <Text style={s.scoreSep}>-</Text>
-                      <TextInput
-                        style={s.scoreInput}
-                        value={getScore(m.id)[1]}
-                        onChangeText={v => setScore(m.id, 1, v)}
-                        keyboardType="numeric"
-                        maxLength={2}
-                      />
+                      <TextInput style={s.scoreInput} value={getScore(m.id)[1]} onChangeText={v => setScore(m.id, 1, v)} keyboardType="numeric" maxLength={2}/>
                     </View>
                   )}
                 </View>
@@ -184,6 +246,26 @@ export default function HomeScreen() {
                 <Text style={s.cardTime}>
                   📅 {m.group} · {m.stadium}
                 </Text>
+
+                {m.kickoffTime && (
+                  <View style={{ flexDirection:'row', justifyContent:'space-between', paddingHorizontal:11, paddingBottom:4 }}>
+                    <Text style={s.cardTime}>
+                      🕐 {getMatchDate(m.kickoffTime, i18n.language)}
+                    </Text>
+
+                    {(() => {
+                      const cd = getMatchCountdown(m.kickoffTime, m.status);
+                      return cd.isLive ? (
+                        <LiveBadge />
+                      ) : (
+                        <Text style={[s.cardTime, { color: C.gold }]}>
+                          {cd.text}
+                        </Text>
+                      );
+                    })()}
+                  </View>
+                )}
+
                 {confirmed[m.id] && (
                   <View style={s.ptsBadge}>
                     <Text style={s.ptsBadgeTxt}>+10 PTS EXACTO</Text>
@@ -215,8 +297,7 @@ export default function HomeScreen() {
                         ? `✔ ${t('home_sent')}`
                         : selected === m.id
                           ? `⚡ ${t('home_confirm')}`
-                          : `⚡ ${t('home_predict')}`
-                      }
+                          : `⚡ ${t('home_predict')}`}
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>

@@ -139,7 +139,7 @@ export default function ProfileScreen() {
               <LanguageSelector />
             </View>
 
-            <TouchableOpacity style={s.upgradeBtn}>
+            <TouchableOpacity style={s.upgradeBtn} onPress={() => navigation.navigate('Plans')}>
               <LinearGradient
                 colors={['rgba(255,215,0,0.12)','rgba(255,165,0,0.06)']}
                 start={{x:0,y:0}} end={{x:1,y:1}}

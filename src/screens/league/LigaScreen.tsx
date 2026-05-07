@@ -75,7 +75,7 @@ export default function LigaScreen() {
             >
               <View style={s.ligaHeroLeft}>
                 <Text style={s.ligaName}>{MY_LEAGUE.name}</Text>
-                <Text style={s.ligaInfo}>{MY_LEAGUE.members.length} participantes · {t('plan_liga')} {MY_LEAGUE.plan}</Text>
+                <Text style={s.ligaInfo}>{MY_LEAGUE.members.length} participantes · Plan {MY_LEAGUE.plan}</Text>
               </View>
               <View style={s.qrBox}>
                 <Text style={s.qrTxt}>QR</Text>

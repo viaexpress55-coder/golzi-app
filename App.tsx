@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { Platform } from 'react-native';
 import './src/locales/i18n';
+import * as Notifications from 'expo-notifications';
+import { registerForPushNotifications } from './src/services/notifications';
 
 if (Platform.OS === 'web') {
   const link = document.createElement('link');
@@ -12,6 +14,29 @@ if (Platform.OS === 'web') {
 }
 
 export default function App() {
+  const notificationListener = useRef<any>();
+  const responseListener = useRef<any>();
+
+  useEffect(() => {
+    // Registrar para notificaciones
+    registerForPushNotifications();
+
+    // Listener cuando llega notificación con app abierta
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('🔔 Notificación recibida:', notification);
+    });
+
+    // Listener cuando usuario toca la notificación
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('👆 Notificación tocada:', response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
   return (
     <SafeAreaProvider>
       <AppNavigator />

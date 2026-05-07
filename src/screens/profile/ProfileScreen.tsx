@@ -10,6 +10,7 @@ import { RootStackParams } from '../../navigation/AppNavigator';
 import { logout } from '../../services/auth';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useTranslation } from 'react-i18next';
+import { sendLocalNotification, GOLZI_NOTIFICATIONS } from '../../services/notifications';
 
 const C = {
   darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
@@ -121,10 +122,10 @@ export default function ProfileScreen() {
               <Text style={s.infoTitle}>{t('profile_info')}</Text>
               {[
                 { label:t('profile_user'),    value:'@viaexpress'   },
-{ label:t('profile_country'), value:'Colombia'      },
-{ label:t('profile_plan'),    value:'PLAYER'        },
-{ label:t('profile_member'),  value:'Abr 2026'      },
-{ label:t('profile_league'),  value:'Los Golzaires' },
+                { label:t('profile_country'), value:'Colombia'      },
+                { label:t('profile_plan'),    value:'PLAYER'        },
+                { label:t('profile_member'),  value:'Abr 2026'      },
+                { label:t('profile_league'),  value:'Los Golzaires' },
               ].map((row,i) => (
                 <View key={i} style={[s.infoRow, i===4 && {borderBottomWidth:0}]}>
                   <Text style={s.infoLbl}>{row.label}</Text>
@@ -149,9 +150,24 @@ export default function ProfileScreen() {
               </LinearGradient>
             </TouchableOpacity>
 
+            {/* 🔔 BOTÓN PROBAR NOTIFICACIÓN */}
+            <TouchableOpacity 
+              style={[s.logoutBtn, { borderColor: 'rgba(255,215,0,0.3)', marginBottom: 8 }]} 
+              onPress={() => sendLocalNotification(
+                GOLZI_NOTIFICATIONS.predictionCorrect(10).title,
+                GOLZI_NOTIFICATIONS.predictionCorrect(10).body
+              )}
+            >
+              <Text style={[s.logoutTxt, { color: '#FFD700' }]}>
+                🔔 PROBAR NOTIFICACIÓN
+              </Text>
+            </TouchableOpacity>
+
+            {/* 🚪 LOGOUT ORIGINAL */}
             <TouchableOpacity style={s.logoutBtn} onPress={handleLogout}>
               <Text style={s.logoutTxt}>{t('profile_logout')}</Text>
             </TouchableOpacity>
+
           </View>
         )}
 

@@ -13,89 +13,63 @@ import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondense
 import { Barlow_400Regular, Barlow_500Medium } from '@expo-google-fonts/barlow';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../locales/i18n';
-
-// ✅ NUEVO IMPORT
 import { getUpcomingMatches, getLiveMatches, formatApiMatch } from '../../services/footballApi';
 
 const C = {
-  darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26', surface3:'#1E2535',
-  text:'#F0F4FF', muted:'#6B7A99', muted2:'#9AAABB',
-  gold:'#FFD700', gold2:'#FFA500', gold3:'#FF6B00',
-  green:'#00FF87', cyan:'#00C6FF', red:'#E8003D',
-  border:'rgba(255,215,0,0.14)', border2:'rgba(255,255,255,0.07)',
+  bg:        '#000000',
+  surface:   '#0A0A0A',
+  surface2:  '#111111',
+  gold:      '#FFD700',
+  gold2:     '#FFA500',
+  goldBorder:'rgba(255,215,0,0.3)',
+  text:      '#FFFFFF',
+  muted:     '#888888',
+  muted2:    '#AAAAAA',
+  green:     '#00FF87',
+  red:       '#FF3355',
 };
 
-const AI_TIPS: Record<string, string> = {
-  'WC2026_001': 'Mexico lleva ventaja historica vs Canada. Modelo GOLZI: 58% probabilidad local.',
-  'WC2026_002': 'USA en racha de 5 partidos sin perder. Partido cerrado esperado.',
-  'WC2026_003': 'Brasil favorito con 71% segun modelos predictivos.',
-  'WC2026_004': 'Argentina domina con 72% de probabilidad. Messi en forma.',
-};
-
-// 🔥 NUEVAS FUNCIONES
 function getMatchCountdown(kickoffTime: any, status?: string): { text: string; isLive: boolean } {
   if (status === 'live' || status === 'IN_PLAY' || status === 'PAUSED') {
     return { text: 'EN VIVO', isLive: true };
   }
-
   const kickoff = new Date(kickoffTime?.seconds ? kickoffTime.seconds * 1000 : kickoffTime);
-  const now = new Date();
-  const diff = kickoff.getTime() - now.getTime();
-
+  const diff = kickoff.getTime() - Date.now();
   if (diff <= 0 && diff > -7200000) return { text: 'EN VIVO', isLive: true };
-
   const days    = Math.floor(diff / 86400000);
   const hours   = Math.floor((diff % 86400000) / 3600000);
   const minutes = Math.floor((diff % 3600000) / 60000);
-
-  if (days > 0) return { text: `⏱ ${days}d ${hours}h ${minutes}m`, isLive: false };
-  if (hours > 0) return { text: `⏱ ${hours}h ${minutes}m`, isLive: false };
-  return { text: `⏱ ${minutes}m`, isLive: false };
+  if (days > 0) return { text: `${days}d ${hours}h ${minutes}m`, isLive: false };
+  if (hours > 0) return { text: `${hours}h ${minutes}m`, isLive: false };
+  return { text: `${minutes}m`, isLive: false };
 }
 
 function getMatchDate(kickoffTime: any, language: string): string {
   const kickoff = new Date(kickoffTime?.seconds ? kickoffTime.seconds * 1000 : kickoffTime);
-  const locale = {
-    es: 'es-CO', en: 'en-US', pt: 'pt-BR', fr: 'fr-FR',
-    de: 'de-DE', it: 'it-IT', ru: 'ru-RU', ar: 'ar-SA',
-    zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR', hi: 'hi-IN',
-  }[language] || 'es-CO';
-
-  return kickoff.toLocaleDateString(locale, {
-    day: 'numeric', month: 'short',
-    hour: '2-digit', minute: '2-digit'
+  const locale: Record<string,string> = {
+    es:'es-CO', en:'en-US', pt:'pt-BR', fr:'fr-FR',
+    de:'de-DE', it:'it-IT', ru:'ru-RU', ar:'ar-SA',
+    zh:'zh-CN', ja:'ja-JP', ko:'ko-KR', hi:'hi-IN',
+  };
+  return kickoff.toLocaleDateString(locale[language] || 'es-CO', {
+    day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'
   });
 }
 
-// 🔥 LIVE BADGE
 function LiveBadge() {
   const pulse = useRef(new Animated.Value(1)).current;
-
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 0.3, duration: 600, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 1, duration: 600, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue:0.2, duration:600, useNativeDriver:true }),
+        Animated.timing(pulse, { toValue:1,   duration:600, useNativeDriver:true }),
       ])
     ).start();
   }, []);
-
   return (
-    <View style={{
-      flexDirection: 'row', alignItems: 'center', gap: 5,
-      backgroundColor: 'rgba(232,0,61,0.15)',
-      borderWidth: 1, borderColor: 'rgba(232,0,61,0.5)',
-      borderRadius: 20, paddingHorizontal: 8, paddingVertical: 2,
-    }}>
-      <Animated.View style={{
-        width: 7, height: 7, borderRadius: 4,
-        backgroundColor: '#E8003D',
-        opacity: pulse,
-      }} />
-      <Text style={{
-        fontFamily: 'BebasNeue_400Regular',
-        fontSize: 11, color: '#E8003D', letterSpacing: 1,
-      }}>EN VIVO</Text>
+    <View style={s.liveBadge}>
+      <Animated.View style={[s.liveDot, { opacity:pulse }]} />
+      <Text style={s.liveTxt}>EN VIVO</Text>
     </View>
   );
 }
@@ -104,9 +78,10 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const [matches,   setMatches]   = useState<any[]>([]);
   const [loading,   setLoading]   = useState(true);
-  const [selected,  setSelected]  = useState<string | null>(null);
-  const [scores,    setScores]    = useState<Record<string, [string,string]>>({});
-  const [confirmed, setConfirmed] = useState<Record<string, boolean>>({});
+  const [selected,  setSelected]  = useState<string|null>(null);
+  const [scores,    setScores]    = useState<Record<string,[string,string]>>({});
+  const [confirmed, setConfirmed] = useState<Record<string,boolean>>({});
+  const [, forceUpdate] = useState(0);
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
@@ -117,62 +92,48 @@ export default function HomeScreen() {
   useEffect(() => {
     async function loadMatches() {
       try {
-        const liveMatches = await getLiveMatches();
-        const upcomingMatches = await getUpcomingMatches(8);
-        const apiMatches = [...liveMatches, ...upcomingMatches];
-
-        if (apiMatches.length > 0) {
-          setMatches(apiMatches.map(formatApiMatch));
+        const [live, upcoming] = await Promise.all([getLiveMatches(), getUpcomingMatches(8)]);
+        const api = [...live, ...upcoming];
+        if (api.length > 0) {
+          setMatches(api.map(formatApiMatch));
         } else {
           const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
           const snap = await getDocs(q);
-          setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+          setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
         try {
           const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
           const snap = await getDocs(q);
-          setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-        } catch (err) {
-          console.error(err);
-        }
+          setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
+        } catch {}
       } finally {
         setLoading(false);
       }
     }
     loadMatches();
-  }, []);
-
-  // 🔁 AUTO REFRESH
-  const [, forceUpdate] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      forceUpdate(n => n + 1);
-    }, 60000);
+    const timer = setInterval(() => forceUpdate(n => n+1), 60000);
     return () => clearInterval(timer);
   }, []);
 
-  function getScore(id: string): [string, string] {
-    return scores[id] || ['0', '0'];
-  }
+  function getScore(id:string):[string,string] { return scores[id]||['0','0']; }
 
-  function setScore(id: string, side: 0|1, val: string) {
+  function setScore(id:string, side:0|1, val:string) {
     const cur = getScore(id);
-    const next: [string,string] = [...cur] as [string,string];
+    const next:[string,string] = [...cur] as [string,string];
     next[side] = val.replace(/[^0-9]/g,'').slice(0,2);
-    setScores(prev => ({ ...prev, [id]: next }));
+    setScores(prev => ({ ...prev, [id]:next }));
   }
 
-  async function confirm(id: string) {
+  async function confirm(id:string) {
     try {
       const user = getAuth().currentUser;
       if (user) {
         const [home, away] = getScore(id);
         await savePrediction(user.uid, id, parseInt(home)||0, parseInt(away)||0);
       }
-    } catch (e) { console.error(e); }
-    setConfirmed(prev => ({ ...prev, [id]: true }));
+    } catch {}
+    setConfirmed(prev => ({ ...prev, [id]:true }));
     setSelected(null);
   }
 
@@ -180,147 +141,206 @@ export default function HomeScreen() {
     return (
       <View style={[s.root, { justifyContent:'center', alignItems:'center' }]}>
         <ActivityIndicator color={C.gold} size="large" />
-        <Text style={{ color:C.muted, marginTop:12, fontSize:13, fontFamily:'System' }}>
-          {t('loading')}
-        </Text>
+        <Text style={{ color:C.muted, marginTop:16, fontSize:13 }}>{t('loading')}</Text>
       </View>
     );
   }
 
   return (
     <View style={s.root}>
-      <View style={s.header}>
+
+      {/* HEADER */}
+      <LinearGradient colors={['#000','#0A0A0A']} style={s.header}>
         <View style={s.headerLeft}>
-          <Text style={s.headerIcon}>🎯</Text>
-          <Text style={s.headerTitle}>PREDICTOR</Text>
+          <View style={s.headerIconBox}>
+            <Text style={{ fontSize:20 }}>⚽</Text>
+          </View>
+          <View>
+            <Text style={s.headerTitle}>PREDICTOR</Text>
+            <Text style={s.headerSub}>FIFA WORLD CUP 2026</Text>
+          </View>
         </View>
-        <Text style={s.headerBell}>🔔</Text>
-      </View>
+        <TouchableOpacity style={s.bellBtn}>
+          <Text style={{ fontSize:18 }}>🔔</Text>
+        </TouchableOpacity>
+      </LinearGradient>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        <Text style={s.subHeader}>
-          {matches.length} {t('home_matches')}
-        </Text>
+        {/* STATS BANNER */}
+        <LinearGradient
+          colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']}
+          start={{x:0,y:0}} end={{x:1,y:0}}
+          style={s.statsBanner}
+        >
+          {[
+            { val:matches.length, lbl:t('home_matches') },
+            { val:104,            lbl:'TOTAL' },
+            { val:35,             lbl:'DÍAS' },
+          ].map((st,i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <View style={s.statDivider} />}
+              <View style={s.statItem}>
+                <Text style={s.statVal}>{st.val}</Text>
+                <Text style={s.statLbl}>{st.lbl}</Text>
+              </View>
+            </React.Fragment>
+          ))}
+        </LinearGradient>
 
-        {matches.map(m => (
-          <View key={m.id}>
-            <View style={[s.matchCard, m.status === 'finished' && s.matchDone]}>
-              <View style={s.cardTopLine} />
+        {/* MATCH CARDS */}
+        {matches.map(m => {
+          const cd          = getMatchCountdown(m.kickoffTime, m.status);
+          const isSelected  = selected === m.id;
+          const isConfirmed = confirmed[m.id];
 
-              <Text style={s.stageLabel}>
-                {m.group || 'GRUPO'} · {m.stadium || 'ESTADIO'}
-              </Text>
+          return (
+            <View key={m.id} style={s.card}>
 
+              {/* Gold glow top */}
+              <LinearGradient
+                colors={['rgba(255,215,0,0.08)','transparent']}
+                start={{x:0.5,y:0}} end={{x:0.5,y:1}}
+                style={s.cardGlow}
+              />
+
+              {/* Card header */}
+              <View style={s.cardHeader}>
+                <View style={s.cardHeaderLeft}>
+                  <View style={s.groupPill}>
+                    <Text style={s.groupPillTxt}>{m.group || 'GRUPO'}</Text>
+                  </View>
+                  <Text style={s.stadiumTxt} numberOfLines={1}>{m.stadium || 'ESTADIO'}</Text>
+                </View>
+                {cd.isLive
+                  ? <LiveBadge />
+                  : <View style={s.countdownPill}>
+                      <Text style={s.countdownTxt}>⏱ {cd.text}</Text>
+                    </View>
+                }
+              </View>
+
+              {/* TEAMS ROW */}
               <View style={s.teamsRow}>
+
+                {/* Home */}
                 <View style={s.teamBox}>
                   <Text style={s.teamFlag}>{m.homeFlag || '🏳'}</Text>
-                  <Text style={s.teamCode}>{m.homeTeam?.slice(0,3).toUpperCase()}</Text>
-                  <Text style={s.teamName}>{m.homeTeam}</Text>
+                  <Text style={s.teamCode}>{(m.homeTeam||'').slice(0,3).toUpperCase()}</Text>
+                  <Text style={s.teamName} numberOfLines={1}>{m.homeTeam}</Text>
                 </View>
 
-                <View style={s.vsBox}>
-                  <Text style={s.vsText}>VS</Text>
-                  {confirmed[m.id] && (
-                    <View style={s.confirmedScore}>
-                      <Text style={s.confirmedScoreTxt}>{getScore(m.id)[0]}-{getScore(m.id)[1]}</Text>
+                {/* Center: VS / Score input / Confirmed */}
+                <View style={s.centerBox}>
+                  {isConfirmed ? (
+                    <LinearGradient
+                      colors={['rgba(0,255,135,0.12)','rgba(0,255,135,0.04)']}
+                      style={s.confirmedBox}
+                    >
+                      <Text style={s.confirmedNum}>{getScore(m.id)[0]}</Text>
+                      <Text style={s.confirmedDash}>-</Text>
+                      <Text style={s.confirmedNum}>{getScore(m.id)[1]}</Text>
+                    </LinearGradient>
+                  ) : isSelected ? (
+                    <View style={s.inputRow}>
+                      <TextInput
+                        style={s.scoreInput}
+                        value={getScore(m.id)[0]}
+                        onChangeText={v => setScore(m.id, 0, v)}
+                        keyboardType="numeric"
+                        maxLength={2}
+                      />
+                      <Text style={s.inputDash}>-</Text>
+                      <TextInput
+                        style={s.scoreInput}
+                        value={getScore(m.id)[1]}
+                        onChangeText={v => setScore(m.id, 1, v)}
+                        keyboardType="numeric"
+                        maxLength={2}
+                      />
                     </View>
-                  )}
-                  {selected === m.id && !confirmed[m.id] && (
-                    <View style={s.scoreInputRow}>
-                      <TextInput style={s.scoreInput} value={getScore(m.id)[0]} onChangeText={v => setScore(m.id, 0, v)} keyboardType="numeric" maxLength={2}/>
-                      <Text style={s.scoreSep}>-</Text>
-                      <TextInput style={s.scoreInput} value={getScore(m.id)[1]} onChangeText={v => setScore(m.id, 1, v)} keyboardType="numeric" maxLength={2}/>
+                  ) : (
+                    <View style={s.vsCircle}>
+                      <Text style={s.vsTxt}>VS</Text>
                     </View>
                   )}
                 </View>
 
+                {/* Away */}
                 <View style={s.teamBox}>
                   <Text style={s.teamFlag}>{m.awayFlag || '🏳'}</Text>
-                  <Text style={s.teamCode}>{m.awayTeam?.slice(0,3).toUpperCase()}</Text>
-                  <Text style={s.teamName}>{m.awayTeam}</Text>
+                  <Text style={s.teamCode}>{(m.awayTeam||'').slice(0,3).toUpperCase()}</Text>
+                  <Text style={s.teamName} numberOfLines={1}>{m.awayTeam}</Text>
                 </View>
+
               </View>
 
-              <View style={s.cardFooter}>
-                <Text style={s.cardTime}>
-                  📅 {m.group} · {m.stadium}
-                </Text>
-
-                {m.kickoffTime && (
-                  <View style={{ flexDirection:'row', justifyContent:'space-between', paddingHorizontal:11, paddingBottom:4 }}>
-                    <Text style={s.cardTime}>
-                      🕐 {getMatchDate(m.kickoffTime, i18n.language)}
-                    </Text>
-
-                    {(() => {
-                      const cd = getMatchCountdown(m.kickoffTime, m.status);
-                      return cd.isLive ? (
-                        <LiveBadge />
-                      ) : (
-                        <Text style={[s.cardTime, { color: C.gold }]}>
-                          {cd.text}
-                        </Text>
-                      );
-                    })()}
-                  </View>
-                )}
-
-                {confirmed[m.id] && (
-                  <View style={s.ptsBadge}>
-                    <Text style={s.ptsBadgeTxt}>+10 PTS EXACTO</Text>
-                  </View>
-                )}
-              </View>
-
-              {selected === m.id && !confirmed[m.id] && (
-                <View style={s.aiStrip}>
-                  <Text style={s.aiStripTxt}>
-                    🤖 IA GOLZI — {AI_TIPS[m.id] || 'Analizando datos...'}
-                  </Text>
+              {/* Date + PTS */}
+              {m.kickoffTime && (
+                <View style={s.dateRow}>
+                  <Text style={s.dateTxt}>🕐 {getMatchDate(m.kickoffTime, i18n.language)}</Text>
+                  {isConfirmed && (
+                    <View style={s.ptsPill}>
+                      <Text style={s.ptsPillTxt}>+10 PTS ✓</Text>
+                    </View>
+                  )}
                 </View>
               )}
 
+              {/* PREDICT BUTTON */}
               {m.status !== 'finished' && (
                 <TouchableOpacity
-                  style={s.confirmBtn}
-                  onPress={() => selected === m.id ? confirm(m.id) : setSelected(m.id)}
+                  style={s.predictBtn}
+                  onPress={() => isSelected ? confirm(m.id) : setSelected(m.id)}
                   activeOpacity={0.85}
                 >
                   <LinearGradient
-                    colors={confirmed[m.id] ? ['#00FF87','#00C853'] : [C.red,'#B00025']}
-                    start={{ x:0, y:0 }} end={{ x:1, y:0 }}
-                    style={s.confirmBtnInner}
+                    colors={
+                      isConfirmed ? ['#00FF87','#00C853'] :
+                      isSelected  ? [C.gold, C.gold2] :
+                      ['#1C1C1C','#141414']
+                    }
+                    start={{x:0,y:0}} end={{x:1,y:0}}
+                    style={s.predictBtnInner}
                   >
-                    <Text style={s.confirmBtnTxt}>
-                      {confirmed[m.id]
-                        ? `✔ ${t('home_sent')}`
-                        : selected === m.id
-                          ? `⚡ ${t('home_confirm')}`
-                          : `⚡ ${t('home_predict')}`}
+                    <Text style={[
+                      s.predictBtnTxt,
+                      { color: isConfirmed || isSelected ? '#000' : C.gold }
+                    ]}>
+                      {isConfirmed
+                        ? `✔  ${t('home_sent')}`
+                        : isSelected
+                          ? `⚡  ${t('home_confirm')}`
+                          : `⚡  ${t('home_predict')}`
+                      }
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
               )}
-            </View>
-          </View>
-        ))}
 
-        <View style={s.ptsGuide}>
+            </View>
+          );
+        })}
+
+        {/* POINTS GUIDE */}
+        <LinearGradient
+          colors={['rgba(255,215,0,0.07)','rgba(255,215,0,0.02)']}
+          style={s.ptsGuide}
+        >
           <Text style={s.ptsGuideTitle}>{t('home_points')}</Text>
           <View style={s.ptsRow}>
             {[
-              {v:'+10', l:t('home_exact')},
-              {v:'+5',  l:t('home_winner')},
-              {v:'+2',  l:t('home_draw')},
+              { v:'+10', l:t('home_exact'),  c:C.gold },
+              { v:'+5',  l:t('home_winner'), c:C.gold2 },
+              { v:'+2',  l:t('home_draw'),   c:C.muted2 },
             ].map((p,i) => (
               <View key={i} style={s.ptsCard}>
-                <Text style={s.ptsVal}>{p.v}</Text>
+                <Text style={[s.ptsVal,{ color:p.c }]}>{p.v}</Text>
                 <Text style={s.ptsLbl}>{p.l}</Text>
               </View>
             ))}
           </View>
-        </View>
+        </LinearGradient>
 
       </ScrollView>
     </View>
@@ -328,43 +348,81 @@ export default function HomeScreen() {
 }
 
 const s = StyleSheet.create({
-  root:{ flex:1, backgroundColor:C.darker },
-  header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:13, paddingTop:48, paddingBottom:10, backgroundColor:C.darker },
-  headerLeft:{ flexDirection:'row', alignItems:'center', gap:8 },
-  headerIcon:{ fontSize:17 },
-  headerTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:17, color:C.gold, letterSpacing:2 },
-  headerBell:{ fontSize:17 },
-  scroll:{ paddingHorizontal:10, paddingBottom:40 },
-  subHeader:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, textTransform:'uppercase', marginBottom:10, marginTop:4 },
-  matchCard:{ backgroundColor:C.surface2, borderWidth:1, borderColor:C.border2, borderRadius:12, marginBottom:8, overflow:'hidden' },
-  matchDone:{ opacity:0.5 },
-  cardTopLine:{ height:2, backgroundColor:C.red },
-  stageLabel:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.gold, letterSpacing:3, textTransform:'uppercase', margin:11, marginBottom:9 },
-  teamsRow:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:11, marginBottom:8 },
-  teamBox:{ flex:1, alignItems:'center', gap:3 },
-  teamFlag:{ fontSize:26 },
-  teamCode:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.text, letterSpacing:1 },
-  teamName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted, letterSpacing:0.5 },
-  vsBox:{ alignItems:'center', gap:4, paddingHorizontal:8 },
-  vsText:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.muted },
-  confirmedScore:{ backgroundColor:'rgba(0,255,135,0.12)', borderWidth:1, borderColor:'rgba(0,255,135,0.3)', borderRadius:8, paddingHorizontal:12, paddingVertical:4 },
-  confirmedScoreTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:20, color:C.green, letterSpacing:2 },
-  scoreInputRow:{ flexDirection:'row', alignItems:'center', gap:4 },
-  scoreInput:{ width:48, height:48, backgroundColor:'rgba(255,215,0,0.12)', borderWidth:1, borderColor:'rgba(255,215,0,0.35)', borderRadius:6, color:C.gold, fontFamily:'BebasNeue_400Regular', fontSize:28, textAlign:'center' } as any,
-  scoreSep:{ fontFamily:'BebasNeue_400Regular', fontSize:15, color:C.muted },
-  cardFooter:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:11, paddingBottom:8 },
-  cardTime:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:9, color:C.muted, letterSpacing:0.3 },
-  ptsBadge:{ backgroundColor:'rgba(0,255,135,0.12)', borderWidth:1, borderColor:'rgba(0,255,135,0.28)', borderRadius:20, paddingHorizontal:8, paddingVertical:2 },
-  ptsBadgeTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.green, letterSpacing:1 },
-  aiStrip:{ marginHorizontal:11, marginBottom:8, backgroundColor:'rgba(0,198,255,0.08)', borderWidth:1, borderColor:'rgba(0,198,255,0.18)', borderRadius:9, padding:8 },
-  aiStripTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:9, color:C.muted, letterSpacing:0.3, lineHeight:14 },
-  confirmBtn:{ marginHorizontal:11, marginBottom:11 },
-  confirmBtnInner:{ borderRadius:10, paddingVertical:11, alignItems:'center' },
-  confirmBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, letterSpacing:2, color:'#fff' },
-  ptsGuide:{ backgroundColor:C.surface, borderWidth:1, borderColor:C.border2, borderRadius:12, padding:12, marginTop:8 },
-  ptsGuideTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:8 },
+  root:{ flex:1, backgroundColor:C.bg },
+
+  // Header
+  header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:16, paddingTop:52, paddingBottom:14, borderBottomWidth:1, borderBottomColor:'rgba(255,215,0,0.1)' },
+  headerLeft:{ flexDirection:'row', alignItems:'center', gap:12 },
+  headerIconBox:{ width:40, height:40, borderRadius:12, backgroundColor:'rgba(255,215,0,0.1)', borderWidth:1, borderColor:C.goldBorder, alignItems:'center', justifyContent:'center' },
+  headerTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold, letterSpacing:3 },
+  headerSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted, letterSpacing:2 },
+  bellBtn:{ width:40, height:40, borderRadius:12, backgroundColor:'rgba(255,255,255,0.05)', alignItems:'center', justifyContent:'center' },
+
+  // Stats
+  statsBanner:{ flexDirection:'row', marginHorizontal:12, marginTop:12, marginBottom:8, borderRadius:14, borderWidth:1, borderColor:C.goldBorder, padding:14, alignItems:'center', justifyContent:'space-around' },
+  statItem:{ alignItems:'center' },
+  statVal:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold },
+  statLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2, marginTop:2 },
+  statDivider:{ width:1, height:36, backgroundColor:'rgba(255,215,0,0.2)' },
+
+  scroll:{ paddingBottom:40 },
+
+  // Card
+  card:{ marginHorizontal:12, marginBottom:10, backgroundColor:'#111', borderRadius:18, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', borderTopWidth:2, borderTopColor:C.gold, overflow:'hidden' },
+  cardGlow:{ position:'absolute', top:0, left:0, right:0, height:70, zIndex:0 },
+
+  // Card header
+  cardHeader:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:14, paddingTop:12, paddingBottom:6, zIndex:1 },
+  cardHeaderLeft:{ flexDirection:'row', alignItems:'center', gap:8, flex:1 },
+  groupPill:{ backgroundColor:'rgba(255,215,0,0.12)', borderRadius:6, borderWidth:1, borderColor:C.goldBorder, paddingHorizontal:8, paddingVertical:3 },
+  groupPillTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:12, color:C.gold, letterSpacing:1 },
+  stadiumTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted, flex:1 },
+  countdownPill:{ backgroundColor:'rgba(255,215,0,0.06)', borderRadius:20, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', paddingHorizontal:10, paddingVertical:4 },
+  countdownTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.gold },
+
+  // Live badge
+  liveBadge:{ flexDirection:'row', alignItems:'center', gap:5, backgroundColor:'rgba(255,51,85,0.12)', borderWidth:1, borderColor:'rgba(255,51,85,0.35)', borderRadius:20, paddingHorizontal:10, paddingVertical:4 },
+  liveDot:{ width:7, height:7, borderRadius:4, backgroundColor:C.red },
+  liveTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.red, letterSpacing:1 },
+
+  // Teams row
+  teamsRow:{ flexDirection:'row', alignItems:'center', paddingHorizontal:10, paddingVertical:12, zIndex:1 },
+  teamBox:{ flex:1, alignItems:'center', gap:6 },
+  teamFlag:{ fontSize:44 },
+  teamCode:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.gold, letterSpacing:2 },
+  teamName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted2, textAlign:'center' },
+
+  // Center
+  centerBox:{ alignItems:'center', justifyContent:'center', paddingHorizontal:8, width:80 },
+  vsCircle:{ width:64, height:64, borderRadius:32, backgroundColor:'rgba(255,215,0,0.08)', borderWidth:2, borderColor:C.gold, alignItems:'center', justifyContent:'center' },
+  vsTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold },
+
+  // Score input
+  inputRow:{ flexDirection:'row', alignItems:'center', gap:4 },
+  scoreInput:{ width:50, height:50, backgroundColor:'rgba(255,215,0,0.1)', borderWidth:2, borderColor:C.gold, borderRadius:10, color:C.gold, fontFamily:'BebasNeue_400Regular', fontSize:28, textAlign:'center' } as any,
+  inputDash:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.muted },
+
+  // Confirmed
+  confirmedBox:{ flexDirection:'row', alignItems:'center', gap:6, borderRadius:12, paddingHorizontal:14, paddingVertical:12, borderWidth:1, borderColor:'rgba(0,255,135,0.25)' },
+  confirmedNum:{ fontFamily:'BebasNeue_400Regular', fontSize:34, color:C.green },
+  confirmedDash:{ fontFamily:'BebasNeue_400Regular', fontSize:20, color:C.green },
+
+  // Date row
+  dateRow:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:14, paddingBottom:10, zIndex:1 },
+  dateTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted },
+  ptsPill:{ backgroundColor:'rgba(0,255,135,0.1)', borderWidth:1, borderColor:'rgba(0,255,135,0.3)', borderRadius:20, paddingHorizontal:10, paddingVertical:3 },
+  ptsPillTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.green, letterSpacing:1 },
+
+  // Predict button
+  predictBtn:{ marginHorizontal:14, marginBottom:14, zIndex:1 },
+  predictBtnInner:{ borderRadius:12, paddingVertical:14, alignItems:'center', borderWidth:1, borderColor:'rgba(255,215,0,0.25)' },
+  predictBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:17, letterSpacing:3 },
+
+  // Points guide
+  ptsGuide:{ marginHorizontal:12, marginTop:4, borderRadius:14, borderWidth:1, borderColor:'rgba(255,215,0,0.15)', padding:14 },
+  ptsGuideTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:10 },
   ptsRow:{ flexDirection:'row', gap:8 },
-  ptsCard:{ flex:1, backgroundColor:'rgba(255,215,0,0.08)', borderWidth:1, borderColor:'rgba(255,215,0,0.2)', borderRadius:8, padding:8, alignItems:'center' },
-  ptsVal:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:C.gold, lineHeight:18 },
-  ptsLbl:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted, letterSpacing:0.5, textAlign:'center', marginTop:2 },
+  ptsCard:{ flex:1, backgroundColor:'rgba(255,215,0,0.04)', borderWidth:1, borderColor:'rgba(255,215,0,0.12)', borderRadius:10, padding:10, alignItems:'center' },
+  ptsVal:{ fontFamily:'BebasNeue_400Regular', fontSize:20 },
+  ptsLbl:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted, textAlign:'center', marginTop:2 },
 });

@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
-import { Barlow_400Regular } from '@expo-google-fonts/barlow';
 import { useTranslation } from 'react-i18next';
 
 const C = {
-  darker:'#020408', dark:'#05080F', surface:'#0D1117', surface2:'#161B26',
-  text:'#F0F4FF', muted:'#6B7A99', muted2:'#9AAABB',
-  gold:'#FFD700', gold2:'#FFA500', green:'#00FF87', cyan:'#00C6FF', red:'#E8003D',
-  border:'rgba(255,215,0,0.14)', border2:'rgba(255,255,255,0.07)',
+  bg:        '#000000',
+  surface2:  '#111111',
+  gold:      '#FFD700',
+  gold2:     '#FFA500',
+  goldBorder:'rgba(255,215,0,0.3)',
+  text:      '#FFFFFF',
+  muted:     '#888888',
+  muted2:    '#AAAAAA',
+  green:     '#00FF87',
 };
 
 const GROUPS = [
@@ -20,10 +25,10 @@ const GROUPS = [
     { flag:'🇨🇿', name:'Chequia',       pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'B', teams:[
-    { flag:'🇨🇦', name:'Canadá',          pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇧🇦', name:'Bosnia y Herz.',  pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇶🇦', name:'Qatar',           pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
-    { flag:'🇨🇭', name:'Suiza',           pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇨🇦', name:'Canadá',         pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇧🇦', name:'Bosnia y Herz.', pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇶🇦', name:'Qatar',          pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
+    { flag:'🇨🇭', name:'Suiza',          pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
   ]},
   { name:'C', teams:[
     { flag:'🇧🇷', name:'Brasil',    pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0 },
@@ -97,26 +102,38 @@ export default function MundialScreen() {
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
     BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
-    Barlow_400Regular,
   });
 
   if (!fontsLoaded) return <View style={s.root} />;
 
   return (
     <View style={s.root}>
-      <View style={s.bgGlow} />
 
-      <View style={s.header}>
+      {/* HEADER */}
+      <LinearGradient colors={['#000','#0A0A0A']} style={s.header}>
         <View style={s.headerLeft}>
-          <Text style={s.headerIcon}>🌍</Text>
-          <Text style={s.headerTitle}>{t('mundial_title')}</Text>
+          <View style={s.headerIconBox}>
+            <Text style={{ fontSize:20 }}>🌍</Text>
+          </View>
+          <View>
+            <Text style={s.headerTitle}>{t('mundial_title')}</Text>
+            <Text style={s.headerSub}>FIFA WORLD CUP 2026</Text>
+          </View>
         </View>
-        <Text style={s.headerSub}>48 {t('mundial_teams')}</Text>
-      </View>
+        <View style={s.teamCountBadge}>
+          <Text style={s.teamCountNum}>48</Text>
+          <Text style={s.teamCountLbl}>{t('mundial_teams')}</Text>
+        </View>
+      </LinearGradient>
 
+      {/* TABS */}
       <View style={s.tabRow}>
         {TABS.map((tabName,i) => (
-          <TouchableOpacity key={i} style={[s.tab, tab===i && s.tabOn]} onPress={() => setTab(i)}>
+          <TouchableOpacity
+            key={i}
+            style={[s.tab, tab===i && s.tabOn]}
+            onPress={() => setTab(i)}
+          >
             <Text style={[s.tabTxt, tab===i && s.tabTxtOn]}>{tabName}</Text>
           </TouchableOpacity>
         ))}
@@ -124,16 +141,35 @@ export default function MundialScreen() {
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
+        {/* GRUPOS */}
         {tab === 0 && GROUPS.map(g => (
           <View key={g.name} style={s.groupCard}>
+
+            <LinearGradient
+              colors={['rgba(255,215,0,0.06)','transparent']}
+              start={{x:0.5,y:0}} end={{x:0.5,y:1}}
+              style={s.groupGlow}
+            />
+
             <TouchableOpacity
               style={s.groupHeader}
               onPress={() => setSelGroup(selGroup === g.name ? null : g.name)}
             >
-              <Text style={s.groupName}>GRUPO {g.name}</Text>
-              <Text style={s.groupArrow}>{selGroup === g.name ? '▲' : '▼'}</Text>
+              <View style={s.groupHeaderLeft}>
+                <LinearGradient
+                  colors={[C.gold, C.gold2]}
+                  style={s.groupLetterBox}
+                >
+                  <Text style={s.groupLetter}>{g.name}</Text>
+                </LinearGradient>
+                <Text style={s.groupName}>GRUPO {g.name}</Text>
+              </View>
+              <Text style={s.groupArrow}>
+                {selGroup === g.name ? '▲' : '▼'}
+              </Text>
             </TouchableOpacity>
 
+            {/* Preview teams */}
             <View style={s.groupPreview}>
               {g.teams.map((team,i) => (
                 <View key={i} style={s.previewTeam}>
@@ -143,6 +179,7 @@ export default function MundialScreen() {
               ))}
             </View>
 
+            {/* Expanded table */}
             {selGroup === g.name && (
               <View style={s.table}>
                 <View style={s.tableHeader}>
@@ -155,7 +192,14 @@ export default function MundialScreen() {
                   <Text style={[s.th, { color:C.gold }]}>PTS</Text>
                 </View>
                 {g.teams.map((team,i) => (
-                  <View key={i} style={[s.tableRow, i<2 && s.tableRowQ, i===g.teams.length-1 && {borderBottomWidth:0}]}>
+                  <View
+                    key={i}
+                    style={[
+                      s.tableRow,
+                      i < 2 && s.tableRowQ,
+                      i === g.teams.length-1 && { borderBottomWidth:0 }
+                    ]}
+                  >
                     <View style={[s.tdTeam, { flex:2 }]}>
                       <Text style={s.tdFlag}>{team.flag}</Text>
                       <Text style={s.tdName}>{team.name}</Text>
@@ -164,8 +208,10 @@ export default function MundialScreen() {
                     <Text style={s.td}>{team.g}</Text>
                     <Text style={s.td}>{team.e}</Text>
                     <Text style={s.td}>{team.p}</Text>
-                    <Text style={s.td}>{team.gf-team.gc>0?'+':''}{team.gf-team.gc}</Text>
-                    <Text style={[s.td, { color:C.gold, fontFamily:'BebasNeue_400Regular' }]}>{team.pts}</Text>
+                    <Text style={s.td}>{team.gf-team.gc > 0 ? '+' : ''}{team.gf-team.gc}</Text>
+                    <Text style={[s.td, { color:C.gold, fontFamily:'BebasNeue_400Regular', fontSize:14 }]}>
+                      {team.pts}
+                    </Text>
                   </View>
                 ))}
                 <View style={s.classifyLegend}>
@@ -177,22 +223,31 @@ export default function MundialScreen() {
           </View>
         ))}
 
+        {/* FIXTURE */}
         {tab === 1 && (
-          <View style={s.comingSoon}>
+          <LinearGradient
+            colors={['rgba(255,215,0,0.06)','rgba(255,215,0,0.02)']}
+            style={s.comingSoon}
+          >
             <Text style={s.comingSoonIcon}>📅</Text>
             <Text style={s.comingSoonTxt}>FIXTURE COMPLETO</Text>
             <Text style={s.comingSoonSub}>104 partidos · 16 ciudades sede</Text>
-            <Text style={s.comingSoonSub2}>Disponible al inicio del torneo</Text>
-          </View>
+            <Text style={s.comingSoonSub2}>Disponible al inicio del torneo · 11 jun 2026</Text>
+          </LinearGradient>
         )}
 
+        {/* EQUIPOS */}
         {tab === 2 && (
           <View style={s.teamsGrid}>
             {GROUPS.flatMap(g => g.teams).map((team,i) => (
-              <View key={i} style={s.teamCard}>
+              <LinearGradient
+                key={i}
+                colors={['rgba(255,255,255,0.04)','rgba(255,255,255,0.01)']}
+                style={s.teamCard}
+              >
                 <Text style={s.teamCardFlag}>{team.flag}</Text>
                 <Text style={s.teamCardName}>{team.name}</Text>
-              </View>
+              </LinearGradient>
             ))}
           </View>
         )}
@@ -203,46 +258,67 @@ export default function MundialScreen() {
 }
 
 const s = StyleSheet.create({
-  root:{ flex:1, backgroundColor:C.darker },
-  bgGlow:{ position:'absolute', width:350, height:350, borderRadius:175, top:-80, alignSelf:'center', backgroundColor:'rgba(255,215,0,0.08)' },
-  header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:13, paddingTop:48, paddingBottom:10 },
-  headerLeft:{ flexDirection:'row', alignItems:'center', gap:8 },
-  headerIcon:{ fontSize:17 },
-  headerTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:17, color:C.gold, letterSpacing:2 },
-  headerSub:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:2 },
-  tabRow:{ flexDirection:'row', paddingHorizontal:13, gap:6, marginBottom:10 },
-  tab:{ flex:1, paddingVertical:6, borderRadius:7, backgroundColor:C.surface, alignItems:'center', borderWidth:1, borderColor:C.border2 },
-  tabOn:{ backgroundColor:'rgba(255,215,0,0.1)', borderColor:C.border },
-  tabTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:1 },
+  root:{ flex:1, backgroundColor:C.bg },
+
+  // Header
+  header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:16, paddingTop:52, paddingBottom:14, borderBottomWidth:1, borderBottomColor:'rgba(255,215,0,0.1)' },
+  headerLeft:{ flexDirection:'row', alignItems:'center', gap:12 },
+  headerIconBox:{ width:40, height:40, borderRadius:12, backgroundColor:'rgba(255,215,0,0.1)', borderWidth:1, borderColor:'rgba(255,215,0,0.3)', alignItems:'center', justifyContent:'center' },
+  headerTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold, letterSpacing:3 },
+  headerSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted, letterSpacing:2 },
+  teamCountBadge:{ alignItems:'center' },
+  teamCountNum:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold },
+  teamCountLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2 },
+
+  // Tabs
+  tabRow:{ flexDirection:'row', paddingHorizontal:12, gap:8, marginVertical:10 },
+  tab:{ flex:1, paddingVertical:9, borderRadius:10, backgroundColor:'rgba(255,255,255,0.04)', alignItems:'center', borderWidth:1, borderColor:'rgba(255,255,255,0.06)' },
+  tabOn:{ backgroundColor:'rgba(255,215,0,0.1)', borderColor:'rgba(255,215,0,0.3)' },
+  tabTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.muted, letterSpacing:1 },
   tabTxtOn:{ color:C.gold },
-  scroll:{ paddingHorizontal:13, paddingBottom:40 },
-  groupCard:{ backgroundColor:C.surface2, borderWidth:1, borderColor:C.border2, borderRadius:11, marginBottom:8, overflow:'hidden' },
-  groupHeader:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', padding:11 },
-  groupName:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:C.gold, letterSpacing:2 },
+
+  scroll:{ paddingHorizontal:12, paddingBottom:40 },
+
+  // Group card
+  groupCard:{ backgroundColor:C.surface2, borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.15)', borderTopWidth:2, borderTopColor:C.gold, marginBottom:10, overflow:'hidden' },
+  groupGlow:{ position:'absolute', top:0, left:0, right:0, height:60 },
+  groupHeader:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', padding:14 },
+  groupHeaderLeft:{ flexDirection:'row', alignItems:'center', gap:10 },
+  groupLetterBox:{ width:32, height:32, borderRadius:8, alignItems:'center', justifyContent:'center' },
+  groupLetter:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:'#000' },
+  groupName:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.gold, letterSpacing:2 },
   groupArrow:{ fontSize:10, color:C.muted },
-  groupPreview:{ flexDirection:'row', paddingHorizontal:11, paddingBottom:10, gap:12, flexWrap:'wrap' },
-  previewTeam:{ flexDirection:'row', alignItems:'center', gap:4 },
-  previewFlag:{ fontSize:14 },
+
+  // Preview
+  groupPreview:{ flexDirection:'row', paddingHorizontal:14, paddingBottom:12, gap:12, flexWrap:'wrap' },
+  previewTeam:{ flexDirection:'row', alignItems:'center', gap:5 },
+  previewFlag:{ fontSize:16 },
   previewName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.muted2 },
-  table:{ borderTopWidth:1, borderTopColor:C.border2, padding:10 },
-  tableHeader:{ flexDirection:'row', paddingBottom:6, borderBottomWidth:1, borderBottomColor:C.border2 },
+
+  // Table
+  table:{ borderTopWidth:1, borderTopColor:'rgba(255,215,0,0.1)', padding:12 },
+  tableHeader:{ flexDirection:'row', paddingBottom:8, borderBottomWidth:1, borderBottomColor:'rgba(255,255,255,0.05)' },
   th:{ flex:1, fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, textAlign:'center', letterSpacing:0.5 },
-  tableRow:{ flexDirection:'row', paddingVertical:7, borderBottomWidth:1, borderBottomColor:C.border2, alignItems:'center' },
+  tableRow:{ flexDirection:'row', paddingVertical:8, borderBottomWidth:1, borderBottomColor:'rgba(255,255,255,0.04)', alignItems:'center' },
   tableRowQ:{ borderLeftWidth:2, borderLeftColor:C.green, paddingLeft:4 },
-  tdTeam:{ flexDirection:'row', alignItems:'center', gap:5 },
-  tdFlag:{ fontSize:14 },
+  tdTeam:{ flexDirection:'row', alignItems:'center', gap:6 },
+  tdFlag:{ fontSize:16 },
   tdName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.text },
   td:{ flex:1, fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:C.muted2, textAlign:'center' },
-  classifyLegend:{ flexDirection:'row', alignItems:'center', gap:4, marginTop:8 },
+  classifyLegend:{ flexDirection:'row', alignItems:'center', gap:6, marginTop:10 },
   classifyDot:{ width:8, height:8, borderRadius:2, backgroundColor:C.green },
   classifyTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted },
-  comingSoon:{ alignItems:'center', paddingTop:48, paddingBottom:32 },
-  comingSoonIcon:{ fontSize:48, marginBottom:12 },
-  comingSoonTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold, letterSpacing:3, marginBottom:6 },
+
+  // Coming soon
+  comingSoon:{ borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', padding:40, alignItems:'center', marginTop:8 },
+  comingSoonIcon:{ fontSize:48, marginBottom:16 },
+  comingSoonTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold, letterSpacing:3, marginBottom:8 },
   comingSoonSub:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.muted2, letterSpacing:1 },
-  comingSoonSub2:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:C.muted, marginTop:4 },
+  comingSoonSub2:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:C.muted, marginTop:6 },
+
+  // Teams grid
   teamsGrid:{ flexDirection:'row', flexWrap:'wrap', gap:8 },
-  teamCard:{ backgroundColor:C.surface, borderWidth:1, borderColor:C.border2, borderRadius:10, padding:10, alignItems:'center', width:'30%' },
-  teamCardFlag:{ fontSize:24, marginBottom:4 },
-  teamCardName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.text, textAlign:'center' },
+  teamCard:{ borderRadius:12, borderWidth:1, borderColor:'rgba(255,215,0,0.12)', padding:12, alignItems:'center', width:'31%' },
+  teamCardFlag:{ fontSize:26, marginBottom:6 },
+  teamCardName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:9, color:C.text, textAlign:'center' },
 });

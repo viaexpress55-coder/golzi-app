@@ -1,5 +1,7 @@
 {
-  "projects": {},
+  "projects": {
+    "default": "golzi-2026"
+  },
   "targets": {
     "golzi-2026": {
       "hosting": {

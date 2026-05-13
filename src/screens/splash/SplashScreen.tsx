@@ -52,11 +52,13 @@ export default function SplashScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const { t } = useTranslation();
   const [cd, setCD] = useState(getCD());
-  const [selectedLang, setSelectedLang] = useState(i18n.language);
+  const [selectedLang, setSelectedLang] = useState<string>('MX');
 
-  const floatAnim = useRef(new Animated.Value(0)).current;
-  const shineAnim = useRef(new Animated.Value(-1)).current;
-  const fadeAnim  = useRef(new Animated.Value(0)).current;
+  const floatAnim    = useRef(new Animated.Value(0)).current;
+  const shineAnim    = useRef(new Animated.Value(-1)).current;
+  const fadeAnim     = useRef(new Animated.Value(0)).current;
+  const stadiumFade  = useRef(new Animated.Value(0)).current;
+  const stadiumScale = useRef(new Animated.Value(1.08)).current;
 
   const fontsLoaded = useAppFonts();
 
@@ -76,6 +78,11 @@ export default function SplashScreen() {
 
     Animated.timing(fadeAnim, { toValue:1, duration:800, useNativeDriver:false }).start();
 
+    Animated.parallel([
+      Animated.timing(stadiumFade,  { toValue:1, duration:2000, useNativeDriver:false }),
+      Animated.timing(stadiumScale, { toValue:1, duration:2500, useNativeDriver:false }),
+    ]).start();
+
     return () => clearInterval(timer);
   }, []);
 
@@ -86,14 +93,18 @@ export default function SplashScreen() {
 
   function changeLang(lang: typeof LANGS[0]) {
     i18n.changeLanguage(lang.i18n);
-    setSelectedLang(lang.i18n);
+    setSelectedLang(lang.code);
   }
 
   return (
     <View style={s.root}>
       <View style={s.bgGlowGold} />
       <View style={s.bgGlowCyan} />
-      <View style={s.bgStadium} />
+      <Animated.Image
+        source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/assets%2FEstadio%20GOLZI%201.jpg?alt=media&token=002d06ce-4a3c-48fd-bccd-5a8bfa73b7a6' }}
+        style={[s.bgStadium, { opacity: stadiumFade, transform:[{ scale: stadiumScale }] }]}
+        resizeMode="cover"
+      />
 
       <Animated.View style={[s.inner, { opacity: fadeAnim }]}>
 
@@ -105,7 +116,10 @@ export default function SplashScreen() {
           />
         </Animated.View>
 
-        <Text style={s.tagline}>FIFA WORLD CUP 2026</Text>
+        <Text style={s.tagline}>MUNDIAL 2026</Text>
+
+        {/* Fechas */}
+        <Text style={s.dateRange}>11 JUN – 19 JUL 2026</Text>
 
         {/* Countdown */}
         <View style={s.cdRow}>
@@ -126,19 +140,21 @@ export default function SplashScreen() {
         <Text style={s.langTitle}>SELECCIONA TU IDIOMA</Text>
         <View style={s.langRow}>
           {LANGS.map(l => {
-            const isSelected = selectedLang === l.i18n;
+            const isSelected = selectedLang === l.code;
             return (
               <Pressable
                 key={l.code}
                 onPress={() => changeLang(l)}
                 style={[s.langBtn, isSelected && s.langBtnOn]}
               >
-                <Text style={[s.langFlag, isSelected && s.langFlagOn]}>
-                  {l.flag}
+                <Image
+                  source={{ uri: `https://flagcdn.com/w40/${l.code.toLowerCase()}.png` }}
+                  style={[s.langFlagImg, isSelected && { opacity:1, transform:[{ scale:1.2 }] }]}
+                  resizeMode="contain"
+                />
+                <Text style={[s.langName, !isSelected && s.langNameOff]}>
+                  {l.name}
                 </Text>
-                {isSelected && (
-                  <Text style={s.langName}>{l.name}</Text>
-                )}
               </Pressable>
             );
           })}
@@ -148,7 +164,7 @@ export default function SplashScreen() {
 
         <TouchableOpacity
           style={s.btnWrap}
-          onPress={() => navigation.navigate('Register')}
+          onPress={() => navigation.navigate('Onboarding')}
           activeOpacity={0.9}
         >
           <LinearGradient
@@ -188,8 +204,8 @@ const s = StyleSheet.create({
     backgroundColor:'rgba(0,198,255,0.06)',
   },
   bgStadium:{
-    position:'absolute', bottom:0, left:0, right:0, height:160,
-    backgroundColor:'rgba(0,48,135,0.3)',
+    position:'absolute', top:0, left:0, right:0, bottom:0,
+    opacity:0.35,
   },
   inner:{
     flex:1, alignItems:'center', justifyContent:'center',
@@ -200,6 +216,13 @@ const s = StyleSheet.create({
     fontFamily:'BarlowCondensed_600SemiBold',
     fontSize:11, letterSpacing:5, color:C.muted,
     textTransform:'uppercase', marginBottom:14,
+  },
+  dateRange:{
+    fontFamily:'BarlowCondensed_600SemiBold',
+    fontSize:11, color:C.cyan, letterSpacing:3,
+    marginBottom:6, textTransform:'uppercase',
+    backgroundColor:'rgba(0,0,0,0.4)',
+    paddingHorizontal:10, paddingVertical:3, borderRadius:6,
   },
   cdRow:{ flexDirection:'row', gap:8, marginBottom:14 },
   cdUnit:{
@@ -215,7 +238,9 @@ const s = StyleSheet.create({
   langBtnOn:{ borderColor:'rgba(255,215,0,0.4)', backgroundColor:'rgba(255,215,0,0.08)' },
   langFlag:{ fontSize:22, opacity:0.4 },
   langFlagOn:{ opacity:1, transform:[{ scale:1.2 }] },
+  langFlagImg:{ width:32, height:22, borderRadius:3, opacity:0.5 },
   langName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.gold, letterSpacing:0.5, marginTop:2 },
+  langNameOff:{ color:C.muted, opacity:0.6 },
   infoTxt:{
     fontFamily:'BarlowCondensed_700Bold',
     fontSize:11, color:C.gold, letterSpacing:2,

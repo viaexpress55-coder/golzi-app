@@ -29,13 +29,7 @@
     "plugins": [
       "@react-native-google-signin/google-signin",
       "expo-font",
-      [
-        "@stripe/stripe-react-native",
-        {
-          "merchantIdentifier": "merchant.com.golzi.app",
-          "enableGooglePay": true
-        }
-      ],
+      
       "expo-localization"
     ],
     "extra": {

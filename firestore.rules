@@ -2,40 +2,106 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Usuarios — lectura pública del ranking, escritura solo el propio usuario
+    // ==========================================
+    // USUARIOS — solo leen/escriben sus propios datos
+    // ==========================================
     match /users/{userId} {
-      allow read: if true;
+      allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Partidos — solo lectura pública
+    // ==========================================
+    // PARTIDOS — lectura pública, escritura solo backend
+    // ==========================================
     match /matches/{matchId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Predicciones — lectura y escritura solo autenticados
+    // ==========================================
+    // PREDICCIONES — solo el usuario dueño
+    // ==========================================
     match /predictions/{predId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow read: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.homeScore is int &&
+        request.resource.data.awayScore is int &&
+        request.resource.data.homeScore >= 0 &&
+        request.resource.data.awayScore >= 0 &&
+        request.resource.data.homeScore <= 20 &&
+        request.resource.data.awayScore <= 20;
+      allow update: if false;
+      allow delete: if false;
     }
 
-    // Ligas — lectura pública, escritura autenticados
+    // ==========================================
+    // LIGAS — lectura autenticada, escritura controlada
+    // ==========================================
     match /leagues/{leagueId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && 
+        resource.data.ownerId == request.auth.uid;
+      allow delete: if false;
+
+      // Chat por liga
+      match /messages/{messageId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null &&
+          request.resource.data.userId == request.auth.uid &&
+          request.resource.data.text.size() <= 200;
+        allow delete: if request.auth != null &&
+          resource.data.userId == request.auth.uid;
+      }
+
+      // Miembros de la liga
+      match /members/{memberId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null;
+      }
     }
 
-    // Torneos — solo lectura pública
+    // ==========================================
+    // TORNEOS — solo lectura
+    // ==========================================
     match /tournaments/{tournamentId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Negocios — solo lectura pública
-    match /businesses/{businessId} {
+    // ==========================================
+    // LIVE MATCHES — lectura pública
+    // ==========================================
+    match /live_matches/{matchId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if false;
     }
+
+    // ==========================================
+    // LEADS — escritura pública (formularios landing)
+    // ==========================================
+    match /leads/{leadId} {
+      allow read: if false;
+      allow create: if true;
+    }
+
+    // ==========================================
+    // BUSINESS LEADS — escritura pública
+    // ==========================================
+    match /business_leads/{leadId} {
+      allow read: if false;
+      allow create: if true;
+    }
+
+    // ==========================================
+    // BUSINESSES — solo backend
+    // ==========================================
+    match /businesses/{businessId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
   }
 }

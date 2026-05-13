@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Animated, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
@@ -9,28 +9,19 @@ import { db } from '../../services/firebase';
 import { startAutoSync, stopAutoSync } from '../../services/footballApi';
 
 const C = {
-  bg:        '#000000',
-  surface2:  '#111111',
-  gold:      '#FFD700',
-  gold2:     '#FFA500',
-  goldBorder:'rgba(255,215,0,0.3)',
-  text:      '#FFFFFF',
-  muted:     '#888888',
-  muted2:    '#AAAAAA',
-  green:     '#00FF87',
-  red:       '#FF3355',
-  cyan:      '#00C6FF',
+  bg:'#020408', dark:'#05080F', surface:'#0A0F1A', surface2:'#0F1520',
+  gold:'#FFD700', gold2:'#FFA500', goldBorder:'rgba(255,215,0,0.25)',
+  text:'#FFFFFF', muted:'#6B7A99', muted2:'#9AAABB',
+  green:'#00FF87', red:'#FF3355', cyan:'#00C6FF',
 };
 
 function LiveBadge({ minute }: { minute?: number | null }) {
   const pulse = useRef(new Animated.Value(1)).current;
   useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, { toValue:0.2, duration:600, useNativeDriver:true }),
-        Animated.timing(pulse, { toValue:1,   duration:600, useNativeDriver:true }),
-      ])
-    ).start();
+    Animated.loop(Animated.sequence([
+      Animated.timing(pulse, { toValue:0.2, duration:600, useNativeDriver:true }),
+      Animated.timing(pulse, { toValue:1, duration:600, useNativeDriver:true }),
+    ])).start();
   }, []);
   return (
     <View style={s.liveBadge}>
@@ -40,28 +31,16 @@ function LiveBadge({ minute }: { minute?: number | null }) {
   );
 }
 
-function EventIcon({ type }: { type: string }) {
-  const icons: Record<string,string> = {
-    'GOAL':'⚽','YELLOW_CARD':'🟨','RED_CARD':'🟥',
-    'SUBSTITUTION':'🔄','PENALTY':'⚽','OWN_GOAL':'⚽',
-    'VAR':'📺','GOL':'⚽','AMARILLA':'🟨','ROJA':'🟥',
-  };
-  return <Text style={{ fontSize:14 }}>{icons[type] || '📌'}</Text>;
-}
-
 function Scoreboard({ match }: { match: any }) {
   const scoreAnim = useRef(new Animated.Value(1)).current;
   const prevScore = useRef({ home:match.homeScore, away:match.awayScore });
 
   useEffect(() => {
-    if (
-      prevScore.current.home !== match.homeScore ||
-      prevScore.current.away !== match.awayScore
-    ) {
+    if (prevScore.current.home !== match.homeScore || prevScore.current.away !== match.awayScore) {
       Animated.sequence([
         Animated.timing(scoreAnim, { toValue:1.4, duration:200, useNativeDriver:true }),
         Animated.timing(scoreAnim, { toValue:0.9, duration:100, useNativeDriver:true }),
-        Animated.timing(scoreAnim, { toValue:1,   duration:150, useNativeDriver:true }),
+        Animated.timing(scoreAnim, { toValue:1, duration:150, useNativeDriver:true }),
       ]).start();
       prevScore.current = { home:match.homeScore, away:match.awayScore };
     }
@@ -72,41 +51,25 @@ function Scoreboard({ match }: { match: any }) {
 
   return (
     <View style={s.scoreCard}>
-
-      {/* Gold glow top */}
       <LinearGradient
-        colors={isLive
-          ? ['rgba(255,51,85,0.12)','transparent']
-          : ['rgba(255,215,0,0.06)','transparent']
-        }
+        colors={isLive ? ['rgba(255,51,85,0.15)','transparent'] : ['rgba(255,215,0,0.08)','transparent']}
         start={{x:0.5,y:0}} end={{x:0.5,y:1}}
         style={s.scoreCardGlow}
       />
-
-      {/* Top line */}
       <View style={[s.scoreTopLine, { backgroundColor: isLive ? C.red : C.gold }]} />
-
-      {/* Venue */}
-      <Text style={s.scoreVenue}>
-        {match.venue || match.stadium || 'ESTADIO'} · {match.competition || 'FIFA WORLD CUP 2026'}
-      </Text>
-
-      {/* Status badge */}
+      <Text style={s.scoreVenue}>{match.venue || match.stadium || 'ESTADIO'} · MUNDIAL 2026</Text>
       {isLive && <LiveBadge minute={match.minute} />}
       {isFinished && (
         <View style={s.finishedBadge}>
           <Text style={s.finishedTxt}>FINAL</Text>
         </View>
       )}
-
-      {/* Teams & Score */}
       <View style={s.scoreRow}>
         <View style={s.scoreTeam}>
-          <Text style={s.scoreFlag}>{match.homeFlag || '🏳'}</Text>
+          <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(match.homeFlag)}.png` }} style={s.scoreFlagImg} resizeMode="contain" />
           <Text style={s.scoreCode}>{(match.homeTeam||'').slice(0,3).toUpperCase()}</Text>
           <Text style={s.scoreName}>{match.homeTeam}</Text>
         </View>
-
         <View style={s.scoreCenter}>
           {match.homeScore !== null && match.awayScore !== null ? (
             <Animated.View style={[s.scoreBox, { transform:[{ scale:scoreAnim }] }]}>
@@ -115,9 +78,9 @@ function Scoreboard({ match }: { match: any }) {
               <Text style={s.scoreNum}>{match.awayScore}</Text>
             </Animated.View>
           ) : (
-            <View style={s.vsCircle}>
+            <LinearGradient colors={['rgba(255,215,0,0.12)','rgba(255,215,0,0.04)']} style={s.vsCircle}>
               <Text style={s.vsTxt}>VS</Text>
-            </View>
+            </LinearGradient>
           )}
           {isLive && (
             <View style={s.minRow}>
@@ -126,21 +89,17 @@ function Scoreboard({ match }: { match: any }) {
             </View>
           )}
         </View>
-
         <View style={s.scoreTeam}>
-          <Text style={s.scoreFlag}>{match.awayFlag || '🏳'}</Text>
+          <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(match.awayFlag)}.png` }} style={s.scoreFlagImg} resizeMode="contain" />
           <Text style={s.scoreCode}>{(match.awayTeam||'').slice(0,3).toUpperCase()}</Text>
           <Text style={s.scoreName}>{match.awayTeam}</Text>
         </View>
       </View>
-
-      {/* Events feed */}
       {match.events && match.events.length > 0 && (
         <View style={s.eventFeed}>
           {match.events.map((e: any, i: number) => (
             <View key={i} style={s.eventRow}>
               <Text style={s.eventMin}>{e.minute}'</Text>
-              <EventIcon type={e.type} />
               <Text style={s.eventTxt} numberOfLines={1}>{e.player} — {e.detail || e.type}</Text>
             </View>
           ))}
@@ -150,11 +109,29 @@ function Scoreboard({ match }: { match: any }) {
   );
 }
 
+function getFlagCode(flag: string): string {
+  const codes: Record<string, string> = {
+    '🇲🇽':'mx', '🇿🇦':'za', '🇰🇷':'kr', '🇨🇿':'cz',
+    '🇨🇦':'ca', '🇧🇦':'ba', '🇶🇦':'qa', '🇨🇭':'ch',
+    '🇧🇷':'br', '🇲🇦':'ma', '🇭🇹':'ht', '🇺🇸':'us',
+    '🇵🇾':'py', '🇦🇺':'au', '🇹🇷':'tr', '🇩🇪':'de',
+    '🇨🇼':'cw', '🇨🇮':'ci', '🇪🇨':'ec', '🇳🇱':'nl',
+    '🇯🇵':'jp', '🇹🇳':'tn', '🇸🇪':'se', '🇧🇪':'be',
+    '🇪🇬':'eg', '🇮🇷':'ir', '🇳🇿':'nz', '🇪🇸':'es',
+    '🇨🇻':'cv', '🇸🇦':'sa', '🇺🇾':'uy', '🇫🇷':'fr',
+    '🇸🇳':'sn', '🇳🇴':'no', '🇮🇶':'iq', '🇦🇷':'ar',
+    '🇩🇿':'dz', '🇦🇹':'at', '🇯🇴':'jo', '🇵🇹':'pt',
+    '🇨🇩':'cd', '🇺🇿':'uz', '🇨🇴':'co', '🇭🇷':'hr',
+    '🇬🇭':'gh', '🇵🇦':'pa', '🏴󠁧󠁢󠁳󠁣󠁴󠁿':'gb-sct', '🏴󠁧󠁢󠁥󠁮󠁧󠁿':'gb-eng',
+    '🌍':'un',
+  };
+  return codes[flag] || 'un';
+}
+
 export default function LiveScreen() {
   const { t } = useTranslation();
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
@@ -168,14 +145,6 @@ export default function LiveScreen() {
       setLiveMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
       setLoading(false);
     });
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, { toValue:1.05, duration:1000, useNativeDriver:true }),
-        Animated.timing(pulseAnim, { toValue:1,    duration:1000, useNativeDriver:true }),
-      ])
-    ).start();
-
     return () => { unsub(); stopAutoSync(); };
   }, []);
 
@@ -184,20 +153,29 @@ export default function LiveScreen() {
   const live     = liveMatches.filter(m => m.status==='IN_PLAY' || m.status==='PAUSED');
   const today    = liveMatches.filter(m => m.status==='SCHEDULED' || m.status==='TIMED');
   const finished = liveMatches.filter(m => m.status==='FINISHED').slice(-3);
-  const isEmpty  = !loading && liveMatches.length === 0;
+  const isEmpty  = liveMatches.length === 0;
+
+  const UPCOMING = [
+    { home:'🇲🇽', homeCode:'MEX', away:'🇿🇦', awayCode:'RSA', time:'11 Jun · 14:00', stadium:'Estadio Azteca' },
+    { home:'🇫🇷', homeCode:'FRA', away:'🇩🇪', awayCode:'GER', time:'11 Jun · 17:00', stadium:'AT&T Stadium' },
+    { home:'🇧🇷', homeCode:'BRA', away:'🇦🇷', awayCode:'ARG', time:'11 Jun · 20:00', stadium:'MetLife Stadium' },
+    { home:'🇪🇸', homeCode:'ESP', away:'🇵🇹', awayCode:'POR', time:'12 Jun · 15:00', stadium:'Rose Bowl' },
+  ];
 
   return (
     <View style={s.root}>
 
       {/* HEADER */}
-      <LinearGradient colors={['#000','#0A0A0A']} style={s.header}>
+      <LinearGradient colors={['#020408','#05080F']} style={s.header}>
+        <View style={s.topLine} />
         <View style={s.headerLeft}>
-          <View style={s.headerIconBox}>
-            <Text style={{ fontSize:20 }}>📡</Text>
-          </View>
+          <Image
+            source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
+            style={s.headerLogo} resizeMode="contain"
+          />
           <View>
             <Text style={s.headerTitle}>{t('live_title')}</Text>
-            <Text style={s.headerSub}>FIFA WORLD CUP 2026</Text>
+            <Text style={s.headerSub}>MUNDIAL 2026</Text>
           </View>
         </View>
         {live.length > 0 && (
@@ -210,7 +188,6 @@ export default function LiveScreen() {
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* EN VIVO */}
         {live.length > 0 && (
           <View>
             <View style={s.sectionHeader}>
@@ -221,27 +198,20 @@ export default function LiveScreen() {
           </View>
         )}
 
-        {/* HOY */}
         {today.length > 0 && (
           <View>
             <View style={s.sectionHeader}>
               <Text style={s.sectionLabel}>{t('live_other_matches')}</Text>
             </View>
             {today.map((m,i) => (
-              <LinearGradient
-                key={i}
-                colors={['rgba(255,255,255,0.04)','rgba(255,255,255,0.01)']}
-                style={s.miniCard}
-              >
+              <LinearGradient key={i} colors={['rgba(255,255,255,0.04)','rgba(255,255,255,0.01)']} style={s.miniCard}>
                 <View style={s.miniTeamBox}>
                   <Text style={s.miniFlag}>{m.homeFlag || '🏳'}</Text>
                   <Text style={s.miniName}>{m.homeTeam}</Text>
                 </View>
                 <View style={s.miniCenter}>
                   <Text style={s.miniVs}>VS</Text>
-                  <Text style={s.miniTime}>
-                    {m.utcDate ? new Date(m.utcDate).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}
-                  </Text>
+                  <Text style={s.miniTime}>{m.utcDate ? new Date(m.utcDate).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}</Text>
                 </View>
                 <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
                   <Text style={s.miniFlag}>{m.awayFlag || '🏳'}</Text>
@@ -252,18 +222,13 @@ export default function LiveScreen() {
           </View>
         )}
 
-        {/* RECIENTES */}
         {finished.length > 0 && (
           <View>
             <View style={s.sectionHeader}>
               <Text style={s.sectionLabel}>RESULTADOS RECIENTES</Text>
             </View>
             {finished.map((m,i) => (
-              <LinearGradient
-                key={i}
-                colors={['rgba(0,255,135,0.05)','rgba(0,255,135,0.01)']}
-                style={[s.miniCard, { borderColor:'rgba(0,255,135,0.1)' }]}
-              >
+              <LinearGradient key={i} colors={['rgba(0,255,135,0.06)','rgba(0,255,135,0.01)']} style={[s.miniCard, { borderColor:'rgba(0,255,135,0.15)' }]}>
                 <View style={s.miniTeamBox}>
                   <Text style={s.miniFlag}>{m.homeFlag || '🏳'}</Text>
                   <Text style={s.miniName}>{m.homeTeam}</Text>
@@ -283,19 +248,39 @@ export default function LiveScreen() {
 
         {/* EMPTY STATE */}
         {isEmpty && (
-          <Animated.View style={[s.emptyBox, { transform:[{ scale:pulseAnim }] }]}>
-            <LinearGradient
-              colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']}
-              style={s.emptyCard}
-            >
-              <Text style={s.emptyIcon}>📡</Text>
+          <View style={s.emptyBox}>
+            <LinearGradient colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']} style={s.emptyCard}>
+              <Image
+                source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
+                style={s.emptyLogo} resizeMode="contain"
+              />
               <Text style={s.emptyTitle}>SIN PARTIDOS EN VIVO</Text>
-              <Text style={s.emptySub}>Los partidos aparecen automáticamente</Text>
-              <Text style={s.emptySub}>cuando empiecen</Text>
+              <Text style={s.emptySub}>Los partidos aparecen automáticamente cuando empiecen</Text>
               <View style={s.emptyDivider} />
-              <Text style={s.emptyDate}>⚽ Próximo partido: 11 jun 2026</Text>
+              <Text style={s.emptyDate}>⚡ Próximo partido: 11 jun 2026</Text>
             </LinearGradient>
-          </Animated.View>
+
+            <View style={s.sectionHeader}>
+              <Text style={s.sectionLabel}>PRÓXIMOS PARTIDOS</Text>
+            </View>
+            {UPCOMING.map((m, i) => (
+              <LinearGradient key={i} colors={['rgba(255,255,255,0.04)','rgba(255,255,255,0.01)']} style={s.miniCard}>
+                <View style={s.miniTeamBox}>
+                  <Text style={s.miniFlag}>{m.home}</Text>
+                  <Text style={s.miniName}>{m.homeCode}</Text>
+                </View>
+                <View style={s.miniCenter}>
+                  <Text style={s.miniVs}>VS</Text>
+                  <Text style={s.miniTime}>{m.time}</Text>
+                  <Text style={s.miniStadium}>{m.stadium}</Text>
+                </View>
+                <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
+                  <Text style={s.miniFlag}>{m.away}</Text>
+                  <Text style={s.miniName}>{m.awayCode}</Text>
+                </View>
+              </LinearGradient>
+            ))}
+          </View>
         )}
 
       </ScrollView>
@@ -305,11 +290,11 @@ export default function LiveScreen() {
 
 const s = StyleSheet.create({
   root:{ flex:1, backgroundColor:C.bg },
+  topLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:'rgba(255,215,0,0.5)' },
 
-  // Header
-  header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:16, paddingTop:52, paddingBottom:14, borderBottomWidth:1, borderBottomColor:'rgba(255,215,0,0.1)' },
-  headerLeft:{ flexDirection:'row', alignItems:'center', gap:12 },
-  headerIconBox:{ width:40, height:40, borderRadius:12, backgroundColor:'rgba(255,215,0,0.1)', borderWidth:1, borderColor:'rgba(255,215,0,0.3)', alignItems:'center', justifyContent:'center' },
+  header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:16, paddingTop:52, paddingBottom:14, borderBottomWidth:1, borderBottomColor:'rgba(255,215,0,0.15)', position:'relative' },
+  headerLeft:{ flexDirection:'row', alignItems:'center', gap:10 },
+  headerLogo:{ width:36, height:36 },
   headerTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold, letterSpacing:3 },
   headerSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted, letterSpacing:2 },
   liveCountBadge:{ backgroundColor:'rgba(255,51,85,0.12)', borderRadius:10, borderWidth:1, borderColor:'rgba(255,51,85,0.3)', padding:10, alignItems:'center' },
@@ -318,27 +303,22 @@ const s = StyleSheet.create({
 
   scroll:{ paddingHorizontal:12, paddingBottom:40 },
 
-  // Section header
   sectionHeader:{ flexDirection:'row', alignItems:'center', gap:8, marginTop:14, marginBottom:8 },
   sectionDot:{ width:8, height:8, borderRadius:4, backgroundColor:C.red },
   sectionLabel:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3 },
 
-  // Score card
-  scoreCard:{ backgroundColor:C.surface2, borderRadius:18, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', marginBottom:12, overflow:'hidden' },
+  scoreCard:{ backgroundColor:C.surface2, borderRadius:18, borderWidth:1, borderColor:'rgba(255,215,0,0.15)', marginBottom:12, overflow:'hidden' },
   scoreCardGlow:{ position:'absolute', top:0, left:0, right:0, height:80 },
-  scoreTopLine:{ height:3 },
+  scoreTopLine:{ height:2 },
   scoreVenue:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2, textAlign:'center', paddingTop:10, paddingBottom:6 },
 
-  // Live badge
   liveBadge:{ flexDirection:'row', alignItems:'center', gap:5, backgroundColor:'rgba(255,51,85,0.12)', borderWidth:1, borderColor:'rgba(255,51,85,0.3)', borderRadius:20, alignSelf:'center', paddingHorizontal:12, paddingVertical:4, marginBottom:6 },
   liveDot:{ width:8, height:8, borderRadius:4, backgroundColor:C.red },
   liveTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.red, letterSpacing:1 },
 
-  // Finished badge
   finishedBadge:{ backgroundColor:'rgba(136,136,136,0.1)', borderRadius:20, alignSelf:'center', paddingHorizontal:12, paddingVertical:4, marginBottom:6, borderWidth:1, borderColor:'rgba(136,136,136,0.2)' },
   finishedTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.muted, letterSpacing:2 },
 
-  // Score row
   scoreRow:{ flexDirection:'row', alignItems:'center', paddingHorizontal:14, paddingBottom:14, paddingTop:4 },
   scoreTeam:{ flex:1, alignItems:'center', gap:6 },
   scoreFlag:{ fontSize:44 },
@@ -348,19 +328,17 @@ const s = StyleSheet.create({
   scoreBox:{ flexDirection:'row', alignItems:'center', gap:8, backgroundColor:'rgba(255,215,0,0.06)', borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', paddingHorizontal:16, paddingVertical:10 },
   scoreNum:{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:C.text, lineHeight:56 },
   scoreDash:{ fontFamily:'BebasNeue_400Regular', fontSize:32, color:C.muted },
-  vsCircle:{ width:72, height:72, borderRadius:36, backgroundColor:'rgba(255,215,0,0.08)', borderWidth:2, borderColor:C.gold, alignItems:'center', justifyContent:'center' },
+  vsCircle:{ width:72, height:72, borderRadius:36, borderWidth:2, borderColor:C.goldBorder, alignItems:'center', justifyContent:'center' },
   vsTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:C.gold },
   minRow:{ flexDirection:'row', alignItems:'center', gap:5, marginTop:6 },
   minDot:{ width:8, height:8, borderRadius:4, backgroundColor:C.red },
   minTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:13, color:C.red, letterSpacing:1 },
 
-  // Events
   eventFeed:{ borderTopWidth:1, borderTopColor:'rgba(255,215,0,0.1)', padding:12, gap:8 },
   eventRow:{ flexDirection:'row', alignItems:'center', gap:10 },
   eventMin:{ fontFamily:'BebasNeue_400Regular', fontSize:14, color:C.gold, width:28 },
   eventTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.muted2, flex:1 },
 
-  // Mini cards
   miniCard:{ borderRadius:14, borderWidth:1, borderColor:'rgba(255,255,255,0.06)', padding:14, flexDirection:'row', alignItems:'center', marginBottom:8 },
   miniTeamBox:{ flex:1, alignItems:'flex-start', gap:4 },
   miniFlag:{ fontSize:22 },
@@ -368,13 +346,13 @@ const s = StyleSheet.create({
   miniCenter:{ alignItems:'center', paddingHorizontal:12 },
   miniVs:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:C.muted },
   miniTime:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.cyan },
+  miniStadium:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted, marginTop:2 },
   miniScore:{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:C.green },
   miniFinal:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2 },
 
-  // Empty state
-  emptyBox:{ marginTop:40, paddingHorizontal:4 },
-  emptyCard:{ borderRadius:20, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', padding:40, alignItems:'center' },
-  emptyIcon:{ fontSize:56, marginBottom:16 },
+  emptyBox:{ marginTop:20, paddingHorizontal:4 },
+  emptyCard:{ borderRadius:20, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', padding:32, alignItems:'center', marginBottom:8 },
+  emptyLogo:{ width:70, height:70, marginBottom:16 },
   emptyTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:C.gold, letterSpacing:3, marginBottom:10 },
   emptySub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted, textAlign:'center' },
   emptyDivider:{ width:40, height:1, backgroundColor:'rgba(255,215,0,0.2)', marginVertical:16 },

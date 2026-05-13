@@ -1,9 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import SplashScreen from '../screens/splash/SplashScreen';
+import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import RegisterScreen from '../screens/register/RegisterScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import PlansScreen from '../screens/plans/PlansScreen';
@@ -16,12 +18,13 @@ import LoginScreen from '../screens/auth/LoginScreen';
 import PaymentScreen from '../screens/plans/PaymentScreen';
 
 export type RootStackParams = {
-  Splash:   undefined;
-  Register: undefined;
-  Plans:    undefined;
-  Main:     undefined;
-  Login:    undefined;
-  Payment: undefined;
+  Splash:      undefined;
+  Onboarding:  undefined;
+  Register:    undefined;
+  Plans:       undefined;
+  Main:        undefined;
+  Login:       undefined;
+  Payment:     undefined;
 };
 
 export type MainTabParams = {
@@ -57,6 +60,7 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
 }
 
 function MainTabs() {
+  const { t } = useTranslation();
   return (
     <Tab.Navigator
       screenOptions={{
@@ -82,7 +86,7 @@ function MainTabs() {
       <Tab.Screen
         name="Predictor"
         options={{
-          tabBarLabel: 'Predecir',
+          tabBarLabel: t('home_predict'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="⚽" focused={focused} />,
         }}
       >
@@ -92,7 +96,7 @@ function MainTabs() {
       <Tab.Screen
         name="Live"
         options={{
-          tabBarLabel: 'En Vivo',
+          tabBarLabel: t('live_title'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="📡" focused={focused} />,
         }}
       >
@@ -102,7 +106,7 @@ function MainTabs() {
       <Tab.Screen
         name="Ranking"
         options={{
-          tabBarLabel: 'Ranking',
+          tabBarLabel: t('ranking_title'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} />,
         }}
       >
@@ -112,7 +116,7 @@ function MainTabs() {
       <Tab.Screen
         name="Mundial"
         options={{
-          tabBarLabel: 'Mundial',
+          tabBarLabel: t('mundial_title'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="🌍" focused={focused} />,
         }}
       >
@@ -122,7 +126,7 @@ function MainTabs() {
       <Tab.Screen
         name="Liga"
         options={{
-          tabBarLabel: 'Liga',
+          tabBarLabel: t('liga_title'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="🔗" focused={focused} />,
         }}
       >
@@ -132,7 +136,7 @@ function MainTabs() {
       <Tab.Screen
         name="Perfil"
         options={{
-          tabBarLabel: 'Perfil',
+          tabBarLabel: t('profile_tab'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
         }}
       >
@@ -143,10 +147,12 @@ function MainTabs() {
 }
 
 export default function AppNavigator() {
+  const { t } = useTranslation();
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Splash"    component={SplashScreen}   />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Register"  component={RegisterScreen}  />
         <Stack.Screen name="Plans"     component={PlansScreen}     />
         <Stack.Screen name="Login"     component={LoginScreen}     />

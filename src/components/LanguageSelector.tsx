@@ -4,6 +4,8 @@ import {
   Modal, ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import i18n from '../locales/i18n';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LANGUAGES = [
   { code: 'es', name: 'Español', flag: '🇪🇸', countries: 'Colombia, México, Argentina...' },
@@ -32,7 +34,10 @@ export default function LanguageSelector() {
 
   const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
 
-  function changeLanguage(code: string) {
+ async function changeLanguage(code: string) {
+    try {
+      await AsyncStorage.setItem('golzi_language', code);
+    } catch {}
     i18n.changeLanguage(code);
     setVisible(false);
   }

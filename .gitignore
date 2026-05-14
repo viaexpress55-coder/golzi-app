@@ -42,4 +42,5 @@ yarn-error.*
 
 # Firebase service account keys - NEVER commit
 service-account.json
-*-adminsdk-*.json
+*-adminsdk-*.jsonserviceAccountKey.json.json 
+serviceAccountKey.json.json 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, TextInput, ActivityIndicator, Animated, Image, Modal
+  TouchableOpacity, TextInput, ActivityIndicator, Animated, Image, Modal,
+  RefreshControl,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from 'firebase/firestore';
@@ -13,7 +14,7 @@ import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondense
 import { Barlow_400Regular, Barlow_500Medium } from '@expo-google-fonts/barlow';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../locales/i18n';
-import { getUpcomingMatches, getLiveMatches, formatApiMatch } from '../../services/footballApi';
+import { getUpcomingMatches, getLiveMatches, formatApiMatch, refreshMatches } from '../../services/footballApi';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
@@ -188,6 +189,7 @@ export default function HomeScreen() {
 
   const [matches, setMatches]       = useState<any[]>([]);
   const [loading, setLoading]       = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selected, setSelected]     = useState<string|null>(null);
   const [scores, setScores]         = useState<Record<string,[string,string]>>({});
   const [confirmed, setConfirmed]   = useState<Record<string,boolean>>({});
@@ -231,28 +233,38 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    async function loadMatches() {
-      try {
-        const [live, upcoming] = await Promise.all([getLiveMatches(), getUpcomingMatches(8)]);
-        const api = [...live, ...upcoming];
-        if (api.length > 0) { setMatches(api.map(formatApiMatch)); }
-        else {
-          const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
-          const snap = await getDocs(q);
-          setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
-        }
-      } catch {
-        try {
-          const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
-          const snap = await getDocs(q);
-          setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
-        } catch {}
-      } finally { setLoading(false); }
-    }
     loadMatches();
     const timer = setInterval(() => forceUpdate(n => n+1), 60000);
     return () => clearInterval(timer);
   }, []);
+
+  async function loadMatches(forceRefresh = false) {
+    try {
+      if (forceRefresh) await refreshMatches();
+      const [live, upcoming] = await Promise.all([getLiveMatches(), getUpcomingMatches(8)]);
+      const api = [...live, ...upcoming];
+      if (api.length > 0) { setMatches(api.map(formatApiMatch)); }
+      else {
+        const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
+        const snap = await getDocs(q);
+        setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
+      }
+    } catch {
+      try {
+        const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
+        const snap = await getDocs(q);
+        setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
+      } catch {}
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }
+
+  async function onRefresh() {
+    setRefreshing(true);
+    await loadMatches(true);
+  }
 
   function getScore(id:string):[string,string] { return scores[id]||['','']; }
   function setScore(id:string, side:0|1, val:string) {
@@ -448,7 +460,11 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </LinearGradient>
 
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.gold} colors={[C.gold]} />
+        }
+      >
 
         {/* STATS BANNER */}
         <LinearGradient colors={['rgba(255,215,0,0.1)','rgba(255,215,0,0.03)']} start={{x:0,y:0}} end={{x:1,y:0}} style={s.statsBanner}>

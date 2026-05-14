@@ -170,12 +170,10 @@ export default function PostMatchSummary() {
     });
 
     // Escuchar predicciones que acaban de ser calculadas (últimas 24h)
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const q = query(
       collection(db, 'predictions'),
       where('userId', '==', user.uid),
       where('status', 'in', ['correct_exact','correct_result','correct_draw','incorrect']),
-      where('calculatedAt', '>=', since),
       orderBy('calculatedAt', 'desc'),
       limit(5)
     );

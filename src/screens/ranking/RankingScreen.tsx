@@ -7,6 +7,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParams } from '../../navigation/AppNavigator';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../services/firebase';
+import { getAuth } from 'firebase/auth';
 
 const C = {
   bg:'#020408', dark:'#05080F', surface:'#0A0F1A', surface2:'#0F1520',
@@ -15,17 +21,36 @@ const C = {
   text:'#FFFFFF', muted:'#6B7A99', muted2:'#9AAABB',
   green:'#00FF87', red:'#FF3355', cyan:'#00C6FF',
   silver:'#C0C0C0', bronze:'#CD7F32',
+  purple:'#A855F7',
 };
 
+// ─── Límite de ranking para FREE ─────────────────────────────────────────────
+const FREE_RANK_LIMIT = 20;
+
 const MOCK_PLAYERS = [
-  { id:'1', username:'Rafa_Predictor', country:'🇧🇷', pts:487, exact:12, plan:'PRO',    streak:8 },
-  { id:'2', username:'CarlosGol',      country:'🇨🇴', pts:421, exact:9,  plan:'LIGA',   streak:5 },
-  { id:'3', username:'FutbolRey',      country:'🇲🇽', pts:398, exact:8,  plan:'LIGA',   streak:3 },
-  { id:'4', username:'SambaBR',        country:'🇧🇷', pts:312, exact:6,  plan:'PLAYER', streak:2 },
-  { id:'5', username:'TigreCol',       country:'🇨🇴', pts:287, exact:5,  plan:'PLAYER', streak:1 },
-  { id:'6', username:'EagleMX',        country:'🇲🇽', pts:201, exact:4,  plan:'PLAYER', streak:0 },
-  { id:'7', username:'GoalKing',       country:'🇦🇷', pts:189, exact:3,  plan:'FREE',   streak:0 },
-  { id:'8', username:'viaexpress',     country:'🇨🇴', pts:421, exact:9,  plan:'PLAYER', streak:5, isMe:true },
+  { id:'1',  username:'Rafa_Predictor', country:'🇧🇷', pts:487, exact:12, plan:'PRO',    streak:8 },
+  { id:'2',  username:'CarlosGol',      country:'🇨🇴', pts:421, exact:9,  plan:'LIGA',   streak:5 },
+  { id:'3',  username:'FutbolRey',      country:'🇲🇽', pts:398, exact:8,  plan:'LIGA',   streak:3 },
+  { id:'4',  username:'SambaBR',        country:'🇧🇷', pts:312, exact:6,  plan:'PLAYER', streak:2 },
+  { id:'5',  username:'TigreCol',       country:'🇨🇴', pts:287, exact:5,  plan:'PLAYER', streak:1 },
+  { id:'6',  username:'EagleMX',        country:'🇲🇽', pts:201, exact:4,  plan:'PLAYER', streak:0 },
+  { id:'7',  username:'GoalKing',       country:'🇦🇷', pts:189, exact:3,  plan:'FREE',   streak:0 },
+  { id:'8',  username:'viaexpress',     country:'🇨🇴', pts:421, exact:9,  plan:'PLAYER', streak:5, isMe:true },
+  { id:'9',  username:'PredictorX',     country:'🇲🇽', pts:175, exact:3,  plan:'FREE',   streak:0 },
+  { id:'10', username:'GolzairPro',     country:'🇦🇷', pts:162, exact:2,  plan:'FREE',   streak:0 },
+  { id:'11', username:'FutFan11',       country:'🇧🇷', pts:155, exact:2,  plan:'FREE',   streak:0 },
+  { id:'12', username:'MundialFan',     country:'🇨🇴', pts:148, exact:2,  plan:'FREE',   streak:0 },
+  { id:'13', username:'CrackTotal',     country:'🇲🇽', pts:140, exact:1,  plan:'FREE',   streak:0 },
+  { id:'14', username:'GolNeto',        country:'🇦🇷', pts:132, exact:1,  plan:'FREE',   streak:0 },
+  { id:'15', username:'Predictor15',    country:'🇧🇷', pts:125, exact:1,  plan:'FREE',   streak:0 },
+  { id:'16', username:'FutbolMX',       country:'🇲🇽', pts:118, exact:1,  plan:'FREE',   streak:0 },
+  { id:'17', username:'GoalMaster',     country:'🇨🇴', pts:110, exact:1,  plan:'FREE',   streak:0 },
+  { id:'18', username:'LigaPro',        country:'🇦🇷', pts:102, exact:0,  plan:'FREE',   streak:0 },
+  { id:'19', username:'CrackBR',        country:'🇧🇷', pts:95,  exact:0,  plan:'FREE',   streak:0 },
+  { id:'20', username:'PredMaster',     country:'🇲🇽', pts:88,  exact:0,  plan:'FREE',   streak:0 },
+  { id:'21', username:'GolzairFan',     country:'🇨🇴', pts:81,  exact:0,  plan:'FREE',   streak:0 },
+  { id:'22', username:'MundialPred',    country:'🇦🇷', pts:74,  exact:0,  plan:'FREE',   streak:0 },
+  { id:'23', username:'FutCrack',       country:'🇧🇷', pts:67,  exact:0,  plan:'FREE',   streak:0 },
 ];
 
 function PodiumCard({ player, rank }: { player: any; rank: number }) {
@@ -76,17 +101,100 @@ function PodiumCard({ player, rank }: { player: any; rank: number }) {
   );
 }
 
+// ─── Paywall Banner ───────────────────────────────────────────────────────────
+function PaywallBanner({ hiddenCount, onUnlock }: { hiddenCount: number; onUnlock: () => void }) {
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(Animated.sequence([
+      Animated.timing(pulseAnim, { toValue:1.02, duration:1000, useNativeDriver:true }),
+      Animated.timing(pulseAnim, { toValue:1, duration:1000, useNativeDriver:true }),
+    ])).start();
+  }, []);
+
+  return (
+    <Animated.View style={[pw.wrap, { transform:[{ scale: pulseAnim }] }]}>
+      <LinearGradient
+        colors={['rgba(168,85,247,0.15)','rgba(168,85,247,0.05)']}
+        style={pw.inner}
+      >
+        <View style={pw.topLine} />
+
+        {/* Avatares borrosos simulados */}
+        <View style={pw.blurredRow}>
+          {[...Array(5)].map((_, i) => (
+            <View key={i} style={[pw.blurredAvatar, { opacity: 1 - i * 0.15 }]}>
+              <Text style={pw.blurredAvatarTxt}>?</Text>
+            </View>
+          ))}
+          <Text style={pw.blurredMore}>+{hiddenCount - 5}</Text>
+        </View>
+
+        <Text style={pw.lockIcon}>🔒</Text>
+        <Text style={pw.title}>{hiddenCount} GOLZAIRES OCULTOS</Text>
+        <Text style={pw.sub}>
+          Desbloquea el ranking completo con{'\n'}
+          <Text style={{ color: C.purple, fontWeight:'800' }}>GOLZAIR — $1.99</Text>
+        </Text>
+
+        <TouchableOpacity style={pw.btn} onPress={onUnlock} activeOpacity={0.85}>
+          <LinearGradient
+            colors={[C.purple, '#7C3AED']}
+            start={{x:0,y:0}} end={{x:1,y:0}}
+            style={pw.btnInner}
+          >
+            <Text style={pw.btnTxt}>⚡ VER RANKING COMPLETO — $1.99</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <Text style={pw.hint}>
+          También desbloquea Retos Rápidos y más funciones premium
+        </Text>
+      </LinearGradient>
+    </Animated.View>
+  );
+}
+
+const pw = StyleSheet.create({
+  wrap:{ marginHorizontal:12, marginTop:8, marginBottom:16, borderRadius:20, overflow:'hidden' },
+  inner:{ padding:20, alignItems:'center', gap:10, borderWidth:1, borderColor:'rgba(168,85,247,0.3)', borderRadius:20 },
+  topLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:C.purple },
+  blurredRow:{ flexDirection:'row', alignItems:'center', gap:-8, marginBottom:4 },
+  blurredAvatar:{ width:36, height:36, borderRadius:18, backgroundColor:'rgba(168,85,247,0.2)', borderWidth:2, borderColor:'rgba(168,85,247,0.4)', alignItems:'center', justifyContent:'center', marginLeft:-8 },
+  blurredAvatarTxt:{ fontSize:14, color:'rgba(168,85,247,0.5)' },
+  blurredMore:{ fontSize:12, color:C.muted, marginLeft:8, fontFamily:'BarlowCondensed_700Bold' } as any,
+  lockIcon:{ fontSize:32 },
+  title:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.text, letterSpacing:3 } as any,
+  sub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted, textAlign:'center', lineHeight:20 } as any,
+  btn:{ width:'100%', borderRadius:14, overflow:'hidden' },
+  btnInner:{ paddingVertical:14, alignItems:'center', borderRadius:14 },
+  btnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:'#fff', letterSpacing:2 } as any,
+  hint:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted, textAlign:'center' } as any,
+});
+
+// ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 export default function RankingScreen() {
   const { t } = useTranslation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const TABS = [t('ranking_global'), t('ranking_league'), t('ranking_country')];
   const [tab, setTab] = useState(0);
   const [players] = useState(MOCK_PLAYERS);
+  const [userPlan, setUserPlan] = useState<string>('free');
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
     BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
   });
+
+  // Cargar plan del usuario
+  useEffect(() => {
+    const user = getAuth().currentUser;
+    if (!user) return;
+    getDoc(doc(db, 'users', user.uid)).then(snap => {
+      if (snap.exists()) setUserPlan(snap.data()?.plan ?? 'free');
+    });
+  }, []);
 
   useEffect(() => {
     Animated.loop(Animated.sequence([
@@ -97,22 +205,27 @@ export default function RankingScreen() {
 
   if (!fontsLoaded) return <View style={s.root} />;
 
-  const sorted = [...players].sort((a,b) => b.pts - a.pts);
-  const top3   = sorted.slice(0,3);
-  const rest   = sorted.slice(3);
-  const meRank = sorted.findIndex(p => p.isMe) + 1;
-  const me     = sorted.find(p => p.isMe);
+  const isPaid = userPlan !== 'free';
+  const sorted  = [...players].sort((a,b) => b.pts - a.pts);
+  const top3    = sorted.slice(0,3);
+  const rest    = sorted.slice(3);
+  const meRank  = sorted.findIndex(p => p.isMe) + 1;
+  const me      = sorted.find(p => p.isMe);
+
+  // Separar visible vs oculto según plan
+  // Top 3 siempre visible. Del resto: posiciones 4-20 visible para FREE, 21+ bloqueado
+  const visibleRest  = isPaid ? rest : rest.slice(0, FREE_RANK_LIMIT - 3);
+  const hiddenRest   = isPaid ? [] : rest.slice(FREE_RANK_LIMIT - 3);
+  const showPaywall  = !isPaid && hiddenRest.length > 0;
 
   async function shareRanking() {
-    const _me = sorted.find(p => p.isMe);
-    const _meRank = sorted.findIndex(p => p.isMe) + 1;
-    if (!_me) return;
+    if (!me) return;
     try {
       await Share.share({
         message:
           `🏆 GOLZI — MUNDIAL 2026\n\n` +
-          `⚽ Estoy en el puesto #${_meRank} del ranking global\n` +
-          `🎯 ${_me.pts} puntos · ${_me.exact} predicciones exactas\n\n` +
+          `⚽ Estoy en el puesto #${meRank} del ranking global\n` +
+          `🎯 ${me.pts} puntos · ${me.exact} predicciones exactas\n\n` +
           `¿Puedes superarme? Descarga GOLZI 👉 golzi.app`,
       });
     } catch {}
@@ -179,21 +292,13 @@ export default function RankingScreen() {
 
         {/* PODIUM */}
         <View style={s.podiumWrap}>
-          <LinearGradient
-            colors={['rgba(255,215,0,0.06)','transparent']}
-            start={{x:0.5,y:0}} end={{x:0.5,y:1}}
-            style={s.podiumBg}
-          />
+          <LinearGradient colors={['rgba(255,215,0,0.06)','transparent']} start={{x:0.5,y:0}} end={{x:0.5,y:1}} style={s.podiumBg} />
           <View style={s.podiumRow}>
             <PodiumCard player={top3[1]} rank={2} />
             <PodiumCard player={top3[0]} rank={1} />
             <PodiumCard player={top3[2]} rank={3} />
           </View>
-          <LinearGradient
-            colors={['rgba(255,215,0,0.12)','rgba(255,215,0,0.02)']}
-            start={{x:0.5,y:0}} end={{x:0.5,y:1}}
-            style={s.podiumStage}
-          />
+          <LinearGradient colors={['rgba(255,215,0,0.12)','rgba(255,215,0,0.02)']} start={{x:0.5,y:0}} end={{x:0.5,y:1}} style={s.podiumStage} />
         </View>
 
         {/* DIVIDER */}
@@ -203,8 +308,8 @@ export default function RankingScreen() {
           <View style={s.dividerLine} />
         </View>
 
-        {/* PLAYERS */}
-        {rest.map((player, idx) => {
+        {/* PLAYERS VISIBLES */}
+        {visibleRest.map((player, idx) => {
           const rank = idx + 4;
           const isMe = player.isMe;
           return (
@@ -215,7 +320,6 @@ export default function RankingScreen() {
               style={[s.playerRow, isMe && s.playerRowMe]}
             >
               <Text style={[s.rankNum, isMe && { color:C.gold }]}>{rank}</Text>
-
               <LinearGradient
                 colors={isMe ? [C.gold, C.gold2] : ['#1A1F2E','#141824']}
                 style={s.playerAvatar}
@@ -224,7 +328,6 @@ export default function RankingScreen() {
                   {player.username.slice(0,1).toUpperCase()}
                 </Text>
               </LinearGradient>
-
               <View style={s.playerInfo}>
                 <View style={s.playerNameRow}>
                   <Text style={[s.playerName, isMe && { color:C.gold }]}>{player.username}</Text>
@@ -237,7 +340,6 @@ export default function RankingScreen() {
                   {player.streak > 0 && <Text style={s.playerStreak}>🔥 {player.streak}</Text>}
                 </View>
               </View>
-
               <View style={s.playerPtsBox}>
                 <Text style={[s.playerPts, isMe && { color:C.gold }]}>{player.pts}</Text>
                 <Text style={s.playerPtsLbl}>PTS</Text>
@@ -245,6 +347,28 @@ export default function RankingScreen() {
             </LinearGradient>
           );
         })}
+
+        {/* PAYWALL — posiciones 21+ */}
+        {showPaywall && (
+          <PaywallBanner
+            hiddenCount={hiddenRest.length}
+            onUnlock={() => navigation.navigate('Plans')}
+          />
+        )}
+
+        {/* Si el usuario está en posición >20 y es FREE, mostrar su posición debajo del paywall */}
+        {!isPaid && me && meRank > FREE_RANK_LIMIT && (
+          <View style={s.myPosLocked}>
+            <LinearGradient
+              colors={['rgba(255,215,0,0.1)','rgba(255,215,0,0.03)']}
+              style={s.myPosLockedInner}
+            >
+              <Text style={s.myPosLockedTxt}>Tu posición actual</Text>
+              <Text style={s.myPosLockedRank}>#{meRank}</Text>
+              <Text style={s.myPosLockedSub}>Desbloquea GOLZAIR+ para ver el ranking completo</Text>
+            </LinearGradient>
+          </View>
+        )}
 
         <View style={s.footer}>
           <Text style={s.footerTxt}>⚡ {t('ranking_updated')} · {players.length} {t('ranking_participants')}</Text>
@@ -291,7 +415,6 @@ const s = StyleSheet.create({
   podiumBg:{ position:'absolute', top:0, left:0, right:0, bottom:0 },
   podiumRow:{ flexDirection:'row', alignItems:'flex-end', justifyContent:'center', paddingHorizontal:16, gap:8, paddingTop:20 },
   podiumStage:{ height:24, marginHorizontal:12, borderRadius:8 },
-
   podiumPlayer:{ flex:1, alignItems:'center', gap:4 },
   podiumFirst:{ marginBottom:0 },
   crown:{ fontSize:26, marginBottom:2 },
@@ -330,6 +453,12 @@ const s = StyleSheet.create({
   playerPtsBox:{ alignItems:'center' },
   playerPts:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.text },
   playerPtsLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2 },
+
+  myPosLocked:{ marginHorizontal:12, marginBottom:10 },
+  myPosLockedInner:{ borderRadius:14, padding:14, alignItems:'center', borderWidth:1, borderColor:'rgba(255,215,0,0.2)', gap:4 },
+  myPosLockedTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:2 },
+  myPosLockedRank:{ fontFamily:'BebasNeue_400Regular', fontSize:32, color:C.gold },
+  myPosLockedSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted, textAlign:'center' },
 
   footer:{ alignItems:'center', paddingVertical:16 },
   footerTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted, letterSpacing:0.5 },

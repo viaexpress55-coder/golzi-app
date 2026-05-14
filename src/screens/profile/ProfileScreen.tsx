@@ -177,9 +177,21 @@ export default function ProfileScreen() {
   const totalPoints  = userData?.totalPoints  ?? 0;
   const currentStreak = userData?.currentStreak ?? 0;
   const maxStreak    = userData?.maxStreak    ?? 0;
-  const memberSince  = userData?.createdAt?.toDate?.()
-    ? new Date(userData.createdAt.toDate()).toLocaleDateString('es', { month:'short', year:'numeric' })
-    : '—';
+  const getMemberSince = () => {
+    try {
+      const ca = userData?.createdAt;
+      if (!ca) return '—';
+      // Firestore Timestamp
+      if (ca?.toDate) return new Date(ca.toDate()).toLocaleDateString('es', { month:'short', year:'numeric' });
+      // Número (seconds)
+      if (ca?.seconds) return new Date(ca.seconds * 1000).toLocaleDateString('es', { month:'short', year:'numeric' });
+      // String o Date
+      const d = new Date(ca);
+      if (!isNaN(d.getTime())) return d.toLocaleDateString('es', { month:'short', year:'numeric' });
+      return '—';
+    } catch { return '—'; }
+  };
+  const memberSince = getMemberSince();
 
   // Calcular stats del historial
   const totalPredictions = history.length;

@@ -254,7 +254,7 @@ export default function HomeScreen() {
     return () => clearInterval(timer);
   }, []);
 
-  function getScore(id:string):[string,string] { return scores[id]||['0','0']; }
+  function getScore(id:string):[string,string] { return scores[id]||['','']; }
   function setScore(id:string, side:0|1, val:string) {
     const cur = getScore(id);
     const next:[string,string] = [...cur] as [string,string];
@@ -312,7 +312,7 @@ export default function HomeScreen() {
     setConfirmed(prev => ({ ...prev, [id]:true }));
     setSelected(null);
     const [home, away] = getScore(id);
-    if (home !== '0' && away !== '0' && home === away) {
+    if (home !== '' && away !== '' && home === away) {
       triggerExactAnimation();
     } else {
       triggerGoalAnimation();
@@ -736,7 +736,7 @@ const s = StyleSheet.create({
   vsCircle:{ width:68, height:68, borderRadius:34, borderWidth:2, borderColor:C.goldBorder, alignItems:'center', justifyContent:'center' },
   vsTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold },
   inputRow:{ flexDirection:'row', alignItems:'center', gap:4 },
-  scoreInput:{ width:50, height:50, backgroundColor:'rgba(255,215,0,0.1)', borderWidth:2, borderColor:C.gold, borderRadius:10, color:C.gold, fontFamily:'BebasNeue_400Regular', fontSize:28, textAlign:'center' } as any,
+  scoreInput:{ width:58, height:58, backgroundColor:'rgba(255,215,0,0.1)', borderWidth:2, borderColor:C.gold, borderRadius:10, color:C.gold, fontFamily:'BebasNeue_400Regular', fontSize:28, textAlign:'center' } as any,
   inputDash:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.muted },
   confirmedBox:{ flexDirection:'row', alignItems:'center', gap:6, borderRadius:12, paddingHorizontal:14, paddingVertical:12, borderWidth:1, borderColor:'rgba(0,255,135,0.25)' },
   confirmedNum:{ fontFamily:'BebasNeue_400Regular', fontSize:34, color:C.green },

@@ -15,7 +15,7 @@ const C = {
   green:'#00FF87', red:'#FF3355', cyan:'#00C6FF',
 };
 
-function LiveBadge({ minute }: { minute?: number | null }) {
+function LiveBadge({ minute, label }: { minute?: number | null; label: string }) {
   const pulse = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     Animated.loop(Animated.sequence([
@@ -26,12 +26,12 @@ function LiveBadge({ minute }: { minute?: number | null }) {
   return (
     <View style={s.liveBadge}>
       <Animated.View style={[s.liveDot, { opacity:pulse }]} />
-      <Text style={s.liveTxt}>EN VIVO{minute ? ` · ${minute}'` : ''}</Text>
+      <Text style={s.liveTxt}>{label}{minute ? ` · ${minute}'` : ''}</Text>
     </View>
   );
 }
 
-function Scoreboard({ match }: { match: any }) {
+function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
   const scoreAnim = useRef(new Animated.Value(1)).current;
   const prevScore = useRef({ home:match.homeScore, away:match.awayScore });
 
@@ -58,7 +58,7 @@ function Scoreboard({ match }: { match: any }) {
       />
       <View style={[s.scoreTopLine, { backgroundColor: isLive ? C.red : C.gold }]} />
       <Text style={s.scoreVenue}>{match.venue || match.stadium || 'ESTADIO'} · MUNDIAL 2026</Text>
-      {isLive && <LiveBadge minute={match.minute} />}
+      {isLive && <LiveBadge minute={match.minute} label={t('live_badge')} />}
       {isFinished && (
         <View style={s.finishedBadge}>
           <Text style={s.finishedTxt}>FINAL</Text>
@@ -181,7 +181,7 @@ export default function LiveScreen() {
         {live.length > 0 && (
           <View style={s.liveCountBadge}>
             <Text style={s.liveCountNum}>{live.length}</Text>
-            <Text style={s.liveCountLbl}>EN VIVO</Text>
+            <Text style={s.liveCountLbl}>{t('live_badge')}</Text>
           </View>
         )}
       </LinearGradient>
@@ -192,9 +192,9 @@ export default function LiveScreen() {
           <View>
             <View style={s.sectionHeader}>
               <View style={s.sectionDot} />
-              <Text style={s.sectionLabel}>EN VIVO AHORA</Text>
+              <Text style={s.sectionLabel}>{t('live_now')}</Text>
             </View>
-            {live.map(m => <Scoreboard key={m.id} match={m} />)}
+            {live.map(m => <Scoreboard key={m.id} match={m} t={t} />)}
           </View>
         )}
 
@@ -206,7 +206,7 @@ export default function LiveScreen() {
             {today.map((m,i) => (
               <LinearGradient key={i} colors={['rgba(255,255,255,0.04)','rgba(255,255,255,0.01)']} style={s.miniCard}>
                 <View style={s.miniTeamBox}>
-                  <Text style={s.miniFlag}>{m.homeFlag || '🏳'}</Text>
+                  <Text style={s.miniFlag}>{m.homeFlag || '🌍'}</Text>
                   <Text style={s.miniName}>{m.homeTeam}</Text>
                 </View>
                 <View style={s.miniCenter}>
@@ -214,7 +214,7 @@ export default function LiveScreen() {
                   <Text style={s.miniTime}>{m.utcDate ? new Date(m.utcDate).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}</Text>
                 </View>
                 <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
-                  <Text style={s.miniFlag}>{m.awayFlag || '🏳'}</Text>
+                  <Text style={s.miniFlag}>{m.awayFlag || '🌍'}</Text>
                   <Text style={s.miniName}>{m.awayTeam}</Text>
                 </View>
               </LinearGradient>
@@ -225,12 +225,12 @@ export default function LiveScreen() {
         {finished.length > 0 && (
           <View>
             <View style={s.sectionHeader}>
-              <Text style={s.sectionLabel}>RESULTADOS RECIENTES</Text>
+              <Text style={s.sectionLabel}>{t('live_recent')}</Text>
             </View>
             {finished.map((m,i) => (
               <LinearGradient key={i} colors={['rgba(0,255,135,0.06)','rgba(0,255,135,0.01)']} style={[s.miniCard, { borderColor:'rgba(0,255,135,0.15)' }]}>
                 <View style={s.miniTeamBox}>
-                  <Text style={s.miniFlag}>{m.homeFlag || '🏳'}</Text>
+                  <Text style={s.miniFlag}>{m.homeFlag || '🌍'}</Text>
                   <Text style={s.miniName}>{m.homeTeam}</Text>
                 </View>
                 <View style={s.miniCenter}>
@@ -238,7 +238,7 @@ export default function LiveScreen() {
                   <Text style={s.miniFinal}>FINAL</Text>
                 </View>
                 <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
-                  <Text style={s.miniFlag}>{m.awayFlag || '🏳'}</Text>
+                  <Text style={s.miniFlag}>{m.awayFlag || '🌍'}</Text>
                   <Text style={s.miniName}>{m.awayTeam}</Text>
                 </View>
               </LinearGradient>
@@ -254,14 +254,14 @@ export default function LiveScreen() {
                 source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
                 style={s.emptyLogo} resizeMode="contain"
               />
-              <Text style={s.emptyTitle}>SIN PARTIDOS EN VIVO</Text>
-              <Text style={s.emptySub}>Los partidos aparecen automáticamente cuando empiecen</Text>
+              <Text style={s.emptyTitle}>{t('live_empty_title')}</Text>
+              <Text style={s.emptySub}>{t('live_empty_sub')}</Text>
               <View style={s.emptyDivider} />
-              <Text style={s.emptyDate}>⚡ Próximo partido: 11 jun 2026</Text>
+              <Text style={s.emptyDate}>⚡ {t('live_empty_date')}</Text>
             </LinearGradient>
 
             <View style={s.sectionHeader}>
-              <Text style={s.sectionLabel}>PRÓXIMOS PARTIDOS</Text>
+              <Text style={s.sectionLabel}>{t('live_upcoming')}</Text>
             </View>
             {UPCOMING.map((m, i) => (
               <LinearGradient key={i} colors={['rgba(255,255,255,0.04)','rgba(255,255,255,0.01)']} style={s.miniCard}>
@@ -357,4 +357,6 @@ const s = StyleSheet.create({
   emptySub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted, textAlign:'center' },
   emptyDivider:{ width:40, height:1, backgroundColor:'rgba(255,215,0,0.2)', marginVertical:16 },
   emptyDate:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:12, color:C.gold2 },
+
+  scoreFlagImg:{ width:44, height:30 },
 });

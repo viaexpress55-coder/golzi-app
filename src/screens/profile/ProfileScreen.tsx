@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
-import { logout } from '../../services/auth';
+import { logout, onAuthChange } from '../../services/auth';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useTranslation } from 'react-i18next';
 import { sendLocalNotification, GOLZI_NOTIFICATIONS } from '../../services/notifications';
+import { doc, onSnapshot, collection, query, where, orderBy, limit } from 'firebase/firestore';
+import { db } from '../../services/firebase';
 
 const C = {
   bg:'#020408', dark:'#05080F', surface:'#0A0F1A', surface2:'#0F1520',
@@ -19,7 +21,7 @@ const C = {
   green:'#00FF87', red:'#FF3355', cyan:'#00C6FF',
 };
 
-// ─── XP / NIVELES ────────────────────────────────────────────────────────────
+// ─── XP / NIVELES ─────────────────────────────────────────────────────────────
 const LEVELS = [
   { name:'NOVATO',        min:0,    max:50,   icon:'⚽', color:'#6B7A99' },
   { name:'ANALISTA',      min:51,   max:200,  icon:'🎯', color:'#00C6FF' },
@@ -31,38 +33,18 @@ const LEVELS = [
 function getLevel(pts: number) {
   return LEVELS.find(l => pts >= l.min && pts <= l.max) || LEVELS[LEVELS.length - 1];
 }
-
 function getNextLevel(pts: number) {
   const idx = LEVELS.findIndex(l => pts >= l.min && pts <= l.max);
   return idx < LEVELS.length - 1 ? LEVELS[idx + 1] : null;
 }
-
 function getLevelProgress(pts: number): number {
   const lv = getLevel(pts);
   if (lv.name === 'GOLZAIR ELITE') return 1;
   const range = lv.max - lv.min;
-  const progress = pts - lv.min;
-  return Math.min(progress / range, 1);
+  return Math.min((pts - lv.min) / range, 1);
 }
 
-// ─── MOCK DATA ────────────────────────────────────────────────────────────────
-const HISTORY = [
-  { match:'Mexico vs Canada',     pred:'2-0', result:'3-1', pts:'+5',  type:'winner'  },
-  { match:'Brasil vs Costa Rica', pred:'2-1', result:'2-1', pts:'+10', type:'exact'   },
-  { match:'USA vs Gales',         pred:'1-0', result:'?',   pts:'--',  type:'pending' },
-  { match:'Argentina vs Peru',    pred:'2-0', result:'?',   pts:'--',  type:'pending' },
-];
-
-const BADGES = [
-  { icon:'🎯', name:'Primer Exacto',  desc:'Primera prediccion exacta',  earned:true  },
-  { icon:'🔥', name:'Racha x3',       desc:'3 correctas seguidas',        earned:true  },
-  { icon:'⚡', name:'Goleador',       desc:'10 predicciones exactas',     earned:false },
-  { icon:'🏆', name:'Campeon',        desc:'Gana una liga privada',       earned:false },
-  { icon:'🌍', name:'Mundial',        desc:'Predice todos los partidos',  earned:false },
-  { icon:'👑', name:'GOLZI Elite',    desc:'Top 10 global',               earned:false },
-];
-
-// ─── XP BAR COMPONENT ─────────────────────────────────────────────────────────
+// ─── XP BAR ───────────────────────────────────────────────────────────────────
 function XPBar({ pts }: { pts: number }) {
   const level    = getLevel(pts);
   const nextLv   = getNextLevel(pts);
@@ -71,34 +53,25 @@ function XPBar({ pts }: { pts: number }) {
 
   return (
     <View style={xp.container}>
-      {/* Level badge + next */}
       <View style={xp.labelRow}>
         <View style={[xp.levelBadge, { borderColor: level.color + '55', backgroundColor: level.color + '18' }]}>
           <Text style={xp.levelIcon}>{level.icon}</Text>
           <Text style={[xp.levelName, { color: level.color }]}>{level.name}</Text>
         </View>
-        {nextLv && (
-          <Text style={xp.nextLabel}>
-            {nextLv.max - pts > 0 ? `${nextLv.max - pts} pts → ${nextLv.icon} ${nextLv.name}` : ''}
-          </Text>
-        )}
-        {!nextLv && (
+        {nextLv ? (
+          <Text style={xp.nextLabel}>{nextLv.min - pts > 0 ? `${nextLv.min - pts} pts → ${nextLv.icon} ${nextLv.name}` : ''}</Text>
+        ) : (
           <Text style={[xp.nextLabel, { color: C.gold }]}>NIVEL MAXIMO 👑</Text>
         )}
       </View>
-
-      {/* Progress bar */}
       <View style={xp.barTrack}>
         <LinearGradient
           colors={[level.color, level.color + 'AA']}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+          start={{ x:0, y:0 }} end={{ x:1, y:0 }}
           style={[xp.barFill, { width: pctWidth }]}
         />
-        {/* Glow dot at end */}
         <View style={[xp.barDot, { left: pctWidth, backgroundColor: level.color }]} />
       </View>
-
-      {/* pts range */}
       <View style={xp.rangeRow}>
         <Text style={xp.rangeMin}>{level.min} pts</Text>
         <Text style={xp.rangeMax}>{nextLv ? nextLv.min - 1 : '∞'} pts</Text>
@@ -122,6 +95,16 @@ const xp = StyleSheet.create({
   rangeMax:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted },
 });
 
+// ─── BADGES MOCK (se conectan a Firestore en siguiente iteración) ──────────────
+const BADGES = [
+  { icon:'🎯', name:'Primer Exacto',  desc:'Primera prediccion exacta',  earned:true  },
+  { icon:'🔥', name:'Racha x3',       desc:'3 correctas seguidas',        earned:true  },
+  { icon:'⚡', name:'Goleador',       desc:'10 predicciones exactas',     earned:false },
+  { icon:'🏆', name:'Campeon',        desc:'Gana una liga privada',       earned:false },
+  { icon:'🌍', name:'Mundial',        desc:'Predice todos los partidos',  earned:false },
+  { icon:'👑', name:'GOLZI Elite',    desc:'Top 10 global',               earned:false },
+];
+
 // ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 export default function ProfileScreen() {
   const { t } = useTranslation();
@@ -129,13 +112,54 @@ export default function ProfileScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const [tab, setTab] = useState(0);
 
-  // Mock pts — reemplazar con dato real de Firestore
-  const userPts = 421;
+  // ── Estado real de Firestore ──
+  const [userId, setUserId]         = useState<string | null>(null);
+  const [userData, setUserData]     = useState<any>(null);
+  const [history, setHistory]       = useState<any[]>([]);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [rankPosition, setRankPosition] = useState<number | null>(null);
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
     BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
   });
+
+  // ── Escuchar auth ──
+  useEffect(() => {
+    const unsub = onAuthChange(user => {
+      setUserId(user?.uid ?? null);
+      if (!user) setLoadingUser(false);
+    });
+    return unsub;
+  }, []);
+
+  // ── Escuchar documento del usuario en tiempo real ──
+  useEffect(() => {
+    if (!userId) return;
+    const ref = doc(db, 'users', userId);
+    const unsub = onSnapshot(ref, snap => {
+      if (snap.exists()) {
+        setUserData(snap.data());
+      }
+      setLoadingUser(false);
+    });
+    return unsub;
+  }, [userId]);
+
+  // ── Cargar historial de predicciones ──
+  useEffect(() => {
+    if (!userId) return;
+    const q = query(
+      collection(db, 'predictions'),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc'),
+      limit(20)
+    );
+    const unsub = onSnapshot(q, snap => {
+      setHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return unsub;
+  }, [userId]);
 
   if (!fontsLoaded) return <View style={s.root} />;
 
@@ -144,6 +168,32 @@ export default function ProfileScreen() {
       await logout();
       navigation.reset({ index:0, routes:[{ name:'Splash' }] });
     } catch (e) { console.error(e); }
+  }
+
+  // ── Datos del usuario (reales o fallback) ──
+  const username     = userData?.username     ?? 'GOLZAIR';
+  const country      = userData?.country      ?? '🌍';
+  const plan         = userData?.plan         ?? 'free';
+  const totalPoints  = userData?.totalPoints  ?? 0;
+  const currentStreak = userData?.currentStreak ?? 0;
+  const maxStreak    = userData?.maxStreak    ?? 0;
+  const memberSince  = userData?.createdAt?.toDate?.()
+    ? new Date(userData.createdAt.toDate()).toLocaleDateString('es', { month:'short', year:'numeric' })
+    : '—';
+
+  // Calcular stats del historial
+  const totalPredictions = history.length;
+  const exactPredictions = history.filter(h => h.status === 'correct_exact').length;
+
+  // Avatar inicial
+  const avatarLetter = username.slice(0,1).toUpperCase();
+
+  if (loadingUser) {
+    return (
+      <View style={[s.root, { alignItems:'center', justifyContent:'center' }]}>
+        <ActivityIndicator color={C.gold} size="large" />
+      </View>
+    );
   }
 
   return (
@@ -180,34 +230,36 @@ export default function ProfileScreen() {
           <View style={s.heroTopLine} />
           <View style={s.heroCardInner}>
             <LinearGradient colors={[C.gold, C.gold2]} style={s.avatar}>
-              <Text style={s.avatarTxt}>V</Text>
+              <Text style={s.avatarTxt}>{avatarLetter}</Text>
             </LinearGradient>
             <View style={s.heroInfo}>
-              <Text style={s.username}>VIAEXPRESS</Text>
+              <Text style={s.username}>{username.toUpperCase()}</Text>
               <View style={s.heroRow}>
                 <LinearGradient colors={['rgba(255,215,0,0.2)','rgba(255,215,0,0.08)']} style={s.planBadge}>
-                  <Text style={s.planTxt}>⚽ PLAYER</Text>
+                  <Text style={s.planTxt}>⚽ {plan.toUpperCase()}</Text>
                 </LinearGradient>
-                <View style={s.rankBadge}>
-                  <Text style={s.rankTxt}>#2 Global</Text>
-                </View>
+                {rankPosition && (
+                  <View style={s.rankBadge}>
+                    <Text style={s.rankTxt}>#{rankPosition} Global</Text>
+                  </View>
+                )}
               </View>
             </View>
           </View>
 
-          {/* XP BAR */}
+          {/* XP BAR REAL */}
           <View style={s.xpWrap}>
-            <XPBar pts={userPts} />
+            <XPBar pts={totalPoints} />
           </View>
         </View>
 
-        {/* STATS ROW */}
+        {/* STATS ROW — datos reales */}
         <View style={s.statsRow}>
           {[
-            { val:'47',  lbl:t('profile_predictions'), c:C.gold  },
-            { val:'4',   lbl:t('profile_exact'),        c:C.green },
-            { val:'421', lbl:t('profile_points'),       c:C.gold  },
-            { val:'3',   lbl:t('profile_streak'),       c:C.gold2 },
+            { val: String(totalPredictions), lbl: t('profile_predictions'), c: C.gold  },
+            { val: String(exactPredictions), lbl: t('profile_exact'),        c: C.green },
+            { val: String(totalPoints),      lbl: t('profile_points'),       c: C.gold  },
+            { val: String(currentStreak),    lbl: t('profile_streak'),       c: C.gold2 },
           ].map((st,i) => (
             <LinearGradient
               key={i}
@@ -233,37 +285,52 @@ export default function ProfileScreen() {
         {tab === 0 && (
           <View style={s.tabContent}>
 
-            {/* NIVELES INFO CARD */}
+            {/* NIVELES */}
             <View style={s.infoCard}>
               <Text style={s.cardTitle}>NIVELES XP</Text>
               {LEVELS.map((lv, i) => {
-                const isActive = getLevel(userPts).name === lv.name;
+                const isActive = getLevel(totalPoints).name === lv.name;
                 return (
                   <View key={i} style={[s.lvRow, i === LEVELS.length - 1 && { borderBottomWidth:0 }]}>
                     <Text style={s.lvIcon}>{lv.icon}</Text>
                     <View style={s.lvInfo}>
                       <Text style={[s.lvName, { color: isActive ? lv.color : C.muted }]}>
-                        {lv.name}
-                        {isActive && <Text style={{ fontSize:9 }}> ← TU NIVEL</Text>}
+                        {lv.name}{isActive ? ' ← TU NIVEL' : ''}
                       </Text>
                       <Text style={s.lvRange}>{lv.min} – {lv.name === 'GOLZAIR ELITE' ? '∞' : lv.max} pts</Text>
                     </View>
-                    {isActive && (
-                      <View style={[s.activeDot, { backgroundColor: lv.color }]} />
-                    )}
+                    {isActive && <View style={[s.activeDot, { backgroundColor: lv.color }]} />}
                   </View>
                 );
               })}
             </View>
 
+            {/* RACHA */}
+            {(currentStreak > 0 || maxStreak > 0) && (
+              <View style={s.infoCard}>
+                <Text style={s.cardTitle}>RACHA</Text>
+                <View style={s.streakRow}>
+                  <View style={s.streakBox}>
+                    <Text style={s.streakNum}>🔥 {currentStreak}</Text>
+                    <Text style={s.streakLbl}>RACHA ACTUAL</Text>
+                  </View>
+                  <View style={s.streakDivider} />
+                  <View style={s.streakBox}>
+                    <Text style={s.streakNum}>⭐ {maxStreak}</Text>
+                    <Text style={s.streakLbl}>MEJOR RACHA</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* INFO */}
             <View style={s.infoCard}>
               <Text style={s.cardTitle}>{t('profile_info')}</Text>
               {[
-                { lbl:t('profile_user'),    val:'@viaexpress'     },
-                { lbl:t('profile_country'), val:'🇨🇴 Colombia'    },
-                { lbl:t('profile_plan'),    val:'PLAYER', gold:true },
-                { lbl:t('profile_member'),  val:'Abr 2026'        },
-                { lbl:t('profile_league'),  val:'Los Golzaires'   },
+                { lbl: t('profile_user'),   val: `@${username.toLowerCase()}` },
+                { lbl: t('profile_country'),val: country },
+                { lbl: t('profile_plan'),   val: plan.toUpperCase(), gold: true },
+                { lbl: t('profile_member'), val: memberSince },
               ].map((row,i,arr) => (
                 <View key={i} style={[s.infoRow, i===arr.length-1 && { borderBottomWidth:0 }]}>
                   <Text style={s.infoLbl}>{row.lbl}</Text>
@@ -300,45 +367,62 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* TAB 1 — HISTORIAL */}
+        {/* TAB 1 — HISTORIAL REAL */}
         {tab === 1 && (
           <View style={s.tabContent}>
-            {HISTORY.map((h,i) => (
-              <LinearGradient
-                key={i}
-                colors={
-                  h.type==='exact'   ? ['rgba(0,255,135,0.08)','rgba(0,255,135,0.02)'] :
-                  h.type==='winner'  ? ['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)'] :
-                  ['rgba(255,255,255,0.03)','rgba(255,255,255,0.01)']
-                }
-                style={s.histRow}
-              >
-                <View style={[s.histTypeLine, {
-                  backgroundColor: h.type==='exact' ? C.green : h.type==='winner' ? C.gold : C.muted
-                }]} />
-                <View style={s.histLeft}>
-                  <Text style={s.histMatch}>{h.match}</Text>
-                  <Text style={s.histDetail}>
-                    Tu pred: <Text style={{ color:C.muted2 }}>{h.pred}</Text>
-                    {h.result !== '?' && <Text> · Resultado: <Text style={{ color:C.text }}>{h.result}</Text></Text>}
-                    {h.result === '?' && <Text style={{ color:C.muted }}> · Pendiente</Text>}
-                  </Text>
-                </View>
-                <View style={[
-                  s.ptsBadge,
-                  h.type==='exact'   && { backgroundColor:'rgba(0,255,135,0.15)', borderColor:'rgba(0,255,135,0.3)' },
-                  h.type==='winner'  && { backgroundColor:'rgba(255,215,0,0.12)',  borderColor:'rgba(255,215,0,0.3)' },
-                  h.type==='pending' && { backgroundColor:'rgba(136,136,136,0.06)', borderColor:'rgba(136,136,136,0.15)' },
-                ]}>
-                  <Text style={[
-                    s.ptsTxt,
-                    h.type==='exact'   && { color:C.green },
-                    h.type==='winner'  && { color:C.gold },
-                    h.type==='pending' && { color:C.muted },
-                  ]}>{h.pts}</Text>
-                </View>
-              </LinearGradient>
-            ))}
+            {history.length === 0 && (
+              <View style={s.emptyState}>
+                <Text style={s.emptyIcon}>⚽</Text>
+                <Text style={s.emptyTxt}>Aun no tienes predicciones</Text>
+              </View>
+            )}
+            {history.map((h, i) => {
+              const isExact   = h.status === 'correct_exact';
+              const isWinner  = h.status === 'correct_result' || h.status === 'correct_draw';
+              const isPending = h.status === 'pending';
+              const type = isExact ? 'exact' : isWinner ? 'winner' : isPending ? 'pending' : 'incorrect';
+
+              return (
+                <LinearGradient
+                  key={h.id}
+                  colors={
+                    isExact  ? ['rgba(0,255,135,0.08)','rgba(0,255,135,0.02)'] :
+                    isWinner ? ['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)'] :
+                    ['rgba(255,255,255,0.03)','rgba(255,255,255,0.01)']
+                  }
+                  style={s.histRow}
+                >
+                  <View style={[s.histTypeLine, {
+                    backgroundColor: isExact ? C.green : isWinner ? C.gold : C.muted
+                  }]} />
+                  <View style={s.histLeft}>
+                    <Text style={s.histMatch}>{h.matchId}</Text>
+                    <Text style={s.histDetail}>
+                      Tu pred: <Text style={{ color:C.muted2 }}>{h.homeScore} - {h.awayScore}</Text>
+                      {isPending
+                        ? <Text style={{ color:C.muted }}> · Pendiente</Text>
+                        : <Text style={{ color: isExact ? C.green : isWinner ? C.gold : C.red }}> · {h.pointsEarned > 0 ? `+${h.pointsEarned} pts` : 'Sin puntos'}</Text>
+                      }
+                    </Text>
+                  </View>
+                  <View style={[
+                    s.ptsBadge,
+                    isExact   && { backgroundColor:'rgba(0,255,135,0.15)',  borderColor:'rgba(0,255,135,0.3)' },
+                    isWinner  && { backgroundColor:'rgba(255,215,0,0.12)',  borderColor:'rgba(255,215,0,0.3)' },
+                    isPending && { backgroundColor:'rgba(136,136,136,0.06)', borderColor:'rgba(136,136,136,0.15)' },
+                  ]}>
+                    <Text style={[
+                      s.ptsTxt,
+                      isExact   && { color:C.green },
+                      isWinner  && { color:C.gold },
+                      isPending && { color:C.muted },
+                    ]}>
+                      {isPending ? '--' : h.pointsEarned > 0 ? `+${h.pointsEarned}` : '0'}
+                    </Text>
+                  </View>
+                </LinearGradient>
+              );
+            })}
           </View>
         )}
 
@@ -359,13 +443,9 @@ export default function ProfileScreen() {
                 <Text style={[s.badgeName, !b.earned && { color:C.muted }]}>{b.name}</Text>
                 <Text style={s.badgeDesc}>{b.desc}</Text>
                 {b.earned ? (
-                  <View style={s.earnedPill}>
-                    <Text style={s.earnedTxt}>✓ OBTENIDO</Text>
-                  </View>
+                  <View style={s.earnedPill}><Text style={s.earnedTxt}>✓ OBTENIDO</Text></View>
                 ) : (
-                  <View style={s.lockedPill}>
-                    <Text style={s.lockedTxt}>🔒 BLOQUEADO</Text>
-                  </View>
+                  <View style={s.lockedPill}><Text style={s.lockedTxt}>🔒 BLOQUEADO</Text></View>
                 )}
               </LinearGradient>
             ))}
@@ -380,16 +460,13 @@ export default function ProfileScreen() {
 const s = StyleSheet.create({
   root:{ flex:1, backgroundColor:C.bg },
   topLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:'rgba(255,215,0,0.5)' },
-
   header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:16, paddingTop:52, paddingBottom:14, borderBottomWidth:1, borderBottomColor:'rgba(255,215,0,0.15)', position:'relative' },
   headerLeft:{ flexDirection:'row', alignItems:'center', gap:10 },
   headerLogo:{ width:36, height:36 },
   headerTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold, letterSpacing:3 },
   headerSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted, letterSpacing:2 },
   settingsBtn:{ width:40, height:40, borderRadius:12, backgroundColor:'rgba(255,255,255,0.05)', alignItems:'center', justifyContent:'center' },
-
   scroll:{ paddingBottom:40 },
-
   heroCard:{ margin:12, borderRadius:20, borderWidth:1, borderColor:'rgba(255,215,0,0.3)', overflow:'hidden', position:'relative' },
   heroTopLine:{ height:2, backgroundColor:C.gold },
   heroCardInner:{ flexDirection:'row', alignItems:'center', gap:16, padding:18, paddingBottom:8 },
@@ -403,45 +480,40 @@ const s = StyleSheet.create({
   rankBadge:{ backgroundColor:'rgba(0,255,135,0.1)', borderRadius:8, borderWidth:1, borderColor:'rgba(0,255,135,0.25)', paddingHorizontal:10, paddingVertical:5 },
   rankTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.green },
   xpWrap:{ paddingHorizontal:18, paddingBottom:16 },
-
   statsRow:{ flexDirection:'row', paddingHorizontal:12, gap:8, marginBottom:12 },
   statCard:{ flex:1, borderRadius:14, borderWidth:1, borderColor:'rgba(255,215,0,0.15)', padding:10, alignItems:'center' },
   statVal:{ fontFamily:'BebasNeue_400Regular', fontSize:26, lineHeight:28 },
   statLbl:{ fontFamily:'BarlowCondensed_400Regular', fontSize:7, color:C.muted, marginTop:2, letterSpacing:0.5, textAlign:'center' },
-
   tabRow:{ flexDirection:'row', paddingHorizontal:12, gap:8, marginBottom:12 },
   tab:{ flex:1, paddingVertical:9, borderRadius:10, backgroundColor:'rgba(255,255,255,0.04)', alignItems:'center', borderWidth:1, borderColor:'rgba(255,255,255,0.06)' },
   tabOn:{ backgroundColor:'rgba(255,215,0,0.1)', borderColor:'rgba(255,215,0,0.3)' },
   tabTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.muted, letterSpacing:1 },
   tabTxtOn:{ color:C.gold },
-
   tabContent:{ paddingHorizontal:12, gap:10 },
-
-  // Niveles
   lvRow:{ flexDirection:'row', alignItems:'center', gap:12, paddingVertical:10, borderBottomWidth:1, borderBottomColor:'rgba(255,255,255,0.05)' },
   lvIcon:{ fontSize:20, width:28, textAlign:'center' },
   lvInfo:{ flex:1, gap:2 },
   lvName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:12, letterSpacing:1 },
   lvRange:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted },
   activeDot:{ width:8, height:8, borderRadius:4 },
-
+  streakRow:{ flexDirection:'row', alignItems:'center', justifyContent:'space-around', paddingVertical:8 },
+  streakBox:{ alignItems:'center', gap:4 },
+  streakNum:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold },
+  streakLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2 },
+  streakDivider:{ width:1, height:40, backgroundColor:'rgba(255,215,0,0.2)' },
   infoCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.1)', padding:16 },
   cardTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:12 },
   infoRow:{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', paddingVertical:11, borderBottomWidth:1, borderBottomColor:'rgba(255,255,255,0.05)' },
   infoLbl:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted },
   infoVal:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.text },
-
   upgradeBtn:{ borderRadius:14, overflow:'hidden' },
   upgradeBtnInner:{ borderRadius:14, paddingVertical:16, alignItems:'center' },
   upgradeTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:'#000', letterSpacing:2 },
   upgradeSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'rgba(0,0,0,0.6)', marginTop:3 },
-
   notifBtn:{ backgroundColor:'rgba(255,215,0,0.06)', borderRadius:14, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', padding:14, alignItems:'center' },
   notifTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:13, color:C.gold, letterSpacing:1 },
-
   logoutBtn:{ backgroundColor:'rgba(255,51,85,0.06)', borderRadius:14, borderWidth:1, borderColor:'rgba(255,51,85,0.2)', padding:14, alignItems:'center' },
   logoutTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:13, color:C.red, letterSpacing:1 },
-
   histRow:{ borderRadius:14, borderWidth:1, borderColor:'rgba(255,255,255,0.06)', flexDirection:'row', alignItems:'center', gap:12, overflow:'hidden' },
   histTypeLine:{ width:3, alignSelf:'stretch' },
   histLeft:{ flex:1, gap:4, paddingVertical:12 },
@@ -449,7 +521,9 @@ const s = StyleSheet.create({
   histDetail:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted },
   ptsBadge:{ borderWidth:1, borderRadius:20, paddingHorizontal:12, paddingVertical:4, marginRight:12 },
   ptsTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16 },
-
+  emptyState:{ alignItems:'center', paddingVertical:40, gap:10 },
+  emptyIcon:{ fontSize:48 },
+  emptyTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:14, color:C.muted },
   badgesGrid:{ flexDirection:'row', flexWrap:'wrap', gap:10, paddingHorizontal:12 },
   badgeCard:{ borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', padding:14, width:'47%', alignItems:'center', gap:6, overflow:'hidden' },
   badgeCardLocked:{ borderColor:'rgba(255,255,255,0.06)' },

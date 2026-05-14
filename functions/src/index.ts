@@ -12,7 +12,8 @@ export { onMatchFinish }    from './predictions/onMatchFinish';
 export { submitPrediction } from './predictions/validatePrediction';
 
 // ── Ligas ──
-export { onLeagueMemberAdded } from './leagues/checkCapacity';
+export { onLeagueMemberAdded }   from './leagues/checkCapacity';
+export { rivalryNotification }   from './leagues/rivalryNotification';
 
 // ── Streaks ──
 export { calculateStreak } from './streaks/calculateStreak';

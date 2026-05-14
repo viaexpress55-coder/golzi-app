@@ -197,7 +197,14 @@ export default function LigaScreen() {
         {/* TAB 1 — CHAT */}
         {tab === 1 && (
           <View style={s.chatContainer}>
-            <ScrollView style={s.chatMessages} contentContainerStyle={{ padding:12, gap:8 }} showsVerticalScrollIndicator={false}>
+            <ScrollView ref={chatScrollRef} style={s.chatMessages} contentContainerStyle={{ padding:12, gap:8 }} showsVerticalScrollIndicator={false}>
+              {chatMsgs.length === 0 && (
+                <View style={{ alignItems:'center', justifyContent:'center', paddingVertical:60, gap:10 }}>
+                  <Text style={{ fontSize:40 }}>💬</Text>
+                  <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#6B7A99', letterSpacing:1 }}>SIN MENSAJES AÚN</Text>
+                  <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#6B7A99', textAlign:'center' }}>{"Sé el primero en escribir\nen el chat de la liga"}</Text>
+                </View>
+              )}
               {chatMsgs.map((m, i) => (
                 <View key={i} style={[s.chatBubbleWrap, m.userId === getAuth().currentUser?.uid && s.chatBubbleWrapMe]}>
                   {m.userId !== getAuth().currentUser?.uid && (

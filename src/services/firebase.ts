@@ -6,12 +6,12 @@ import { getFunctions } from 'firebase/functions';
 import { Platform } from 'react-native';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB8p-figRsYJNLh2KEHeJBIauoqrR8pVk0",
-  authDomain: "golzi-2026.firebaseapp.com",
-  projectId: "golzi-2026",
-  storageBucket: "golzi-2026.firebasestorage.app",
-  messagingSenderId: "466137327410",
-  appId: "1:466137327410:web:4fbc9e9aa9df73ee52192b",
+  apiKey:            process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain:        process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId:         process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket:     process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
@@ -27,7 +27,7 @@ if (Platform.OS === 'web') {
 }
 
 export { auth };
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+export const db       = getFirestore(app);
+export const storage  = getStorage(app);
 export const functions = getFunctions(app, 'us-central1');
 export default app;

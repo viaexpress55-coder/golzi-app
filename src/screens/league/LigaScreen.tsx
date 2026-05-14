@@ -4,6 +4,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParams } from '../../navigation/AppNavigator';
 import { collection, addDoc, onSnapshot, orderBy, query, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { getAuth } from 'firebase/auth';
@@ -28,6 +31,7 @@ const MY_LEAGUE = {
 
 export default function LigaScreen() {
   const { t } = useTranslation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const [tab,     setTab]     = useState(0);
   const [code,    setCode]    = useState('');
   const [ligaNm,  setLigaNm]  = useState('');

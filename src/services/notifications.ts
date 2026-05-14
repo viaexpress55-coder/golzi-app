@@ -10,6 +10,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -73,7 +75,7 @@ export async function sendLocalNotification(title: string, body: string, data?: 
     content: {
       title,
       body,
-      data: data || {},
+      data: (data || {}) as Record<string, unknown>,
       sound: 'default',
     },
     trigger: null, // inmediata

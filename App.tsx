@@ -15,8 +15,8 @@ if (Platform.OS === 'web') {
 }
 
 export default function App() {
-  const notificationListener = useRef<any>();
-  const responseListener = useRef<any>();
+  const notificationListener = useRef<any>(null);
+  const responseListener = useRef<any>(null);
 
   // ✅ NUEVO (force update para cambio de idioma)
   const [, forceUpdate] = useState(0);

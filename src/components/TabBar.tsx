@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+// @ts-ignore
 import { C, F } from '../theme';
 
 const TABS = [

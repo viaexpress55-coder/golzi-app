@@ -4,7 +4,7 @@ import {
   TouchableOpacity, TextInput, ActivityIndicator, Animated, Image
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { savePrediction } from '../../services/auth';
 import { getAuth } from 'firebase/auth';
@@ -14,6 +14,9 @@ import { Barlow_400Regular, Barlow_500Medium } from '@expo-google-fonts/barlow';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../locales/i18n';
 import { getUpcomingMatches, getLiveMatches, formatApiMatch } from '../../services/footballApi';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParams } from '../../navigation/AppNavigator';
 
 const C = {
   bg:'#020408', dark:'#05080F', surface:'#0A0F1A', surface2:'#0F1520',
@@ -21,17 +24,137 @@ const C = {
   goldBorder:'rgba(255,215,0,0.25)', goldBorderLight:'rgba(255,215,0,0.12)',
   text:'#FFFFFF', muted:'#6B7A99', muted2:'#9AAABB',
   green:'#00FF87', red:'#FF3355', cyan:'#00C6FF',
+  purple:'#A855F7',
 };
 
+// ─── RETOS RÁPIDOS ────────────────────────────────────────────────────────────
+// Definición de todos los retos disponibles
+const RETOS_GRUPOS = [
+  { id:'first_goal',  label:'¿Quién marca primero?', type:'team',    pts:15, icon:'⚽' },
+  { id:'over_goals',  label:'¿Más de 2.5 goles?',   type:'yn',      pts:8,  icon:'🎯' },
+  { id:'red_card',    label:'¿Habrá tarjeta roja?',  type:'yn',      pts:8,  icon:'🟥' },
+  { id:'ht_result',   label:'¿Resultado al descanso?',type:'1x2',    pts:12, icon:'⏱' },
+];
+
+const RETOS_ELIMINATORIA = [
+  ...RETOS_GRUPOS,
+  { id:'penalty',     label:'¿Habrá penalti?',       type:'yn',      pts:10, icon:'🎽' },
+];
+
+function getRetosForMatch(phase?: string) {
+  const eliminatoria = ['round_of_16','quarterfinal','semifinal','final','third_place'];
+  return eliminatoria.includes(phase ?? '') ? RETOS_ELIMINATORIA : RETOS_GRUPOS;
+}
+
+// Componente de un reto individual
+function RetoCard({
+  reto, match, userPlan, answer, onAnswer, saved
+}: {
+  reto: any;
+  match: any;
+  userPlan: string;
+  answer: string | null;
+  onAnswer: (retoId: string, value: string) => void;
+  saved: boolean;
+}) {
+  const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+  const isPaid = userPlan !== 'free';
+
+  const options = reto.type === 'yn'
+    ? [{ val:'yes', label:'SÍ' }, { val:'no', label:'NO' }]
+    : reto.type === '1x2'
+    ? [{ val:'1', label:'LOCAL' }, { val:'x', label:'EMPATE' }, { val:'2', label:'VISITA' }]
+    : [
+        { val:'home', label:(match.homeTeam||'LOC').slice(0,3).toUpperCase() },
+        { val:'none', label:'NINGUNO' },
+        { val:'away', label:(match.awayTeam||'VIS').slice(0,3).toUpperCase() },
+      ];
+
+  return (
+    <View style={rs.retoCard}>
+      <View style={rs.retoHeader}>
+        <Text style={rs.retoIcon}>{reto.icon}</Text>
+        <Text style={rs.retoLabel}>{reto.label}</Text>
+        <View style={rs.retoPtsBadge}>
+          <Text style={rs.retoPtsTxt}>+{reto.pts}</Text>
+        </View>
+      </View>
+
+      {!isPaid ? (
+        // PAYWALL
+        <TouchableOpacity style={rs.paywall} onPress={() => navigation.navigate('Plans')} activeOpacity={0.85}>
+          <LinearGradient colors={[C.purple + '22', C.purple + '08']} style={rs.paywallInner}>
+            <Text style={rs.paywallLock}>🔒</Text>
+            <Text style={rs.paywallTxt}>GOLZAIR+ para participar</Text>
+            <View style={rs.paywallBtn}>
+              <Text style={rs.paywallBtnTxt}>DESBLOQUEAR — $1.99</Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
+      ) : saved && answer ? (
+        // GUARDADO
+        <View style={rs.savedRow}>
+          <Text style={rs.savedCheck}>✓</Text>
+          <Text style={rs.savedTxt}>
+            {options.find(o => o.val === answer)?.label ?? answer}
+          </Text>
+          <Text style={rs.savedPts}>+{reto.pts} pts si aciertas</Text>
+        </View>
+      ) : (
+        // OPCIONES
+        <View style={rs.optionsRow}>
+          {options.map(opt => (
+            <TouchableOpacity
+              key={opt.val}
+              style={[rs.optionBtn, answer === opt.val && rs.optionBtnSelected]}
+              onPress={() => onAnswer(reto.id, opt.val)}
+              activeOpacity={0.8}
+            >
+              <Text style={[rs.optionTxt, answer === opt.val && rs.optionTxtSelected]}>
+                {opt.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+const rs = StyleSheet.create({
+  retoCard:{ backgroundColor:'rgba(168,85,247,0.06)', borderRadius:12, borderWidth:1, borderColor:'rgba(168,85,247,0.2)', padding:12, marginBottom:8 },
+  retoHeader:{ flexDirection:'row', alignItems:'center', gap:8, marginBottom:10 },
+  retoIcon:{ fontSize:16 },
+  retoLabel:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:'#E9D5FF', flex:1 },
+  retoPtsBadge:{ backgroundColor:'rgba(168,85,247,0.2)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:1, borderColor:'rgba(168,85,247,0.4)' },
+  retoPtsTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:'#C084FC' },
+  paywall:{ borderRadius:10, overflow:'hidden' },
+  paywallInner:{ padding:12, alignItems:'center', gap:6, borderRadius:10, borderWidth:1, borderColor:'rgba(168,85,247,0.25)' },
+  paywallLock:{ fontSize:20 },
+  paywallTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#C084FC' },
+  paywallBtn:{ backgroundColor:'rgba(168,85,247,0.3)', borderRadius:20, paddingHorizontal:16, paddingVertical:6, borderWidth:1, borderColor:'rgba(168,85,247,0.5)' },
+  paywallBtnTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:'#E9D5FF', letterSpacing:1 },
+  optionsRow:{ flexDirection:'row', gap:8 },
+  optionBtn:{ flex:1, paddingVertical:10, borderRadius:10, backgroundColor:'rgba(255,255,255,0.05)', alignItems:'center', borderWidth:1, borderColor:'rgba(255,255,255,0.1)' },
+  optionBtnSelected:{ backgroundColor:'rgba(168,85,247,0.25)', borderColor:'rgba(168,85,247,0.6)' },
+  optionTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:12, color:'#9B7AC4', letterSpacing:1 },
+  optionTxtSelected:{ color:'#E9D5FF' },
+  savedRow:{ flexDirection:'row', alignItems:'center', gap:10, paddingVertical:8 },
+  savedCheck:{ fontSize:18, color:'#00FF87' },
+  savedTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#E9D5FF', flex:1 },
+  savedPts:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:'#A855F7' },
+});
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
 function getMatchCountdown(kickoffTime: any, status?: string): { text: string; isLive: boolean } {
   if (status === 'live' || status === 'IN_PLAY' || status === 'PAUSED') return { text:'EN VIVO', isLive:true };
   const kickoff = new Date(kickoffTime?.seconds ? kickoffTime.seconds * 1000 : kickoffTime);
   const diff = kickoff.getTime() - Date.now();
   if (diff <= 0 && diff > -7200000) return { text:'EN VIVO', isLive:true };
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
+  const days    = Math.floor(diff / 86400000);
+  const hours   = Math.floor((diff % 86400000) / 3600000);
   const minutes = Math.floor((diff % 3600000) / 60000);
-  if (days > 0) return { text:`${days}d ${hours}h`, isLive:false };
+  if (days > 0)  return { text:`${days}d ${hours}h`, isLive:false };
   if (hours > 0) return { text:`${hours}h ${minutes}m`, isLive:false };
   return { text:`${minutes}m`, isLive:false };
 }
@@ -44,41 +167,31 @@ function getMatchDate(kickoffTime: any, language: string): string {
 
 function getFlagCode(flag: string): string {
   const codes: Record<string, string> = {
-    '🇲🇽':'mx', '🇿🇦':'za', '🇰🇷':'kr', '🇨🇿':'cz',
-    '🇨🇦':'ca', '🇧🇦':'ba', '🇶🇦':'qa', '🇨🇭':'ch',
-    '🇧🇷':'br', '🇲🇦':'ma', '🇭🇹':'ht', '🇺🇸':'us',
-    '🇵🇾':'py', '🇦🇺':'au', '🇹🇷':'tr', '🇩🇪':'de',
-    '🇨🇼':'cw', '🇨🇮':'ci', '🇪🇨':'ec', '🇳🇱':'nl',
-    '🇯🇵':'jp', '🇹🇳':'tn', '🇸🇪':'se', '🇧🇪':'be',
-    '🇪🇬':'eg', '🇮🇷':'ir', '🇳🇿':'nz', '🇪🇸':'es',
-    '🇨🇻':'cv', '🇸🇦':'sa', '🇺🇾':'uy', '🇫🇷':'fr',
-    '🇸🇳':'sn', '🇳🇴':'no', '🇮🇶':'iq', '🇦🇷':'ar',
-    '🇩🇿':'dz', '🇦🇹':'at', '🇯🇴':'jo', '🇵🇹':'pt',
-    '🇨🇩':'cd', '🇺🇿':'uz', '🇨🇴':'co', '🇭🇷':'hr',
-    '🇬🇭':'gh', '🇵🇦':'pa', '🏴󠁧󠁢󠁳󠁣󠁴󠁿':'gb-sct', '🏴󠁧󠁢󠁥󠁮󠁧󠁿':'gb-eng',
-    '🌍':'un',
+    '🇲🇽':'mx','🇿🇦':'za','🇰🇷':'kr','🇨🇿':'cz','🇨🇦':'ca','🇧🇦':'ba',
+    '🇶🇦':'qa','🇨🇭':'ch','🇧🇷':'br','🇲🇦':'ma','🇭🇹':'ht','🇺🇸':'us',
+    '🇵🇾':'py','🇦🇺':'au','🇹🇷':'tr','🇩🇪':'de','🇨🇼':'cw','🇨🇮':'ci',
+    '🇪🇨':'ec','🇳🇱':'nl','🇯🇵':'jp','🇹🇳':'tn','🇸🇪':'se','🇧🇪':'be',
+    '🇪🇬':'eg','🇮🇷':'ir','🇳🇿':'nz','🇪🇸':'es','🇨🇻':'cv','🇸🇦':'sa',
+    '🇺🇾':'uy','🇫🇷':'fr','🇸🇳':'sn','🇳🇴':'no','🇮🇶':'iq','🇦🇷':'ar',
+    '🇩🇿':'dz','🇦🇹':'at','🇯🇴':'jo','🇵🇹':'pt','🇨🇩':'cd','🇺🇿':'uz',
+    '🇨🇴':'co','🇭🇷':'hr','🇬🇭':'gh','🇵🇦':'pa','🏴󠁧󠁢󠁳󠁣󠁴󠁿':'gb-sct','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'gb-eng','🌍':'un',
   };
   return codes[flag] || 'un';
 }
 
 function getMatchStats(teamName: string) {
   const stats: Record<string, any> = {
-    'México': { win:52, draw:18, form:'G G E G P', goals:'1.8', clean:'42%' },
-    'Sudáfrica': { win:28, draw:22, form:'P G P E G', goals:'1.2', clean:'31%' },
-    'Corea del Sur': { win:44, draw:20, form:'G E G G P', goals:'1.6', clean:'38%' },
-    'Chequia': { win:38, draw:24, form:'E G P G G', goals:'1.4', clean:'35%' },
-    'Canadá': { win:42, draw:18, form:'G G E P G', goals:'1.7', clean:'40%' },
-    'Brasil': { win:64, draw:18, form:'G G G E G', goals:'2.4', clean:'52%' },
-    'Argentina': { win:62, draw:20, form:'G G G G E', goals:'2.2', clean:'48%' },
-    'Francia': { win:60, draw:20, form:'G G E G G', goals:'2.1', clean:'45%' },
-    'España': { win:58, draw:22, form:'G G G E G', goals:'2.0', clean:'46%' },
-    'Alemania': { win:56, draw:20, form:'G E G G P', goals:'1.9', clean:'44%' },
-    'Portugal': { win:57, draw:19, form:'G G G P G', goals:'2.0', clean:'43%' },
-    'Inglaterra': { win:54, draw:22, form:'G G E G G', goals:'1.8', clean:'44%' },
-    'Países Bajos': { win:52, draw:20, form:'G G P G E', goals:'1.9', clean:'41%' },
-    'Uruguay': { win:48, draw:22, form:'G E G P G', goals:'1.6', clean:'39%' },
-    'Colombia': { win:46, draw:22, form:'G G E G P', goals:'1.7', clean:'38%' },
-    'USA': { win:44, draw:20, form:'G E G G P', goals:'1.5', clean:'36%' },
+    'México':        { win:52, draw:18, form:'G G E G P', goals:'1.8', clean:'42%' },
+    'Brasil':        { win:64, draw:18, form:'G G G E G', goals:'2.4', clean:'52%' },
+    'Argentina':     { win:62, draw:20, form:'G G G G E', goals:'2.2', clean:'48%' },
+    'Francia':       { win:60, draw:20, form:'G G E G G', goals:'2.1', clean:'45%' },
+    'España':        { win:58, draw:22, form:'G G G E G', goals:'2.0', clean:'46%' },
+    'Alemania':      { win:56, draw:20, form:'G E G G P', goals:'1.9', clean:'44%' },
+    'Portugal':      { win:57, draw:19, form:'G G G P G', goals:'2.0', clean:'43%' },
+    'Inglaterra':    { win:54, draw:22, form:'G G E G G', goals:'1.8', clean:'44%' },
+    'Países Bajos':  { win:52, draw:20, form:'G G P G E', goals:'1.9', clean:'41%' },
+    'Colombia':      { win:46, draw:22, form:'G G E G P', goals:'1.7', clean:'38%' },
+    'USA':           { win:44, draw:20, form:'G E G G P', goals:'1.5', clean:'36%' },
   };
   const def = {
     win: Math.floor(Math.random() * 20) + 30,
@@ -106,16 +219,26 @@ function LiveBadge() {
   );
 }
 
+// ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 export default function HomeScreen() {
   const { t } = useTranslation();
-  const [matches, setMatches] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<string|null>(null);
-  const [scores, setScores] = useState<Record<string,[string,string]>>({});
-  const [confirmed, setConfirmed] = useState<Record<string,boolean>>({});
-  const [, forceUpdate] = useState(0);
-  const [showGoal, setShowGoal] = useState(false);
-  const [showExact, setShowExact] = useState(false);
+  const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+
+  const [matches, setMatches]       = useState<any[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [selected, setSelected]     = useState<string|null>(null);
+  const [scores, setScores]         = useState<Record<string,[string,string]>>({});
+  const [confirmed, setConfirmed]   = useState<Record<string,boolean>>({});
+  const [, forceUpdate]             = useState(0);
+  const [showGoal, setShowGoal]     = useState(false);
+  const [showExact, setShowExact]   = useState(false);
+
+  // Retos Rápidos
+  const [showRetos, setShowRetos]   = useState<Record<string,boolean>>({});
+  const [retoAnswers, setRetoAnswers] = useState<Record<string, Record<string,string>>>({});
+  const [retosSaved, setRetosSaved] = useState<Record<string,boolean>>({});
+  const [userPlan, setUserPlan]     = useState<string>('free');
+
   const goalScale    = useRef(new Animated.Value(0)).current;
   const goalOpacity  = useRef(new Animated.Value(0)).current;
   const exactScale   = useRef(new Animated.Value(0)).current;
@@ -127,6 +250,15 @@ export default function HomeScreen() {
     BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
     Barlow_400Regular, Barlow_500Medium,
   });
+
+  // Cargar plan del usuario
+  useEffect(() => {
+    const user = getAuth().currentUser;
+    if (!user) return;
+    getDoc(doc(db, 'users', user.uid)).then(snap => {
+      if (snap.exists()) setUserPlan(snap.data()?.plan ?? 'free');
+    });
+  }, []);
 
   useEffect(() => {
     async function loadMatches() {
@@ -210,13 +342,44 @@ export default function HomeScreen() {
     setConfirmed(prev => ({ ...prev, [id]:true }));
     setSelected(null);
     const [home, away] = getScore(id);
-    const isExact = home === away;
-    if (isExact) {
+    if (home !== '0' && away !== '0' && home === away) {
       triggerExactAnimation();
     } else {
       triggerGoalAnimation();
     }
     playGoalSound();
+  }
+
+  // ── Guardar retos en Firestore ──
+  async function saveRetos(matchId: string) {
+    const user = getAuth().currentUser;
+    if (!user) return;
+    const answers = retoAnswers[matchId] ?? {};
+    if (Object.keys(answers).length === 0) return;
+
+    try {
+      await setDoc(
+        doc(db, 'quick_challenges', `${user.uid}_${matchId}`),
+        {
+          userId:  user.uid,
+          matchId,
+          answers,
+          savedAt: new Date(),
+          status:  'pending',
+          pointsEarned: 0,
+        }
+      );
+      setRetosSaved(prev => ({ ...prev, [matchId]: true }));
+    } catch (e) {
+      console.error('Error guardando retos:', e);
+    }
+  }
+
+  function handleRetoAnswer(matchId: string, retoId: string, value: string) {
+    setRetoAnswers(prev => ({
+      ...prev,
+      [matchId]: { ...(prev[matchId] ?? {}), [retoId]: value },
+    }));
   }
 
   if (!fontsLoaded || loading) {
@@ -277,8 +440,8 @@ export default function HomeScreen() {
           <View style={s.statsBannerGlow} />
           {[
             { val:matches.length, lbl:t('home_matches') },
-            { val:104, lbl:t('home_total') },
-            { val:35, lbl:t('home_days') },
+            { val:104,            lbl:t('home_total') },
+            { val:35,             lbl:t('home_days') },
           ].map((st,i) => (
             <React.Fragment key={i}>
               {i > 0 && <View style={s.statDivider} />}
@@ -292,9 +455,14 @@ export default function HomeScreen() {
 
         {/* MATCH CARDS */}
         {matches.map(m => {
-          const cd = getMatchCountdown(m.kickoffTime, m.status);
+          const cd          = getMatchCountdown(m.kickoffTime, m.status);
           const isSelected  = selected === m.id;
           const isConfirmed = confirmed[m.id];
+          const retosVisible = showRetos[m.id] ?? false;
+          const retos        = getRetosForMatch(m.phase);
+          const savedRetos   = retosSaved[m.id] ?? false;
+          const matchAnswers = retoAnswers[m.id] ?? {};
+          const answeredCount = Object.keys(matchAnswers).length;
 
           return (
             <View key={m.id} style={s.card}>
@@ -358,42 +526,7 @@ export default function HomeScreen() {
                 </View>
               </View>
 
-              {/* TRAZABILIDAD EN VIVO */}
-              {cd.isLive && (
-                <View style={s.timelineBox}>
-                  <View style={s.timelineHeader}>
-                    <Text style={s.timelineTitle}>⚡ EVENTOS DEL PARTIDO</Text>
-                    <Text style={s.timelineMinute}>{m.minute || 0}'</Text>
-                  </View>
-                  <View style={s.timelineTrack}>
-                    <View style={s.timelineBg} />
-                    <View style={[s.timelineProgress, { flex: (m.minute || 0) / 90 }]} />
-                  </View>
-                  <View style={s.timelineLabels}>
-                    {[0, 15, 30, 45, 60, 75, 90].map(min => (
-                      <Text key={min} style={s.timelineLabel}>{min}'</Text>
-                    ))}
-                  </View>
-                  <View style={s.timelineEventsRow}>
-                    {[
-                      { icon:'⚽', min:"23'" },
-                      { icon:'🟨', min:"41'" },
-                      { icon:'🔄', min:"58'" },
-                    ].map((ev, i) => (
-                      <View key={i} style={s.timelineEventItem}>
-                        <Text style={s.timelineEventIcon}>{ev.icon}</Text>
-                        <Text style={s.timelineEventMin}>{ev.min}</Text>
-                      </View>
-                    ))}
-                  </View>
-                  <View style={s.timelineScoreRow}>
-                    <Text style={s.timelineScore}>{m.homeScore ?? 0} - {m.awayScore ?? 0}</Text>
-                    <Text style={s.timelineScoreLbl}>MARCADOR EN VIVO</Text>
-                  </View>
-                </View>
-              )}
-
-              {/* ANÁLISIS DEL PARTIDO */}
+              {/* Análisis */}
               {isSelected && (
                 <View style={s.analysisBox}>
                   <View style={s.analysisHeader}>
@@ -421,19 +554,6 @@ export default function HomeScreen() {
                     <View style={[s.analysisBar, { width:`${getMatchStats(m.homeTeam).draw}%`, backgroundColor:C.muted }]} />
                     <View style={[s.analysisBar, { width:`${getMatchStats(m.awayTeam).win}%`, backgroundColor:C.cyan }]} />
                   </View>
-                  <View style={s.analysisStats}>
-                    {[
-                      { lbl:'FORMA', home: getMatchStats(m.homeTeam).form, away: getMatchStats(m.awayTeam).form },
-                      { lbl:'GOLES/PJ', home: getMatchStats(m.homeTeam).goals, away: getMatchStats(m.awayTeam).goals },
-                      { lbl:'SIN GOLES', home: getMatchStats(m.homeTeam).clean, away: getMatchStats(m.awayTeam).clean },
-                    ].map((st, i) => (
-                      <View key={i} style={s.analysisStatRow}>
-                        <Text style={s.analysisStatVal}>{st.home}</Text>
-                        <Text style={s.analysisStatLbl}>{st.lbl}</Text>
-                        <Text style={s.analysisStatVal}>{st.away}</Text>
-                      </View>
-                    ))}
-                  </View>
                 </View>
               )}
 
@@ -449,7 +569,7 @@ export default function HomeScreen() {
                 </View>
               )}
 
-              {/* Button */}
+              {/* Predict Button */}
               {m.status !== 'finished' && (
                 <TouchableOpacity style={s.predictBtn} onPress={() => isSelected ? confirm(m.id) : setSelected(m.id)} activeOpacity={0.85}>
                   <LinearGradient
@@ -458,11 +578,93 @@ export default function HomeScreen() {
                     style={s.predictBtnInner}
                   >
                     <Text style={[s.predictBtnTxt, { color: isConfirmed || isSelected ? '#000' : C.gold }]}>
-                      {isConfirmed ? `✔  ${t('home_sent')}` : isSelected ? `⚡  ${t('home_confirm')}` : `⚡  ${t('home_predict')}`}
+                      {isConfirmed ? `✓  ${t('home_sent')}` : isSelected ? `⚡  ${t('home_confirm')}` : `⚡  ${t('home_predict')}`}
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
               )}
+
+              {/* ── RETOS RÁPIDOS ── */}
+              {m.status !== 'finished' && !cd.isLive && (
+                <View style={s.retosSection}>
+                  {/* Header toggle */}
+                  <TouchableOpacity
+                    style={s.retosToggle}
+                    onPress={() => setShowRetos(prev => ({ ...prev, [m.id]: !prev[m.id] }))}
+                    activeOpacity={0.8}
+                  >
+                    <LinearGradient
+                      colors={['rgba(168,85,247,0.12)','rgba(168,85,247,0.04)']}
+                      start={{x:0,y:0}} end={{x:1,y:0}}
+                      style={s.retosToggleInner}
+                    >
+                      <Text style={s.retosToggleIcon}>⚡</Text>
+                      <View style={s.retosToggleLeft}>
+                        <Text style={s.retosToggleTitle}>RETOS RÁPIDOS</Text>
+                        <Text style={s.retosToggleSub}>
+                          {retos.length} retos · hasta +{retos.reduce((a,r) => a + r.pts, 0)} pts extra
+                        </Text>
+                      </View>
+                      {answeredCount > 0 && !savedRetos && (
+                        <View style={s.retosAnsweredBadge}>
+                          <Text style={s.retosAnsweredTxt}>{answeredCount}/{retos.length}</Text>
+                        </View>
+                      )}
+                      {savedRetos && (
+                        <View style={s.retosSavedBadge}>
+                          <Text style={s.retosSavedTxt}>✓ GUARDADO</Text>
+                        </View>
+                      )}
+                      <Text style={s.retosChevron}>{retosVisible ? '▲' : '▼'}</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+
+                  {/* Retos expandidos */}
+                  {retosVisible && (
+                    <View style={s.retosContent}>
+                      {retos.map(reto => (
+                        <RetoCard
+                          key={reto.id}
+                          reto={reto}
+                          match={m}
+                          userPlan={userPlan}
+                          answer={matchAnswers[reto.id] ?? null}
+                          onAnswer={(retoId, val) => handleRetoAnswer(m.id, retoId, val)}
+                          saved={savedRetos}
+                        />
+                      ))}
+
+                      {/* Botón guardar retos */}
+                      {userPlan !== 'free' && !savedRetos && answeredCount > 0 && (
+                        <TouchableOpacity
+                          style={s.retosGuardarBtn}
+                          onPress={() => saveRetos(m.id)}
+                          activeOpacity={0.85}
+                        >
+                          <LinearGradient
+                            colors={[C.purple, '#7C3AED']}
+                            start={{x:0,y:0}} end={{x:1,y:0}}
+                            style={s.retosGuardarInner}
+                          >
+                            <Text style={s.retosGuardarTxt}>
+                              CONFIRMAR {answeredCount} RETO{answeredCount > 1 ? 'S' : ''} ⚡
+                            </Text>
+                          </LinearGradient>
+                        </TouchableOpacity>
+                      )}
+
+                      {savedRetos && (
+                        <View style={s.retosDoneBox}>
+                          <Text style={s.retosDoneTxt}>
+                            ✓ Retos confirmados — los puntos se suman si aciertas
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </View>
+              )}
+
             </View>
           );
         })}
@@ -472,15 +674,25 @@ export default function HomeScreen() {
           <Text style={s.ptsGuideTitle}>{t('home_points')}</Text>
           <View style={s.ptsRow}>
             {[
-              { v:'+10', l:t('home_exact'), c:C.gold },
-              { v:'+5', l:t('home_winner'), c:C.gold2 },
-              { v:'+2', l:t('home_draw'), c:C.muted2 },
+              { v:'+10', l:t('home_exact'),  c:C.gold  },
+              { v:'+5',  l:t('home_winner'), c:C.gold2 },
+              { v:'+2',  l:t('home_draw'),   c:C.muted2 },
             ].map((p,i) => (
               <LinearGradient key={i} colors={['rgba(255,255,255,0.04)','rgba(255,255,255,0.01)']} style={s.ptsCard}>
                 <Text style={[s.ptsVal,{ color:p.c }]}>{p.v}</Text>
                 <Text style={s.ptsLbl}>{p.l}</Text>
               </LinearGradient>
             ))}
+          </View>
+          {/* Retos bonus */}
+          <View style={[s.ptsRow, { marginTop:8 }]}>
+            <LinearGradient colors={['rgba(168,85,247,0.1)','rgba(168,85,247,0.03)']} style={[s.ptsCard, { borderColor:'rgba(168,85,247,0.2)' }]}>
+              <Text style={[s.ptsVal, { color:C.purple }]}>+53</Text>
+              <Text style={s.ptsLbl}>RETOS MAX</Text>
+            </LinearGradient>
+            <LinearGradient colors={['rgba(168,85,247,0.1)','rgba(168,85,247,0.03)']} style={[s.ptsCard, { flex:2, borderColor:'rgba(168,85,247,0.2)' }]}>
+              <Text style={[s.ptsLbl, { color:'#C084FC', fontSize:9 }]}>⚡ Retos Rápidos solo para GOLZAIR+</Text>
+            </LinearGradient>
           </View>
         </LinearGradient>
 
@@ -536,7 +748,6 @@ const s = StyleSheet.create({
 
   teamsRow:{ flexDirection:'row', alignItems:'center', paddingHorizontal:10, paddingVertical:14, zIndex:1 },
   teamBox:{ flex:1, alignItems:'center', gap:6 },
-  teamFlag:{ fontSize:44 },
   teamFlagImg:{ width:56, height:40, borderRadius:4 },
   teamCode:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.gold, letterSpacing:2 },
   teamName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted2, textAlign:'center' },
@@ -560,25 +771,7 @@ const s = StyleSheet.create({
   predictBtnInner:{ borderRadius:12, paddingVertical:14, alignItems:'center', borderWidth:1, borderColor:'rgba(255,215,0,0.2)' },
   predictBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:17, letterSpacing:3 },
 
-  // Timeline
-  timelineBox:{ marginHorizontal:14, marginBottom:10, backgroundColor:'rgba(255,51,85,0.05)', borderRadius:12, borderWidth:1, borderColor:'rgba(255,51,85,0.2)', padding:12 },
-  timelineHeader:{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:10 },
-  timelineTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.red, letterSpacing:1 },
-  timelineMinute:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.red },
-  timelineTrack:{ height:6, borderRadius:3, backgroundColor:'rgba(255,255,255,0.08)', flexDirection:'row', marginBottom:6, overflow:'hidden' },
-  timelineBg:{ position:'absolute', left:0, right:0, top:0, bottom:0, backgroundColor:'rgba(255,255,255,0.06)' },
-  timelineProgress:{ backgroundColor:C.red, borderRadius:3 },
-  timelineLabels:{ flexDirection:'row', justifyContent:'space-between', marginBottom:8 },
-  timelineLabel:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted },
-  timelineEventsRow:{ flexDirection:'row', gap:16, marginBottom:8 },
-  timelineEventItem:{ alignItems:'center', gap:2 },
-  timelineEventIcon:{ fontSize:16 },
-  timelineEventMin:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted },
-  timelineScoreRow:{ flexDirection:'row', alignItems:'center', gap:10, marginTop:4 },
-  timelineScore:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.red },
-  timelineScoreLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2 },
-
-  // Analysis
+  // Análisis
   analysisBox:{ marginHorizontal:14, marginBottom:10, backgroundColor:'rgba(0,198,255,0.05)', borderRadius:12, borderWidth:1, borderColor:'rgba(0,198,255,0.2)', padding:12 },
   analysisHeader:{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:10 },
   analysisTitleTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.cyan, letterSpacing:1 },
@@ -592,10 +785,26 @@ const s = StyleSheet.create({
   analysisPctLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2, marginTop:2 },
   analysisBars:{ flexDirection:'row', height:4, borderRadius:2, overflow:'hidden', marginBottom:10, gap:2 },
   analysisBar:{ height:4, borderRadius:2 },
-  analysisStats:{ gap:6 },
-  analysisStatRow:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between' },
-  analysisStatVal:{ fontFamily:'BarlowCondensed_700Bold', fontSize:12, color:C.muted2, width:60 },
-  analysisStatLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2, textAlign:'center' },
+
+  // Retos Rápidos
+  retosSection:{ marginHorizontal:14, marginBottom:14 },
+  retosToggle:{ borderRadius:12, overflow:'hidden' },
+  retosToggleInner:{ flexDirection:'row', alignItems:'center', gap:10, padding:12, borderRadius:12, borderWidth:1, borderColor:'rgba(168,85,247,0.25)' },
+  retosToggleIcon:{ fontSize:16 },
+  retosToggleLeft:{ flex:1 },
+  retosToggleTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:12, color:'#C084FC', letterSpacing:2 },
+  retosToggleSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:'#9B7AC4', marginTop:1 },
+  retosChevron:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:'#9B7AC4' },
+  retosAnsweredBadge:{ backgroundColor:'rgba(168,85,247,0.3)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:1, borderColor:'rgba(168,85,247,0.5)' },
+  retosAnsweredTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'#E9D5FF' },
+  retosSavedBadge:{ backgroundColor:'rgba(0,255,135,0.15)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:1, borderColor:'rgba(0,255,135,0.3)' },
+  retosSavedTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'#00FF87' },
+  retosContent:{ paddingTop:8, gap:0 },
+  retosGuardarBtn:{ borderRadius:12, overflow:'hidden', marginTop:4 },
+  retosGuardarInner:{ paddingVertical:13, alignItems:'center', borderRadius:12 },
+  retosGuardarTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:'#fff', letterSpacing:2 },
+  retosDoneBox:{ backgroundColor:'rgba(0,255,135,0.06)', borderRadius:10, padding:12, borderWidth:1, borderColor:'rgba(0,255,135,0.2)', marginTop:4 },
+  retosDoneTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#00FF87', textAlign:'center' },
 
   ptsGuide:{ marginHorizontal:12, marginTop:4, borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.15)', padding:14 },
   ptsGuideTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:10 },

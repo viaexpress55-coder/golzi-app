@@ -16,6 +16,7 @@ import LigaScreen from '../screens/league/LigaScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import PaymentScreen from '../screens/plans/PaymentScreen';
+import PostMatchSummary from '../components/PostMatchSummary';
 
 export type RootStackParams = {
   Splash:      undefined;
@@ -151,14 +152,15 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash"    component={SplashScreen}   />
+        <Stack.Screen name="Splash"     component={SplashScreen}    />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        <Stack.Screen name="Register"  component={RegisterScreen}  />
-        <Stack.Screen name="Plans"     component={PlansScreen}     />
-        <Stack.Screen name="Login"     component={LoginScreen}     />
-        <Stack.Screen name="Main"      component={MainTabs}        />
-        <Stack.Screen name="Payment" component={PaymentScreen} />
+        <Stack.Screen name="Register"   component={RegisterScreen}   />
+        <Stack.Screen name="Plans"      component={PlansScreen}      />
+        <Stack.Screen name="Login"      component={LoginScreen}      />
+        <Stack.Screen name="Main"       component={MainTabs}         />
+        <Stack.Screen name="Payment"    component={PaymentScreen}    />
       </Stack.Navigator>
+      <PostMatchSummary />
     </NavigationContainer>
   );
 }

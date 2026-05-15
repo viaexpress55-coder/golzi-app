@@ -12,11 +12,14 @@ export { onMatchFinish }    from './predictions/onMatchFinish';
 export { submitPrediction } from './predictions/validatePrediction';
 
 // ── Ligas ──
-export { onLeagueMemberAdded }   from './leagues/checkCapacity';
-export { rivalryNotification }   from './leagues/rivalryNotification';
+export { onLeagueMemberAdded }  from './leagues/checkCapacity';
+export { rivalryNotification }  from './leagues/rivalryNotification';
 
 // ── Streaks ──
 export { calculateStreak } from './streaks/calculateStreak';
+
+// ── Rankings pre-calculados ──
+export { calculateRanking } from './rankings/calculateRanking';
 
 // ── Pagos ── (implementar en Bloque 2)
 // export { webhookDLocal }  from './payments/webhookDLocal';

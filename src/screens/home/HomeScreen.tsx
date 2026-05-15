@@ -344,6 +344,16 @@ export default function HomeScreen() {
     if (!user) return;
     const answers = retoAnswers[matchId] ?? {};
     if (Object.keys(answers).length === 0) return;
+    // Verificar que el partido no haya comenzado
+    const match = matches.find(m => m.id === matchId);
+    if (match?.kickoffTime) {
+      const kickoff = new Date(match.kickoffTime?.seconds ? match.kickoffTime.seconds * 1000 : match.kickoffTime);
+      if (new Date() >= kickoff) {
+        console.log('Retos bloqueados - partido ya inició');
+        return;
+      }
+    }
+
     try {
       await setDoc(doc(db, 'quick_challenges', `${user.uid}_${matchId}`), {
         userId: user.uid, matchId, answers,
@@ -604,7 +614,11 @@ export default function HomeScreen() {
               )}
 
               {/* RETOS RÁPIDOS */}
-              {m.status !== 'finished' && !cd.isLive && (
+              {m.status !== 'finished' && !cd.isLive && (() => {
+                const kickoff = m.kickoffTime ? new Date(m.kickoffTime?.seconds ? m.kickoffTime.seconds * 1000 : m.kickoffTime) : null;
+                const isLocked = kickoff ? new Date() >= kickoff : false;
+                return !isLocked;
+              })() && (
                 <View style={s.retosSection}>
                   <TouchableOpacity style={s.retosToggle} onPress={() => setShowRetos(prev => ({ ...prev, [m.id]: !prev[m.id] }))} activeOpacity={0.8}>
                     <LinearGradient colors={['rgba(168,85,247,0.12)','rgba(168,85,247,0.04)']} start={{x:0,y:0}} end={{x:1,y:0}} style={s.retosToggleInner}>

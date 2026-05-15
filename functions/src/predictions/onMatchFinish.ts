@@ -1,15 +1,16 @@
 // functions/src/predictions/onMatchFinish.ts
-// ─────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // Trigger principal de GOLZI: se activa cuando un partido termina
 // Calcula puntos de TODOS los usuarios que predijeron ese partido
-// ─────────────────────────────────────────────────────────────────
+// IDEMPOTENTE: usa pointsProcessed para evitar puntos dobles en reintentos
+// ─────────────────────────────────────────────────────────────────────────────
 
 import * as admin from 'firebase-admin';
 import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
 
 const db = admin.firestore();
 
-// ── Regla de puntos según doc técnico ──
+// ── Regla de puntos según doc técnico ────────────────────────────────────────
 function calculatePoints(
   predictedHome: number,
   predictedAway: number,
@@ -22,7 +23,7 @@ function calculatePoints(
   }
 
   const predictedResult = Math.sign(predictedHome - predictedAway);
-  const actualResult = Math.sign(actualHome - actualAway);
+  const actualResult    = Math.sign(actualHome - actualAway);
 
   // Empate acertado: +2
   if (actualResult === 0 && predictedResult === 0) {
@@ -38,25 +39,57 @@ function calculatePoints(
   return { points: 0, status: 'incorrect' };
 }
 
-// ── Trigger: se activa cuando status del partido cambia a 'finished' ──
+// ── Trigger: se activa cuando status del partido cambia a 'finished' ─────────
 export const onMatchFinish = onDocumentUpdated(
-  'matches/{matchId}',
+  {
+    document:       'matches/{matchId}',
+    timeoutSeconds: 540,
+    memory:         '1GiB',
+    minInstances:   1,
+    maxInstances:   10,
+  },
   async (event) => {
     const before = event.data?.before.data();
-    const after = event.data?.after.data();
+    const after  = event.data?.after.data();
+
+    if (!before || !after) return;
 
     // Solo procesar si el partido acaba de terminar
-    if (!before || !after) return;
     if (before.status === 'finished' || after.status !== 'finished') return;
     if (after.homeScore === null || after.awayScore === null) return;
 
-    const matchId = event.params.matchId;
-    const actualHome: number = after.homeScore;
-    const actualAway: number = after.awayScore;
+    const matchId    = event.params.matchId;
+    const actualHome = after.homeScore as number;
+    const actualAway = after.awayScore as number;
+
+    // ── IDEMPOTENCIA: verificar si ya fue procesado ───────────────────────────
+    // Usar transacción para marcar el partido como "en proceso" atómicamente
+    const matchRef = db.collection('matches').doc(matchId);
+
+    try {
+      await db.runTransaction(async (transaction) => {
+        const matchSnap = await transaction.get(matchRef);
+        const matchData = matchSnap.data();
+
+        if (matchData?.pointsProcessed === true) {
+          console.log(`⚠️ Partido ${matchId} ya fue procesado — saltando`);
+          throw new Error('ALREADY_PROCESSED');
+        }
+
+        // Marcar como en proceso ANTES de calcular (previene ejecuciones paralelas)
+        transaction.update(matchRef, {
+          pointsProcessed:   true,
+          pointsProcessedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
+    } catch (err: any) {
+      if (err.message === 'ALREADY_PROCESSED') return;
+      throw err;
+    }
 
     console.log(`⚽ Partido terminado: ${matchId} — ${actualHome}:${actualAway}`);
 
-    // Obtener todas las predicciones pendientes de este partido
+    // ── Obtener todas las predicciones pendientes ─────────────────────────────
     const predictionsSnap = await db
       .collection('predictions')
       .where('matchId', '==', matchId)
@@ -70,13 +103,13 @@ export const onMatchFinish = onDocumentUpdated(
 
     console.log(`   Procesando ${predictionsSnap.size} predicciones...`);
 
-    // Procesar en batches de 500 (límite de Firestore)
+    // ── Procesar en batches de 500 (límite de Firestore) ─────────────────────
     const batchSize = 500;
-    const docs = predictionsSnap.docs;
+    const docs      = predictionsSnap.docs;
 
     for (let i = 0; i < docs.length; i += batchSize) {
-      const batch = db.batch();
-      const chunk = docs.slice(i, i + batchSize);
+      const batch          = db.batch();
+      const chunk          = docs.slice(i, i + batchSize);
       const userPointsMap: Record<string, number> = {};
 
       for (const predDoc of chunk) {
@@ -91,11 +124,11 @@ export const onMatchFinish = onDocumentUpdated(
         // Actualizar predicción
         batch.update(predDoc.ref, {
           pointsEarned: points,
-          status: status,
+          status:       status,
           calculatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-        // Acumular puntos por usuario para actualizar en lote
+        // Acumular puntos por usuario
         if (!userPointsMap[pred.userId]) {
           userPointsMap[pred.userId] = 0;
         }
@@ -104,19 +137,19 @@ export const onMatchFinish = onDocumentUpdated(
 
       // Actualizar totalPoints de cada usuario afectado
       for (const [userId, points] of Object.entries(userPointsMap)) {
+        const userRef = db.collection('users').doc(userId);
         if (points > 0) {
-          const userRef = db.collection('users').doc(userId);
           batch.update(userRef, {
             totalPoints: admin.firestore.FieldValue.increment(points),
-            lastActive: admin.firestore.FieldValue.serverTimestamp(),
+            lastActive:  admin.firestore.FieldValue.serverTimestamp(),
           });
         }
       }
 
       await batch.commit();
-      console.log(`   ✅ Batch ${i / batchSize + 1} completado`);
+      console.log(`   ✅ Batch ${Math.floor(i / batchSize) + 1} completado (${chunk.length} predicciones)`);
     }
 
-    console.log(`✅ Partido ${matchId} procesado completamente`);
+    console.log(`✅ Partido ${matchId} procesado completamente — ${predictionsSnap.size} predicciones`);
   }
 );

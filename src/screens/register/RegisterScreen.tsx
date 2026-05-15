@@ -67,7 +67,34 @@ export default function RegisterScreen() {
     if (password.length < 6) { setError('Mínimo 6 caracteres para la contraseña'); shake(); return; }
     try {
       setLoading(true); setError('');
-      await registerWithEmail(email, password, username, COUNTRIES[country].code);
+      const { getAuth, EmailAuthProvider, linkWithCredential } = require('firebase/auth');
+      const currentUser = getAuth().currentUser;
+
+      // Si hay usuario anónimo, migrar sus datos al nuevo registro
+      if (currentUser && currentUser.isAnonymous) {
+        try {
+          const credential = EmailAuthProvider.credential(email, password);
+          await linkWithCredential(currentUser, credential);
+          // Actualizar perfil del usuario migrado
+          const { updateProfile } = require('firebase/auth');
+          const { doc, updateDoc, serverTimestamp } = require('firebase/firestore');
+          const { db } = require('../../services/firebase');
+          await updateProfile(currentUser, { displayName: username });
+          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Bogota';
+          await updateDoc(doc(db, 'users', currentUser.uid), {
+            username, country: COUNTRIES[country].code,
+            language: 'es', timezone,
+            plan: 'free', isAnonymous: false,
+            updatedAt: serverTimestamp(),
+          });
+        } catch (linkError: any) {
+          // Si falla el link (ej. email ya existe), registrar normalmente
+          if (linkError.code !== 'auth/email-already-in-use') throw linkError;
+          await registerWithEmail(email, password, username, COUNTRIES[country].code);
+        }
+      } else {
+        await registerWithEmail(email, password, username, COUNTRIES[country].code);
+      }
       navigation.navigate('Plans');
     } catch (e: any) {
       setError(e.message || 'Error al registrar'); shake();

@@ -47,8 +47,7 @@ function getRetosForMatch(phase?: string) {
   return elim.includes(phase ?? '') ? RETOS_ELIMINATORIA : RETOS_GRUPOS;
 }
 
-function RetoCard({ reto, match, userPlan, answer, onAnswer, saved }: any) {
-  const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+function RetoCard({ reto, match, userPlan, answer, onAnswer, saved, navigation }: any) {
   const isPaid = userPlan !== 'free';
   const options = reto.type === 'yn'
     ? [{ val:'yes', label:'SÍ' }, { val:'no', label:'NO' }]
@@ -640,7 +639,7 @@ export default function HomeScreen() {
                   {retosVisible && (
                     <View style={s.retosContent}>
                       {retos.map(reto => (
-                        <RetoCard key={reto.id} reto={reto} match={m} userPlan={userPlan}
+                        <RetoCard key={reto.id} reto={reto} match={m} userPlan={userPlan} navigation={navigation}
                           answer={matchAnswers[reto.id] ?? null}
                           onAnswer={(retoId: string, val: string) => handleRetoAnswer(m.id, retoId, val)}
                           saved={savedRetos}

@@ -115,25 +115,74 @@ export const rivalryNotification = onDocumentUpdated(
         const theirPoints = superado.totalPoints;
         const diff        = myPoints - theirPoints;
 
-        // Mensaje de rivalidad
-        const messages = [
-          {
-            title: `⚡ ¡${username} te superó!`,
-            body:  `Está ${diff} punto${diff === 1 ? '' : 's'} por encima en "${leagueName}". ¡Reacciona!`,
-          },
-          {
-            title: `🔥 ¡Te alcanzaron en "${leagueName}"!`,
-            body:  `${username} acaba de superarte. ¿Vas a dejar que se aleje?`,
-          },
-          {
-            title: `😤 ¡${username} te pasó por encima!`,
-            body:  `Ahora es #${myPosition + 1} en "${leagueName}". Tú eres #${superado.position}.`,
-          },
-        ];
+        // Mensaje de rivalidad — multiidioma
+        const superadoLang = superadoDoc.data()?.language ?? 'es';
+        const RIVALRY_MESSAGES: Record<string, Array<{title:string; body:string}>> = {
+          es: [
+            { title: `⚡ ¡${username} te superó!`,         body: `Está ${diff} punto${diff===1?'':'s'} por encima en "${leagueName}". ¡Reacciona!` },
+            { title: `🔥 ¡Te alcanzaron en la liga!`,       body: `${username} acaba de superarte. ¿Vas a dejar que se aleje?` },
+            { title: `😤 ¡${username} te pasó por encima!`, body: `Ahora es #${myPosition+1} en "${leagueName}". Tú eres #${superado.position}.` },
+          ],
+          en: [
+            { title: `⚡ ${username} just passed you!`,     body: `They are ${diff} point${diff===1?'':'s'} ahead in "${leagueName}". React!` },
+            { title: `🔥 Someone caught up in the league!`, body: `${username} just surpassed you. Will you let them pull away?` },
+            { title: `😤 ${username} overtook you!`,        body: `Now #${myPosition+1} in "${leagueName}". You are #${superado.position}.` },
+          ],
+          pt: [
+            { title: `⚡ ${username} te ultrapassou!`,      body: `Está ${diff} ponto${diff===1?'':'s'} à frente em "${leagueName}". Reaja!` },
+            { title: `🔥 Te alcançaram na liga!`,           body: `${username} acabou de te superar. Vai deixar escapar?` },
+            { title: `😤 ${username} passou por cima!`,     body: `Agora é #${myPosition+1} em "${leagueName}". Você é #${superado.position}.` },
+          ],
+          fr: [
+            { title: `⚡ ${username} t'a dépassé!`,         body: `Il est ${diff} point${diff===1?'':'s'} devant dans "${leagueName}". Réagis!` },
+            { title: `🔥 Quelqu'un t'a rattrapé!`,          body: `${username} vient de te dépasser. Tu vas le laisser s'échapper?` },
+            { title: `😤 ${username} t'a doublé!`,          body: `Maintenant #${myPosition+1} dans "${leagueName}". Tu es #${superado.position}.` },
+          ],
+          de: [
+            { title: `⚡ ${username} hat dich überholt!`,   body: `${diff} Punkt${diff===1?'':'e'} vor dir in "${leagueName}". Reagiere!` },
+            { title: `🔥 Jemand hat dich eingeholt!`,       body: `${username} hat dich gerade überholt. Willst du das zulassen?` },
+            { title: `😤 ${username} ist vorbeigezogen!`,   body: `Jetzt #${myPosition+1} in "${leagueName}". Du bist #${superado.position}.` },
+          ],
+          it: [
+            { title: `⚡ ${username} ti ha superato!`,      body: `È ${diff} punto${diff===1?'':'i'} avanti in "${leagueName}". Reagisci!` },
+            { title: `🔥 Ti hanno raggiunto in lega!`,      body: `${username} ti ha appena superato. Lo lasci andare?` },
+            { title: `😤 ${username} ti ha sorpassato!`,    body: `Ora è #${myPosition+1} in "${leagueName}". Tu sei #${superado.position}.` },
+          ],
+          ru: [
+            { title: `⚡ ${username} обогнал тебя!`,        body: `На ${diff} очк${diff===1?'о':'ов'} впереди в "${leagueName}". Реагируй!` },
+            { title: `🔥 Тебя догнали в лиге!`,             body: `${username} только что обогнал тебя. Ты позволишь ему уйти?` },
+            { title: `😤 ${username} прошёл мимо!`,         body: `Теперь #${myPosition+1} в "${leagueName}". Ты #${superado.position}.` },
+          ],
+          zh: [
+            { title: `⚡ ${username}超过你了!`,              body: `在"${leagueName}"中领先${diff}分。反击！` },
+            { title: `🔥 有人追上你了!`,                     body: `${username}刚刚超过了你。你要让他跑掉吗？` },
+            { title: `😤 ${username}把你甩在后面!`,          body: `现在在"${leagueName}"中排名第${myPosition+1}。你是第${superado.position}。` },
+          ],
+          ja: [
+            { title: `⚡ ${username}に追い抜かれた!`,        body: `"${leagueName}"で${diff}ポイント先行。反撃して！` },
+            { title: `🔥 リーグで追いつかれた!`,             body: `${username}にたった今抜かれた。逃がすの？` },
+            { title: `😤 ${username}に追い越された!`,        body: `"${leagueName}"で${myPosition+1}位。あなたは${superado.position}位。` },
+          ],
+          ko: [
+            { title: `⚡ ${username}이 추월했어!`,           body: `"${leagueName}"에서 ${diff}점 앞서 있어. 반격해!` },
+            { title: `🔥 누군가 따라잡았어!`,                body: `${username}이 방금 너를 추월했어. 놔둘 거야?` },
+            { title: `😤 ${username}이 앞질렀어!`,           body: `"${leagueName}"에서 ${myPosition+1}위야. 너는 ${superado.position}위.` },
+          ],
+          ar: [
+            { title: `⚡ ${username} تجاوزك!`,              body: `يتقدم بـ${diff} نقطة في "${leagueName}". تفاعل!` },
+            { title: `🔥 لحق بك شخص ما!`,                   body: `${username} تجاوزك للتو. ستتركه يبتعد؟` },
+            { title: `😤 ${username} تخطاك!`,               body: `الآن #${myPosition+1} في "${leagueName}". أنت #${superado.position}.` },
+          ],
+          hi: [
+            { title: `⚡ ${username} ने तुम्हें पीछे छोड़ा!`, body: `"${leagueName}" में ${diff} अंक आगे है। प्रतिक्रिया करो!` },
+            { title: `🔥 किसी ने तुम्हें पकड़ लिया!`,        body: `${username} ने अभी तुम्हें पीछे छोड़ा। उसे जाने दोगे?` },
+            { title: `😤 ${username} आगे निकल गया!`,         body: `अब "${leagueName}" में #${myPosition+1}। तुम #${superado.position} हो।` },
+          ],
+        };
 
-        // Rotar mensajes para no ser repetitivo
-        const msgIndex = Math.floor(Math.random() * messages.length);
-        const msg = messages[msgIndex];
+        const langMessages = RIVALRY_MESSAGES[superadoLang] ?? RIVALRY_MESSAGES.es;
+        const msgIndex = Math.floor(Math.random() * langMessages.length);
+        const msg = langMessages[msgIndex];
 
         try {
           await messaging.send({

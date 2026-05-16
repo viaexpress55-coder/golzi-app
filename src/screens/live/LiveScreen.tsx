@@ -83,9 +83,34 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
             </LinearGradient>
           )}
           {isLive && (
-            <View style={s.minRow}>
-              <View style={s.minDot} />
-              <Text style={s.minTxt}>{match.minute || '0'}'</Text>
+            <View style={{ width:'100%', paddingHorizontal:8, marginTop:8 }}>
+              {/* Barra de progreso del partido */}
+              <View style={{ flexDirection:'row', alignItems:'center', gap:8, marginBottom:6 }}>
+                <View style={s.minDot} />
+                <Text style={s.minTxt}>{match.minute || '0'}'</Text>
+                <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted }}>
+                  {(match.minute || 0) <= 45 ? 'PRIMER TIEMPO' : 'SEGUNDO TIEMPO'}
+                </Text>
+              </View>
+              {/* Barra progreso */}
+              <View style={{ height:4, backgroundColor:'rgba(255,255,255,0.08)', borderRadius:2, overflow:'hidden' }}>
+                <Animated.View style={{
+                  height:4,
+                  width:`${Math.min(((match.minute || 0) / 90) * 100, 100)}%`,
+                  backgroundColor:C.red,
+                  borderRadius:2,
+                  shadowColor:C.red,
+                  shadowOffset:{width:0,height:0},
+                  shadowOpacity:0.8,
+                  shadowRadius:4,
+                }} />
+              </View>
+              {/* Marcadores de tiempo */}
+              <View style={{ flexDirection:'row', justifyContent:'space-between', marginTop:3 }}>
+                <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted }}>0'</Text>
+                <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted }}>45'</Text>
+                <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted }}>90'</Text>
+              </View>
             </View>
           )}
         </View>

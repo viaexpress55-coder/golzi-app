@@ -4,7 +4,7 @@ import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import * as Linking from 'expo-linking';
+// deep linking
 import SplashScreen from '../screens/splash/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import RegisterScreen from '../screens/register/RegisterScreen';
@@ -50,37 +50,12 @@ const C = {
 };
 
 // ── Deep Linking config ───────────────────────────────────────────────────────
-const prefix = Linking.createURL('/');
-
 const linking = {
   prefixes: [
-    prefix,
     'golzi://',
     'https://golzi.app',
     'https://www.golzi.app',
   ],
-  config: {
-    screens: {
-      Splash:      '',
-      Onboarding:  'onboarding',
-      Register:    'register',
-      Login:       'login',
-      Plans:       'plans',
-      Payment:     'payment',
-      Main: {
-        screens: {
-          Predictor: 'predictor',
-          Live:      'live',
-          Ranking:   'ranking',
-          Mundial:   'mundial',
-          Liga:      {
-            path: 'liga/:leagueCode',
-          },
-          Perfil:    'perfil',
-        },
-      },
-    },
-  },
 };
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
@@ -177,7 +152,7 @@ function MainTabs() {
 export default function AppNavigator() {
   const { t } = useTranslation();
   return (
-    <NavigationContainer linking={linking}>
+    <NavigationContainer linking={linking as any}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Splash"      component={SplashScreen}    />
         <Stack.Screen name="Onboarding"  component={OnboardingScreen} />

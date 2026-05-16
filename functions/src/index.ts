@@ -14,6 +14,7 @@ export { submitPrediction } from './predictions/validatePrediction';
 // ── Ligas ──
 export { onLeagueMemberAdded }  from './leagues/checkCapacity';
 export { rivalryNotification }  from './leagues/rivalryNotification';
+export { generateLeagueAssets }  from './leagues/generateLeagueAssets';
 
 // ── Streaks ──
 export { calculateStreak } from './streaks/calculateStreak';

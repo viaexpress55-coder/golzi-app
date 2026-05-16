@@ -382,7 +382,7 @@ const s = StyleSheet.create({
   tabTxtOn:{ color:C.gold },
 
   plansGrid:{ gap:10, marginBottom:16 },
-  planCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderWidth:1, borderColor:'rgba(255,255,255,0.06)', borderRadius:16, overflow:'hidden' },
+  planCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderWidth:1, borderColor:'rgba(255,255,255,0.15)', borderRadius:16, overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:6}, shadowOpacity:0.2, shadowRadius:10, elevation:6 },
   planCardGlow:{ position:'absolute', top:0, left:0, right:0, bottom:0 },
   planTopLine:{ height:2 },
   popularBadge:{ paddingHorizontal:12, paddingVertical:4, alignSelf:'flex-end', borderBottomLeftRadius:8 },
@@ -420,7 +420,7 @@ const s = StyleSheet.create({
   b2bBtn:{ margin:14, marginTop:8, borderWidth:1, borderRadius:12, paddingVertical:12, alignItems:'center' },
   b2bBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:15, letterSpacing:2 },
 
-  promoBanner:{ backgroundColor:'rgba(255,215,0,0.06)', borderWidth:1, borderColor:'rgba(255,215,0,0.2)', borderRadius:10, padding:12, alignItems:'center' },
+  promoBanner:{ backgroundColor:'rgba(255,215,0,0.06)', borderWidth:1, borderColor:'rgba(255,215,0,0.4)', borderRadius:10, padding:12, alignItems:'center', shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.3, shadowRadius:8, elevation:6 },
   promoTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.gold, letterSpacing:0.5 },
 
   disclaimerBox:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:12, borderWidth:1, borderColor:'rgba(255,255,255,0.06)', padding:14 },

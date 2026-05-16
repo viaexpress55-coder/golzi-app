@@ -397,6 +397,12 @@ setUserPlan(planValue);
 
   return (
     <View style={s.root}>
+      {/* Fondo imagen estadio */}
+      <Image
+        source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/home-bg.png?alt=media&token=03237c0b-eb6d-4534-a21e-ae59da366365' }}
+        style={{ position:'absolute', top:0, left:0, right:0, bottom:0, width:'100%', height:'100%', opacity:0.08 }}
+        resizeMode="cover"
+      />
 
       {/* WOW Exact overlay */}
       {showExact && (

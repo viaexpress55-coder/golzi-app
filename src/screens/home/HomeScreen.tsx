@@ -228,7 +228,9 @@ export default function HomeScreen() {
     if (!user) return;
     getDoc(doc(db, 'users', user.uid)).then(snap => {
       if (snap.exists()) {
-        setUserPlan(snap.data()?.plan ?? 'free');
+        const planValue = snap.data()?.plan ?? 'free';
+console.log('Plan cargado:', planValue, 'UID:', user.uid);
+setUserPlan(planValue);
         setUserData(snap.data());
       }
     });

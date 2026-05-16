@@ -242,20 +242,26 @@ export default function HomeScreen() {
   async function loadMatches(forceRefresh = false) {
     try {
       if (forceRefresh) await refreshMatches();
-      const [live, upcoming] = await Promise.all([getLiveMatches(), getUpcomingMatches(8)]);
-      const api = [...live, ...upcoming];
-      if (api.length > 0) { setMatches(api.map(formatApiMatch)); }
-      else {
-        const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
-        const snap = await getDocs(q);
-        setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
-      }
-    } catch {
+
+      // PASO 1: Cargar Firestore primero — instantáneo
       try {
         const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
         const snap = await getDocs(q);
-        setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
+        if (!snap.empty) {
+          setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
+          setLoading(false); // mostrar UI inmediatamente
+        }
       } catch {}
+
+      // PASO 2: Actualizar con API en background
+      try {
+        const [live, upcoming] = await Promise.all([getLiveMatches(), getUpcomingMatches(8)]);
+        const api = [...live, ...upcoming];
+        if (api.length > 0) {
+          setMatches(api.map(formatApiMatch));
+        }
+      } catch {}
+
     } finally {
       setLoading(false);
       setRefreshing(false);

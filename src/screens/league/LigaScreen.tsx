@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { useTranslation } from 'react-i18next';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { functions } from '../../services/firebase';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
@@ -38,11 +40,30 @@ export default function LigaScreen() {
   const [joined,  setJoined]  = useState(false);
   const [created, setCreated] = useState(false);
   const [codeFocus, setCodeFocus] = useState(false);
-  const [nameFocus, setNameFocus] = useState(false);
+  const [nameFocus, setNameFocus]   = useState(false);
+  const [qrBase64,  setQrBase64]    = useState<string|null>(null);
+  const [inviteLink, setInviteLink] = useState<string>(`https://golzi.app/liga/${MY_LEAGUE.code}`);
+  const [qrLoading, setQrLoading]   = useState(false);
   const [chatMsg, setChatMsg] = useState('');
   const [chatMsgs, setChatMsgs] = useState<any[]>([]);
   const chatScrollRef = useRef<any>(null);
   const LEAGUE_ID = MY_LEAGUE.code;
+
+  async function generateQR() {
+    try {
+      setQrLoading(true);
+      const generateLeagueAssets = httpsCallable(functions, 'generateLeagueAssets');
+      const result: any = await generateLeagueAssets({ leagueId: LEAGUE_ID });
+      if (result.data?.qrBase64) {
+        setQrBase64(result.data.qrBase64);
+        setInviteLink(result.data.inviteLink);
+      }
+    } catch (e) {
+      console.log('QR error:', e);
+    } finally {
+      setQrLoading(false);
+    }
+  }
 
   useEffect(() => {
     const q = query(
@@ -132,10 +153,19 @@ export default function LigaScreen() {
                   <Text style={s.ligaName}>{MY_LEAGUE.name}</Text>
                   <Text style={s.ligaInfo}>{MY_LEAGUE.members.length} participantes · Plan {MY_LEAGUE.plan}</Text>
                 </View>
-                <View style={s.qrBox}>
-                  <Text style={s.qrLabel}>QR</Text>
-                  <Text style={s.qrCode}>{MY_LEAGUE.code}</Text>
-                </View>
+                <TouchableOpacity style={s.qrBox} onPress={generateQR} activeOpacity={0.8}>
+                  {qrLoading ? (
+                    <ActivityIndicator color="#FFD700" size="small" />
+                  ) : qrBase64 ? (
+                    <Image source={{ uri: qrBase64 }} style={{ width:80, height:80, borderRadius:8 }} />
+                  ) : (
+                    <>
+                      <Text style={s.qrLabel}>QR</Text>
+                      <Text style={s.qrCode}>{MY_LEAGUE.code}</Text>
+                      <Text style={{ fontSize:9, color:'#6B7A99', marginTop:4 }}>Toca para generar</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
               </View>
               <View style={s.codeRow}>
                 <Text style={s.codeLabel}>{t('liga_invite_code')}</Text>

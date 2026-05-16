@@ -116,7 +116,6 @@ export default function SplashScreen() {
           />
         </Animated.View>
 
-        <Text style={s.golziTitle}>GOLZI</Text>
         <Text style={s.tagline}>MUNDIAL 2026</Text>
 
         {/* Fechas */}

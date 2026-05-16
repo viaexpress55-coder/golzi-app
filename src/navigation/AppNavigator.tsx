@@ -4,6 +4,7 @@ import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as Linking from 'expo-linking';
 import SplashScreen from '../screens/splash/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import RegisterScreen from '../screens/register/RegisterScreen';
@@ -48,13 +49,39 @@ const C = {
   border2: 'rgba(255,255,255,0.07)',
 };
 
-function Placeholder({ name }: { name: string }) {
-  return (
-    <View style={{ flex:1, backgroundColor:C.darker, alignItems:'center', justifyContent:'center' }}>
-      <Text style={{ fontSize:28, color:C.gold, letterSpacing:2 }}>{name}</Text>
-    </View>
-  );
-}
+// ── Deep Linking config ───────────────────────────────────────────────────────
+const prefix = Linking.createURL('/');
+
+const linking = {
+  prefixes: [
+    prefix,
+    'golzi://',
+    'https://golzi.app',
+    'https://www.golzi.app',
+  ],
+  config: {
+    screens: {
+      Splash:      '',
+      Onboarding:  'onboarding',
+      Register:    'register',
+      Login:       'login',
+      Plans:       'plans',
+      Payment:     'payment',
+      Main: {
+        screens: {
+          Predictor: 'predictor',
+          Live:      'live',
+          Ranking:   'ranking',
+          Mundial:   'mundial',
+          Liga:      {
+            path: 'liga/:leagueCode',
+          },
+          Perfil:    'perfil',
+        },
+      },
+    },
+  },
+};
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   return <Text style={{ fontSize:17, opacity: focused ? 1 : 0.35 }}>{emoji}</Text>;
@@ -67,13 +94,13 @@ function MainTabs() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-  backgroundColor: 'rgba(8,10,16,0.98)',
-  borderTopWidth: 1,
-  borderTopColor: C.border2,
-  height: 80,
-  paddingBottom: 20,
-  paddingTop: 4,
-},
+          backgroundColor: 'rgba(8,10,16,0.98)',
+          borderTopWidth: 1,
+          borderTopColor: C.border2,
+          height: 80,
+          paddingBottom: 20,
+          paddingTop: 4,
+        },
         tabBarActiveTintColor:   C.gold,
         tabBarInactiveTintColor: C.muted,
         tabBarLabelStyle: {
@@ -150,15 +177,15 @@ function MainTabs() {
 export default function AppNavigator() {
   const { t } = useTranslation();
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash"     component={SplashScreen}    />
-        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        <Stack.Screen name="Register"   component={RegisterScreen}   />
-        <Stack.Screen name="Plans"      component={PlansScreen}      />
-        <Stack.Screen name="Login"      component={LoginScreen}      />
-        <Stack.Screen name="Main"       component={MainTabs}         />
-        <Stack.Screen name="Payment"    component={PaymentScreen}    />
+        <Stack.Screen name="Splash"      component={SplashScreen}    />
+        <Stack.Screen name="Onboarding"  component={OnboardingScreen} />
+        <Stack.Screen name="Register"    component={RegisterScreen}   />
+        <Stack.Screen name="Plans"       component={PlansScreen}      />
+        <Stack.Screen name="Login"       component={LoginScreen}      />
+        <Stack.Screen name="Main"        component={MainTabs}         />
+        <Stack.Screen name="Payment"     component={PaymentScreen}    />
       </Stack.Navigator>
       <PostMatchSummary />
     </NavigationContainer>

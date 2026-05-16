@@ -46,7 +46,6 @@ function LiveTopLine() {
         width:150,
         position:'absolute',
         transform:[{ translateX }],
-        background:'linear-gradient(90deg, transparent, #FF3355, #FFD700, #FF3355, transparent)',
         shadowColor:'#FF3355',
         shadowOpacity:1,
         shadowRadius:6,

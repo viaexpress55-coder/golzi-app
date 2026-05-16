@@ -31,6 +31,36 @@ function LiveBadge({ minute, label }: { minute?: number | null; label: string })
   );
 }
 
+function LiveTopLine() {
+  const anim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(anim, { toValue:1, duration:2000, useNativeDriver:false })
+    ).start();
+  }, []);
+  const translateX = anim.interpolate({ inputRange:[0,1], outputRange:[-300, 300] });
+  return (
+    <View style={{ height:3, backgroundColor:'rgba(255,51,85,0.2)', overflow:'hidden' }}>
+      <Animated.View style={{
+        height:3,
+        width:150,
+        position:'absolute',
+        transform:[{ translateX }],
+        background:'linear-gradient(90deg, transparent, #FF3355, #FFD700, #FF3355, transparent)',
+        shadowColor:'#FF3355',
+        shadowOpacity:1,
+        shadowRadius:6,
+      }}>
+        <LinearGradient
+          colors={['transparent','#FF3355','#FFD700','#FF3355','transparent']}
+          start={{x:0,y:0}} end={{x:1,y:0}}
+          style={{ height:3, width:150 }}
+        />
+      </Animated.View>
+    </View>
+  );
+}
+
 function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
   const scoreAnim = useRef(new Animated.Value(1)).current;
   const prevScore = useRef({ home:match.homeScore, away:match.awayScore });
@@ -56,7 +86,11 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
         start={{x:0.5,y:0}} end={{x:0.5,y:1}}
         style={s.scoreCardGlow}
       />
-      <View style={[s.scoreTopLine, { backgroundColor: isLive ? C.red : C.gold }]} />
+      {isLive ? (
+        <LiveTopLine />
+      ) : (
+        <View style={[s.scoreTopLine, { backgroundColor: C.gold }]} />
+      )}
       <Text style={s.scoreVenue}>{match.venue || match.stadium || 'ESTADIO'} · MUNDIAL 2026</Text>
       {isLive && <LiveBadge minute={match.minute} label={t('live_badge')} />}
       {isFinished && (

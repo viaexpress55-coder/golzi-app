@@ -19,6 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import ShareCard from '../../components/ShareCard';
+import GlowCard from '../../components/GlowCard';
 import { useShareCard } from '../../hooks/useShareCard';
 
 const C = {
@@ -807,7 +808,7 @@ const s = StyleSheet.create({
   statDivider:{ width:1, height:36, backgroundColor:'rgba(255,215,0,0.2)' },
   scroll:{ paddingBottom:40 },
 
-  card:{ marginHorizontal:12, marginBottom:10, backgroundColor:C.surface2, borderRadius:18, borderWidth:1, borderColor:C.goldBorderLight, overflow:'hidden' },
+  card:{ marginHorizontal:12, marginBottom:10, backgroundColor:C.surface2, borderRadius:18, borderWidth:1, borderColor:'rgba(255,215,0,0.35)', overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:6}, shadowOpacity:0.35, shadowRadius:12, elevation:10 },
   cardTopLine:{ height:2 },
   cardGlow:{ position:'absolute', top:0, left:0, right:0, height:80, zIndex:0 },
   cardHeader:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:14, paddingTop:12, paddingBottom:6, zIndex:1 },

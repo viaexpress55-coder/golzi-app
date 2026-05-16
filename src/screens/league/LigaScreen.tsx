@@ -420,7 +420,7 @@ const s = StyleSheet.create({
   scroll:{ paddingBottom:40 },
   tabContent:{ paddingHorizontal:12, gap:12 },
 
-  ligaHero:{ borderRadius:18, borderWidth:1, borderColor:'rgba(255,215,0,0.25)', padding:16, overflow:'hidden', position:'relative' },
+  ligaHero:{ borderRadius:18, borderWidth:1, borderColor:'rgba(255,215,0,0.4)', padding:16, overflow:'hidden', position:'relative', shadowColor:'#FFD700', shadowOffset:{width:0,height:8}, shadowOpacity:0.35, shadowRadius:14, elevation:10 },
   heroTopLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:C.gold },
   ligaHeroTop:{ flexDirection:'row', alignItems:'flex-start', justifyContent:'space-between', marginBottom:14, gap:12 },
   ligaName:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold, letterSpacing:1 },
@@ -433,7 +433,7 @@ const s = StyleSheet.create({
   codePill:{ borderRadius:10, borderWidth:1, borderColor:'rgba(255,215,0,0.3)', paddingHorizontal:12, paddingVertical:6 },
   codeTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:14, color:C.gold, letterSpacing:1 },
 
-  rankCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:1, borderColor:'rgba(255,255,255,0.06)', padding:16 },
+  rankCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', padding:16, shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.2, shadowRadius:8, elevation:5 },
   rankTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:12 },
 
   memberRow:{ flexDirection:'row', alignItems:'center', borderRadius:12, padding:10, marginBottom:6, gap:10 },
@@ -452,7 +452,7 @@ const s = StyleSheet.create({
   memberPtsLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2 },
 
   shareBtn:{ borderRadius:14, overflow:'hidden' },
-  shareBtnInner:{ borderRadius:14, borderWidth:1, borderColor:'rgba(0,255,135,0.25)', paddingVertical:14, alignItems:'center' },
+  shareBtnInner:{ borderRadius:14, borderWidth:1, borderColor:'rgba(0,255,135,0.4)', paddingVertical:14, alignItems:'center', shadowColor:'#00FF87', shadowOffset:{width:0,height:4}, shadowOpacity:0.3, shadowRadius:8, elevation:6 },
   shareBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:C.green, letterSpacing:2 },
 
   formCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.12)', padding:16, gap:10 },
@@ -497,7 +497,7 @@ const s = StyleSheet.create({
 
   infoBox:{ backgroundColor:'rgba(255,215,0,0.05)', borderRadius:12, borderWidth:1, borderColor:'rgba(255,215,0,0.15)', padding:12 },
   infoTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:C.muted, lineHeight:17 },
-  addonBox:{ backgroundColor:'rgba(0,198,255,0.06)', borderRadius:12, borderWidth:1, borderColor:'rgba(0,198,255,0.2)', padding:14, gap:8 },
+  addonBox:{ backgroundColor:'rgba(0,198,255,0.06)', borderRadius:12, borderWidth:1, borderColor:'rgba(0,198,255,0.35)', padding:14, gap:8, shadowColor:'#00C6FF', shadowOffset:{width:0,height:4}, shadowOpacity:0.25, shadowRadius:8, elevation:5 },
   addonBoxTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:12, color:C.cyan, letterSpacing:1 },
   addonBoxSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:C.muted },
   addonList:{ gap:6 },

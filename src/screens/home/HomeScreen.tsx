@@ -202,6 +202,8 @@ export default function HomeScreen() {
   const [showRetos, setShowRetos]       = useState<Record<string,boolean>>({});
   const [retoAnswers, setRetoAnswers]   = useState<Record<string,Record<string,string>>>({});
   const [retosSaved, setRetosSaved]     = useState<Record<string,boolean>>({});
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmMatch, setConfirmMatch]         = useState<any>(null);
 
   // ShareCard
   const { cardRef, shareCard }          = useShareCard();
@@ -454,6 +456,52 @@ export default function HomeScreen() {
         </View>
       </Modal>
 
+      {/* MODAL CONFIRMACIÓN PREDICCIÓN */}
+      <Modal visible={showConfirmModal} transparent animationType="fade" onRequestClose={() => setShowConfirmModal(false)}>
+        <View style={{ flex:1, backgroundColor:'rgba(0,0,0,0.85)', alignItems:'center', justifyContent:'center', padding:24 }}>
+          <View style={{ backgroundColor:'#0A0F1A', borderRadius:20, padding:24, width:'100%', borderWidth:1, borderColor:'rgba(255,215,0,0.3)', gap:16 }}>
+            <View style={{ height:2, backgroundColor:'#FFD700', borderRadius:1 }} />
+            <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:'#FFD700', letterSpacing:3, textAlign:'center' }}>
+              ¿CONFIRMAS TU PREDICCIÓN?
+            </Text>
+            {confirmMatch && (
+              <View style={{ alignItems:'center', gap:8 }}>
+                <Text style={{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:16, color:'#9AAABB', textAlign:'center' }}>
+                  {confirmMatch.homeTeam} vs {confirmMatch.awayTeam}
+                </Text>
+                <View style={{ flexDirection:'row', alignItems:'center', gap:16, backgroundColor:'rgba(255,215,0,0.1)', borderRadius:14, paddingHorizontal:24, paddingVertical:14, borderWidth:1, borderColor:'rgba(255,215,0,0.25)' }}>
+                  <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:'#FFD700' }}>{getScore(confirmMatch.id)[0] || '0'}</Text>
+                  <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:'#6B7A99' }}>-</Text>
+                  <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:'#FFD700' }}>{getScore(confirmMatch.id)[1] || '0'}</Text>
+                </View>
+                <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:'#6B7A99' }}>
+                  Esta predicción no se puede cambiar después
+                </Text>
+              </View>
+            )}
+            <View style={{ flexDirection:'row', gap:10 }}>
+              <TouchableOpacity 
+                style={{ flex:1, borderRadius:12, borderWidth:1, borderColor:'rgba(255,255,255,0.1)', paddingVertical:14, alignItems:'center' }}
+                onPress={() => setShowConfirmModal(false)}
+              >
+                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#6B7A99', letterSpacing:1 }}>CANCELAR</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ flex:2, borderRadius:12, overflow:'hidden' }}
+                onPress={() => {
+                  setShowConfirmModal(false);
+                  if (confirmMatch) confirm(confirmMatch.id);
+                }}
+              >
+                <LinearGradient colors={['#FFD700','#FFA500']} start={{x:0,y:0}} end={{x:1,y:0}} style={{ paddingVertical:14, alignItems:'center', borderRadius:12 }}>
+                  <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:'#000', letterSpacing:2 }}>⚡ CONFIRMAR</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* HEADER */}
       <LinearGradient colors={['#020408','#05080F']} style={s.header}>
         <View style={s.topLine} />
@@ -600,7 +648,20 @@ export default function HomeScreen() {
               )}
 
               {m.status !== 'finished' && (
-                <TouchableOpacity style={s.predictBtn} onPress={() => isSelected ? confirm(m.id) : setSelected(m.id)} activeOpacity={0.85}>
+                <TouchableOpacity 
+  style={[s.predictBtn, isSelected && !getScore(m.id)[0] && !getScore(m.id)[1] && { opacity: 0.4 }]} 
+  onPress={() => {
+    if (isSelected) {
+      const [h, a] = getScore(m.id);
+      if (!h && !a) return; // no hace nada si está vacío
+      setConfirmMatch(m);
+      setShowConfirmModal(true);
+    } else {
+      setSelected(m.id);
+    }
+  }} 
+  activeOpacity={0.85}
+>
                   <LinearGradient
                     colors={isConfirmed ? ['#00FF87','#00C853'] : isSelected ? [C.gold, C.gold2] : ['rgba(255,215,0,0.12)','rgba(255,215,0,0.04)']}
                     start={{x:0,y:0}} end={{x:1,y:0}} style={s.predictBtnInner}

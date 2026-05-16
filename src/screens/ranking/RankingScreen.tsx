@@ -284,13 +284,13 @@ export default function RankingScreen() {
       )}
 
       {/* TABS — scroll horizontal para los 4 */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ maxHeight:48 }} contentContainerStyle={s.tabRow}>
+      <View style={s.tabRow}>
         {TABS.map((tabName,i) => (
           <TouchableOpacity key={i} style={[s.tab, tab===i && s.tabOn]} onPress={() => setTab(i)}>
             <Text style={[s.tabTxt, tab===i && s.tabTxtOn]}>{tabName}</Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
@@ -471,8 +471,8 @@ const s = StyleSheet.create({
   myPosPtsLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2 },
   shareBtn:{ marginTop:6, backgroundColor:'rgba(255,215,0,0.1)', borderRadius:8, borderWidth:1, borderColor:'rgba(255,215,0,0.3)', paddingHorizontal:10, paddingVertical:5 },
   shareBtnTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.gold, letterSpacing:1 },
-  tabRow:{ paddingHorizontal:12, gap:8, paddingVertical:10 },
-  tab:{ paddingVertical:9, paddingHorizontal:14, borderRadius:10, backgroundColor:'rgba(255,255,255,0.04)', alignItems:'center', borderWidth:1, borderColor:'rgba(255,255,255,0.06)' },
+  tabRow:{ flexDirection:'row', paddingHorizontal:12, gap:6, paddingVertical:10 },
+  tab:{ flex:1, paddingVertical:8, paddingHorizontal:4, borderRadius:10, backgroundColor:'rgba(255,255,255,0.04)', alignItems:'center', borderWidth:1, borderColor:'rgba(255,255,255,0.06)' },
   tabOn:{ backgroundColor:'rgba(255,215,0,0.1)', borderColor:'rgba(255,215,0,0.3)' },
   tabTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.muted, letterSpacing:1 },
   tabTxtOn:{ color:C.gold },

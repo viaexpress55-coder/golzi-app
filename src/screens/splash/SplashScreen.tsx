@@ -116,6 +116,7 @@ export default function SplashScreen() {
           />
         </Animated.View>
 
+        <Text style={s.golziTitle}>GOLZI</Text>
         <Text style={s.tagline}>MUNDIAL 2026</Text>
 
         {/* Fechas */}
@@ -269,5 +270,13 @@ const s = StyleSheet.create({
   loginTxt:{
     fontFamily:'BarlowCondensed_600SemiBold',
     fontSize:13, color:C.gold, letterSpacing:0.5,
+  },
+  golziTitle:{
+    fontFamily:'BebasNeue_400Regular',
+    fontSize:52, color:C.gold, letterSpacing:8,
+    textShadowColor:'rgba(255,215,0,0.8)',
+    textShadowOffset:{ width:0, height:0 },
+    textShadowRadius:20,
+    marginBottom:2,
   },
 });

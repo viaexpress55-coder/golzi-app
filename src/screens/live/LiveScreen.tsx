@@ -100,7 +100,15 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
           {match.events.map((e: any, i: number) => (
             <View key={i} style={s.eventRow}>
               <Text style={s.eventMin}>{e.minute}'</Text>
-              <Text style={s.eventTxt} numberOfLines={1}>{e.player} — {e.detail || e.type}</Text>
+              <Text style={s.eventEmoji}>
+                {e.type === 'GOAL' ? '⚽' :
+                 e.type === 'YELLOW_CARD' ? '🟨' :
+                 e.type === 'RED_CARD' ? '🟥' :
+                 e.type === 'SUBSTITUTION' ? '🔄' :
+                 e.type === 'PENALTY' ? '🎯' :
+                 e.type === 'VAR' ? '📺' : '⚡'}
+              </Text>
+              <Text style={s.eventTxt} numberOfLines={1}>{e.player}{e.detail ? ` — ${e.detail}` : ''}</Text>
             </View>
           ))}
         </View>
@@ -334,9 +342,10 @@ const s = StyleSheet.create({
   minDot:{ width:8, height:8, borderRadius:4, backgroundColor:C.red },
   minTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:13, color:C.red, letterSpacing:1 },
 
-  eventFeed:{ borderTopWidth:1, borderTopColor:'rgba(255,215,0,0.1)', padding:12, gap:8 },
-  eventRow:{ flexDirection:'row', alignItems:'center', gap:10 },
+  eventFeed:{ borderTopWidth:1, borderTopColor:'rgba(255,215,0,0.1)', padding:12, gap:6 },
+  eventRow:{ flexDirection:'row', alignItems:'center', gap:8, backgroundColor:'rgba(255,255,255,0.02)', borderRadius:8, paddingHorizontal:8, paddingVertical:6 },
   eventMin:{ fontFamily:'BebasNeue_400Regular', fontSize:14, color:C.gold, width:28 },
+  eventEmoji:{ fontSize:14, width:20, textAlign:'center' },
   eventTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.muted2, flex:1 },
 
   miniCard:{ borderRadius:14, borderWidth:1, borderColor:'rgba(255,255,255,0.06)', padding:14, flexDirection:'row', alignItems:'center', marginBottom:8 },

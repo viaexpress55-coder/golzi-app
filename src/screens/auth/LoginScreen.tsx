@@ -29,7 +29,8 @@ export default function LoginScreen() {
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
   const [emailFocus, setEmailFocus] = useState(false);
-  const [passFocus,  setPassFocus]  = useState(false);
+  const [passFocus,    setPassFocus]    = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
@@ -133,8 +134,11 @@ export default function LoginScreen() {
               onChangeText={v => { setPassword(v); setError(''); }}
               onFocus={() => setPassFocus(true)}
               onBlur={() => setPassFocus(false)}
-              secureTextEntry
+              secureTextEntry={!showPassword}
             />
+            <TouchableOpacity onPress={() => setShowPassword(p => !p)} style={{ padding:4 }}>
+              <Text style={{ fontSize:18 }}>{showPassword ? '🙈' : '👁️'}</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Error */}

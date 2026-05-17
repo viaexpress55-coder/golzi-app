@@ -48,6 +48,45 @@ function getRetosForMatch(phase?: string) {
   return elim.includes(phase ?? '') ? RETOS_ELIMINATORIA : RETOS_GRUPOS;
 }
 
+function AnimatedBorder({ children, style }: { children: React.ReactNode; style?: any }) {
+  const anim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(anim, { toValue:1, duration:3000, useNativeDriver:false })
+    ).start();
+  }, []);
+  const translateX = anim.interpolate({ inputRange:[0,1], outputRange:[-400, 400] });
+  return (
+    <View style={[style, { position:'relative' }]}>
+      {/* Línea animada top */}
+      <View style={{ position:'absolute', top:0, left:0, right:0, height:2, overflow:'hidden', zIndex:10, borderTopLeftRadius:18, borderTopRightRadius:18 }}>
+        <Animated.View style={{ position:'absolute', top:0, height:2, width:200, transform:[{ translateX }] }}>
+          <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={{ height:2, width:200 }} />
+        </Animated.View>
+      </View>
+      {/* Línea animada bottom */}
+      <View style={{ position:'absolute', bottom:0, left:0, right:0, height:2, overflow:'hidden', zIndex:10, borderBottomLeftRadius:18, borderBottomRightRadius:18 }}>
+        <Animated.View style={{ position:'absolute', bottom:0, height:2, width:200, transform:[{ translateX }] }}>
+          <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={{ height:2, width:200 }} />
+        </Animated.View>
+      </View>
+      {/* Línea animada left */}
+      <View style={{ position:'absolute', top:0, left:0, bottom:0, width:2, overflow:'hidden', zIndex:10, borderTopLeftRadius:18, borderBottomLeftRadius:18 }}>
+        <Animated.View style={{ position:'absolute', left:0, width:2, height:200, transform:[{ translateY: translateX }] }}>
+          <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:0,y:1}} style={{ width:2, height:200 }} />
+        </Animated.View>
+      </View>
+      {/* Línea animada right */}
+      <View style={{ position:'absolute', top:0, right:0, bottom:0, width:2, overflow:'hidden', zIndex:10, borderTopRightRadius:18, borderBottomRightRadius:18 }}>
+        <Animated.View style={{ position:'absolute', right:0, width:2, height:200, transform:[{ translateY: translateX }] }}>
+          <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:0,y:1}} style={{ width:2, height:200 }} />
+        </Animated.View>
+      </View>
+      {children}
+    </View>
+  );
+}
+
 function RetoCard({ reto, match, userPlan, answer, onAnswer, saved, navigation }: any) {
   const isPaid = userPlan !== 'free';
   const options = reto.type === 'yn'
@@ -568,7 +607,7 @@ setUserPlan(planValue);
           const answeredCount = Object.keys(matchAnswers).length;
 
           return (
-            <View key={m.id} style={s.card}>
+            <AnimatedBorder key={m.id} style={s.card}>
               <LinearGradient
                 colors={isConfirmed ? ['#00FF87','#00C853'] : cd.isLive ? ['#FF3355','#FF0040'] : ['#FFD700','#FFA500']}
                 start={{x:0,y:0}} end={{x:1,y:0}} style={s.cardTopLine}
@@ -737,7 +776,7 @@ setUserPlan(planValue);
                   )}
                 </View>
               )}
-            </View>
+            </AnimatedBorder>
           );
         })}
 

@@ -155,6 +155,7 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
       </View>
       {match.events && match.events.length > 0 && (
         <View style={s.eventFeed}>
+          <Text style={s.statsTitle}>⚡ EVENTOS DEL PARTIDO</Text>
           {match.events.map((e: any, i: number) => (
             <View key={i} style={s.eventRow}>
               <Text style={s.eventMin}>{e.minute}'</Text>
@@ -169,6 +170,34 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
               <Text style={s.eventTxt} numberOfLines={1}>{e.player}{e.detail ? ` — ${e.detail}` : ''}</Text>
             </View>
           ))}
+        </View>
+      )}
+
+      {/* ESTADÍSTICAS EN VIVO */}
+      {match.stats && (
+        <View style={s.statsBox}>
+          <Text style={s.statsTitle}>📊 ESTADÍSTICAS EN VIVO</Text>
+          {[
+            { label:'POSESIÓN', home:`${match.stats.home.possession}%`, away:`${match.stats.away.possession}%`, homeVal:match.stats.home.possession, awayVal:match.stats.away.possession },
+            { label:'TIROS AL ARCO', home:match.stats.home.shots, away:match.stats.away.shots, homeVal:match.stats.home.shots, awayVal:match.stats.away.shots },
+            { label:'FALTAS', home:match.stats.home.fouls, away:match.stats.away.fouls, homeVal:match.stats.home.fouls, awayVal:match.stats.away.fouls },
+            { label:'TARJETAS', home:match.stats.home.yellowCards, away:match.stats.away.yellowCards, homeVal:match.stats.home.yellowCards, awayVal:match.stats.away.yellowCards },
+            { label:'TIROS DE ESQUINA', home:match.stats.home.corners, away:match.stats.away.corners, homeVal:match.stats.home.corners, awayVal:match.stats.away.corners },
+          ].map((stat, i) => {
+            const total = (stat.homeVal || 0) + (stat.awayVal || 0) || 1;
+            const homePct = ((stat.homeVal || 0) / total) * 100;
+            return (
+              <View key={i} style={s.statRow}>
+                <Text style={s.statHome}>{stat.home}</Text>
+                <View style={s.statBarWrap}>
+                  <View style={[s.statBarHome, { width:`${homePct}%` }]} />
+                  <View style={[s.statBarAway, { width:`${100-homePct}%` }]} />
+                </View>
+                <Text style={s.statAway}>{stat.away}</Text>
+                <Text style={s.statLabel}>{stat.label}</Text>
+              </View>
+            );
+          })}
         </View>
       )}
     </View>
@@ -405,6 +434,15 @@ const s = StyleSheet.create({
   eventMin:{ fontFamily:'BebasNeue_400Regular', fontSize:14, color:C.gold, width:28 },
   eventEmoji:{ fontSize:14, width:20, textAlign:'center' },
   eventTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.muted2, flex:1 },
+  statsBox:{ borderTopWidth:1, borderTopColor:'rgba(255,215,0,0.1)', padding:12, gap:8 },
+  statsTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.muted, letterSpacing:2, marginBottom:4 },
+  statRow:{ flexDirection:'row', alignItems:'center', gap:6, flexWrap:'wrap' },
+  statHome:{ fontFamily:'BebasNeue_400Regular', fontSize:14, color:C.gold, width:36, textAlign:'left' },
+  statAway:{ fontFamily:'BebasNeue_400Regular', fontSize:14, color:C.cyan, width:36, textAlign:'right' },
+  statLabel:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:1, width:'100%', textAlign:'center', marginTop:-4 },
+  statBarWrap:{ flex:1, height:4, flexDirection:'row', borderRadius:2, overflow:'hidden', backgroundColor:'rgba(255,255,255,0.06)' },
+  statBarHome:{ height:4, backgroundColor:C.gold, borderRadius:2 },
+  statBarAway:{ height:4, backgroundColor:C.cyan, borderRadius:2 },
 
   miniCard:{ borderRadius:14, borderWidth:1, borderColor:'rgba(255,255,255,0.06)', padding:14, flexDirection:'row', alignItems:'center', marginBottom:8 },
   miniTeamBox:{ flex:1, alignItems:'flex-start', gap:4 },

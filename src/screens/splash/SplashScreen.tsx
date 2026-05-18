@@ -108,13 +108,7 @@ export default function SplashScreen() {
 
       <Animated.View style={[s.inner, { opacity: fadeAnim }]}>
 
-        <Animated.View style={{ transform:[{ translateY: trophyY }] }}>
-          <Image
-            source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
-            style={s.trophy}
-            resizeMode="contain"
-          />
-        </Animated.View>
+        
 
         <Text style={s.tagline}>MUNDIAL 2026</Text>
 
@@ -205,7 +199,7 @@ const s = StyleSheet.create({
   },
   bgStadium:{
     position:'absolute', top:0, left:0, right:0, bottom:0,
-    opacity:0.05,
+    opacity:0.1,
   },
   inner:{
     flex:1, alignItems:'center', justifyContent:'center',

@@ -52,7 +52,7 @@ export default function SplashScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const { t } = useTranslation();
   const [cd, setCD] = useState(getCD());
-  const [selectedLang, setSelectedLang] = useState<string>('MX');
+  const [selectedLang, setSelectedLang] = useState<string>('ES');
 
   const floatAnim    = useRef(new Animated.Value(0)).current;
   const shineAnim    = useRef(new Animated.Value(-1)).current;
@@ -98,32 +98,28 @@ export default function SplashScreen() {
 
   return (
     <View style={s.root}>
-      <View style={s.bgGlowGold} />
-      <View style={s.bgGlowCyan} />
+
+      {/* Fondo — imagen trofeo GOLZI CUP */}
       <Animated.Image
         source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/splash-bg.png?alt=media&token=ea49a7a6-bb16-4a0f-9763-9cfd23695bab' }}
         style={[s.bgStadium, { opacity: stadiumFade, transform:[{ scale: stadiumScale }] }]}
-        resizeMode="contain"
+        resizeMode="cover"
       />
+
+      {/* Overlay oscuro suave para legibilidad */}
+      <View style={s.overlay} />
 
       <Animated.View style={[s.inner, { opacity: fadeAnim }]}>
 
-        
+        {/* Logo GOLZI flotante */}
+        <Animated.View style={{ transform:[{ translateY: trophyY }] }}>
+          <Image
+            source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
+            style={s.trophy}
+            resizeMode="contain"
+          />
+        </Animated.View>
 
-        <Animated.View style={{ transform:[{ translateY: trophyY }] }}>
-          <Image
-            source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
-            style={s.trophy}
-            resizeMode="contain"
-          />
-        </Animated.View>
-        <Animated.View style={{ transform:[{ translateY: trophyY }] }}>
-          <Image
-            source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
-            style={s.trophy}
-            resizeMode="contain"
-          />
-        </Animated.View>
         <Text style={s.tagline}>MUNDIAL 2026</Text>
 
         {/* Fechas */}
@@ -144,7 +140,7 @@ export default function SplashScreen() {
           ))}
         </View>
 
-        {/* Selector de idioma con banderas */}
+        {/* Selector de idioma */}
         <Text style={s.langTitle}>SELECCIONA TU IDIOMA</Text>
         <View style={s.langRow}>
           {LANGS.map(l => {
@@ -201,29 +197,28 @@ export default function SplashScreen() {
 
 const s = StyleSheet.create({
   root:{ flex:1, backgroundColor:C.darker },
-  bgGlowGold:{
-    position:'absolute', width:400, height:400, borderRadius:200,
-    top:-100, alignSelf:'center',
-    backgroundColor:'rgba(255,215,0,0.12)',
-  },
-  bgGlowCyan:{
-    position:'absolute', width:300, height:300, borderRadius:150,
-    top:200, right:-100,
-    backgroundColor:'rgba(0,198,255,0.06)',
-  },
+
   bgStadium:{
     position:'absolute', top:0, left:0, right:0, bottom:0,
-    opacity:0.45,
   },
+
+  // Overlay semitransparente para mejorar legibilidad sin oscurecer demasiado
+  overlay:{
+    position:'absolute', top:0, left:0, right:0, bottom:0,
+    backgroundColor:'rgba(2,4,8,0.45)',
+  },
+
   inner:{
     flex:1, alignItems:'center', justifyContent:'center',
     paddingHorizontal:24, paddingVertical:40,
   },
-  trophy:{ width:180, height:180, marginBottom:8 },
+
+  trophy:{ width:120, height:120, marginBottom:4 },
+
   tagline:{
     fontFamily:'BarlowCondensed_600SemiBold',
     fontSize:11, letterSpacing:5, color:C.muted,
-    textTransform:'uppercase', marginBottom:14,
+    textTransform:'uppercase', marginBottom:10,
   },
   dateRange:{
     fontFamily:'BarlowCondensed_600SemiBold',
@@ -232,27 +227,30 @@ const s = StyleSheet.create({
     backgroundColor:'rgba(0,0,0,0.4)',
     paddingHorizontal:10, paddingVertical:3, borderRadius:6,
   },
-  cdRow:{ flexDirection:'row', gap:8, marginBottom:14 },
+  cdRow:{ flexDirection:'row', gap:8, marginBottom:12 },
   cdUnit:{
-    alignItems:'center', backgroundColor:'rgba(255,255,255,0.05)',
-    borderWidth:1, borderColor:'rgba(255,215,0,0.2)',
+    alignItems:'center', backgroundColor:'rgba(0,0,0,0.4)',
+    borderWidth:1, borderColor:'rgba(255,215,0,0.3)',
     borderRadius:8, paddingVertical:6, paddingHorizontal:10, minWidth:50,
   },
   cdNum:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold, lineHeight:30 },
   cdLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2, marginTop:1 },
+
   langTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:3, marginBottom:8 },
   langRow:{ flexDirection:'row', gap:6, flexWrap:'wrap', justifyContent:'center', marginBottom:10 },
   langBtn:{ padding:4, alignItems:'center', borderRadius:8, borderWidth:1, borderColor:'transparent' },
   langBtnOn:{ borderColor:'rgba(255,215,0,0.4)', backgroundColor:'rgba(255,215,0,0.08)' },
-  langFlag:{ fontSize:22, opacity:0.4 },
-  langFlagOn:{ opacity:1, transform:[{ scale:1.2 }] },
-  langFlagImg:{ width:32, height:22, borderRadius:3, opacity:0.5 },
+  langFlagImg:{ width:32, height:22, borderRadius:3, opacity:0.7 },
   langName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.gold, letterSpacing:0.5, marginTop:2 },
   langNameOff:{ color:C.muted, opacity:0.6 },
+
   infoTxt:{
     fontFamily:'BarlowCondensed_700Bold',
     fontSize:11, color:C.gold, letterSpacing:2,
-    marginBottom:16, textTransform:'uppercase',
+    marginBottom:14, textTransform:'uppercase',
+    textShadowColor:'rgba(255,215,0,0.5)',
+    textShadowOffset:{ width:0, height:0 },
+    textShadowRadius:8,
   },
   btnWrap:{ width:'100%', marginBottom:10, overflow:'hidden', borderRadius:13 },
   btnMain:{
@@ -277,13 +275,5 @@ const s = StyleSheet.create({
   loginTxt:{
     fontFamily:'BarlowCondensed_600SemiBold',
     fontSize:13, color:C.gold, letterSpacing:0.5,
-  },
-  golziTitle:{
-    fontFamily:'BebasNeue_400Regular',
-    fontSize:52, color:C.gold, letterSpacing:8,
-    textShadowColor:'rgba(255,215,0,0.8)',
-    textShadowOffset:{ width:0, height:0 },
-    textShadowRadius:20,
-    marginBottom:2,
   },
 });

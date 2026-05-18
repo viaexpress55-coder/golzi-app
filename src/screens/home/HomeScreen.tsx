@@ -155,17 +155,19 @@ const rs = StyleSheet.create({
 });
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
-function getMatchCountdown(kickoffTime: any, status?: string): { text: string; isLive: boolean } {
-  if (status === 'live' || status === 'IN_PLAY' || status === 'PAUSED') return { text:'EN VIVO', isLive:true };
+function getMatchCountdown(kickoffTime: any, status?: string): { text: string; isLive: boolean; isToday: boolean } {
+  if (status === 'live' || status === 'IN_PLAY' || status === 'PAUSED') return { text:'EN VIVO', isLive:true, isToday:true };
   const kickoff = new Date(kickoffTime?.seconds ? kickoffTime.seconds * 1000 : kickoffTime);
   const diff = kickoff.getTime() - Date.now();
-  if (diff <= 0 && diff > -7200000) return { text:'EN VIVO', isLive:true };
+  if (diff <= 0 && diff > -7200000) return { text:'EN VIVO', isLive:true, isToday:true };
   const days = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
   const minutes = Math.floor((diff % 3600000) / 60000);
-  if (days > 0) return { text:`${days}d ${hours}h`, isLive:false };
-  if (hours > 0) return { text:`${hours}h ${minutes}m`, isLive:false };
-  return { text:`${minutes}m`, isLive:false };
+  // Es hoy si faltan menos de 24 horas
+  const isToday = diff > 0 && diff < 86400000;
+  if (days > 0) return { text:`${days}d ${hours}h`, isLive:false, isToday:false };
+  if (hours > 0) return { text:`${hours}h ${minutes}m`, isLive:false, isToday };
+  return { text:`${minutes}m`, isLive:false, isToday:true };
 }
 
 function getMatchDate(kickoffTime: any, language: string): string {
@@ -606,8 +608,9 @@ setUserPlan(planValue);
           const matchAnswers = retoAnswers[m.id] ?? {};
           const answeredCount = Object.keys(matchAnswers).length;
 
+          const CardWrapper = cd.isToday ? AnimatedBorder : View;
           return (
-            <AnimatedBorder key={m.id} style={s.card}>
+            <CardWrapper key={m.id} style={s.card}>
               <LinearGradient
                 colors={isConfirmed ? ['#00FF87','#00C853'] : cd.isLive ? ['#FF3355','#FF0040'] : ['#FFD700','#FFA500']}
                 start={{x:0,y:0}} end={{x:1,y:0}} style={s.cardTopLine}
@@ -776,7 +779,7 @@ setUserPlan(planValue);
                   )}
                 </View>
               )}
-            </AnimatedBorder>
+            </CardWrapper>
           );
         })}
 

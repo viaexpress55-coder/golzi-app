@@ -103,7 +103,7 @@ export default function SplashScreen() {
       <Animated.Image
         source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/splash-bg.png?alt=media&token=ea49a7a6-bb16-4a0f-9763-9cfd23695bab' }}
         style={[s.bgStadium, { opacity: stadiumFade, transform:[{ scale: stadiumScale }] }]}
-        resizeMode="cover"
+        resizeMode="contain"
       />
 
       <Animated.View style={[s.inner, { opacity: fadeAnim }]}>

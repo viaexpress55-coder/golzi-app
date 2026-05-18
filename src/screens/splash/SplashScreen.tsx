@@ -34,18 +34,18 @@ function getCD() {
 }
 
 const LANGS = [
-  { code:'MX', flag:'🇲🇽', i18n:'es', name:'México' },
-  { code:'CO', flag:'🇨🇴', i18n:'es', name:'Colombia' },
-  { code:'AR', flag:'🇦🇷', i18n:'es', name:'Argentina' },
-  { code:'BR', flag:'🇧🇷', i18n:'pt', name:'Brasil' },
-  { code:'US', flag:'🇺🇸', i18n:'en', name:'USA' },
-  { code:'ES', flag:'🇪🇸', i18n:'es', name:'España' },
-  { code:'FR', flag:'🇫🇷', i18n:'fr', name:'Francia' },
-  { code:'DE', flag:'🇩🇪', i18n:'de', name:'Alemania' },
-  { code:'JP', flag:'🇯🇵', i18n:'ja', name:'Japón' },
-  { code:'KR', flag:'🇰🇷', i18n:'ko', name:'Corea' },
-  { code:'SA', flag:'🇸🇦', i18n:'ar', name:'Arabia' },
-  { code:'PT', flag:'🇵🇹', i18n:'pt', name:'Portugal' },
+  { code:'ES', flag:'🇪🇸', i18n:'es', name:'Español'   },
+  { code:'US', flag:'🇺🇸', i18n:'en', name:'English'   },
+  { code:'BR', flag:'🇧🇷', i18n:'pt', name:'Português' },
+  { code:'FR', flag:'🇫🇷', i18n:'fr', name:'Français'  },
+  { code:'DE', flag:'🇩🇪', i18n:'de', name:'Deutsch'   },
+  { code:'IT', flag:'🇮🇹', i18n:'it', name:'Italiano'  },
+  { code:'CN', flag:'🇨🇳', i18n:'zh', name:'中文'       },
+  { code:'JP', flag:'🇯🇵', i18n:'ja', name:'日本語'     },
+  { code:'KR', flag:'🇰🇷', i18n:'ko', name:'한국어'     },
+  { code:'SA', flag:'🇸🇦', i18n:'ar', name:'العربية'   },
+  { code:'IN', flag:'🇮🇳', i18n:'hi', name:'हिन्दी'     },
+  { code:'RU', flag:'🇷🇺', i18n:'ru', name:'Русский'   },
 ];
 
 export default function SplashScreen() {
@@ -205,7 +205,7 @@ const s = StyleSheet.create({
   },
   bgStadium:{
     position:'absolute', top:0, left:0, right:0, bottom:0,
-    opacity:0.15,
+    opacity:0.05,
   },
   inner:{
     flex:1, alignItems:'center', justifyContent:'center',

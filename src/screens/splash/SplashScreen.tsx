@@ -205,7 +205,7 @@ const s = StyleSheet.create({
   // Overlay semitransparente para mejorar legibilidad sin oscurecer demasiado
   overlay:{
     position:'absolute', top:0, left:0, right:0, bottom:0,
-    backgroundColor:'rgba(2,4,8,0.45)',
+    backgroundColor:'rgba(2,4,8,0.25)',
   },
 
   inner:{

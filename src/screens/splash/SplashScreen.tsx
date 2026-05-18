@@ -106,8 +106,7 @@ export default function SplashScreen() {
         resizeMode="cover"
       />
 
-      {/* Overlay oscuro suave para legibilidad */}
-      <View style={s.overlay} />
+      
 
       <Animated.View style={[s.inner, { opacity: fadeAnim }]}>
 
@@ -203,26 +202,23 @@ const s = StyleSheet.create({
   },
 
   // Overlay semitransparente para mejorar legibilidad sin oscurecer demasiado
-  overlay:{
-    position:'absolute', top:0, left:0, right:0, bottom:0,
-    backgroundColor:'rgba(2,4,8,0.25)',
-  },
+  
 
   inner:{
     flex:1, alignItems:'center', justifyContent:'center',
     paddingHorizontal:24, paddingVertical:40,
   },
 
-  trophy:{ width:120, height:120, marginBottom:4 },
+  trophy:{ width:180, height:180, marginBottom:6, tintColor:'#FFD700' },
 
   tagline:{
     fontFamily:'BarlowCondensed_600SemiBold',
-    fontSize:11, letterSpacing:5, color:C.muted,
+    fontSize:16, letterSpacing:5, color:C.text,
     textTransform:'uppercase', marginBottom:10,
   },
   dateRange:{
     fontFamily:'BarlowCondensed_600SemiBold',
-    fontSize:11, color:C.cyan, letterSpacing:3,
+    fontSize:14, color:C.cyan, letterSpacing:3,
     marginBottom:6, textTransform:'uppercase',
     backgroundColor:'rgba(0,0,0,0.4)',
     paddingHorizontal:10, paddingVertical:3, borderRadius:6,

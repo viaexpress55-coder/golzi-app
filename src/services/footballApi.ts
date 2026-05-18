@@ -229,9 +229,82 @@ export function getCountryFlag(teamName: string): string {
 // ─── Auto sync ────────────────────────────────────────────────────────────────
 let syncInterval: any = null;
 
+export async function getMatchDetails(matchId: number): Promise<any> {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/matches/${matchId}`,
+      { headers }
+    );
+    if (!response.ok) return null;
+    const data = await response.json();
+    return {
+      minute:  data.minute ?? null,
+      status:  data.status,
+      homeScore: data.score?.fullTime?.home ?? data.score?.halfTime?.home ?? null,
+      awayScore: data.score?.fullTime?.away ?? data.score?.halfTime?.away ?? null,
+      events: (data.goals || []).map((g: any) => ({
+        minute: g.minute,
+        type:   'GOAL',
+        player: g.scorer?.name ?? 'Desconocido',
+        detail: g.assist ? `Asistencia: ${g.assist.name}` : '',
+        team:   g.team?.name,
+      })).concat(
+        (data.bookings || []).map((b: any) => ({
+          minute: b.minute,
+          type:   b.card === 'RED_CARD' ? 'RED_CARD' : 'YELLOW_CARD',
+          player: b.player?.name ?? 'Desconocido',
+          detail: b.card,
+        }))
+      ).concat(
+        (data.substitutions || []).map((s: any) => ({
+          minute:  s.minute,
+          type:    'SUBSTITUTION',
+          player:  s.playerIn?.name ?? 'Desconocido',
+          detail:  `Entra por ${s.playerOut?.name ?? ''}`,
+        }))
+      ).sort((a: any, b: any) => a.minute - b.minute),
+      stats: data.statistics ? {
+        home: {
+          possession:    data.statistics[0]?.ballPossession ?? 50,
+          shots:         data.statistics[0]?.totalShots ?? 0,
+          fouls:         data.statistics[0]?.fouls ?? 0,
+          yellowCards:   data.statistics[0]?.yellowCards ?? 0,
+          corners:       data.statistics[0]?.cornerKicks ?? 0,
+        },
+        away: {
+          possession:    data.statistics[1]?.ballPossession ?? 50,
+          shots:         data.statistics[1]?.totalShots ?? 0,
+          fouls:         data.statistics[1]?.fouls ?? 0,
+          yellowCards:   data.statistics[1]?.yellowCards ?? 0,
+          corners:       data.statistics[1]?.cornerKicks ?? 0,
+        },
+      } : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function startAutoSync() {
   if (syncInterval) return;
-  syncInterval = setInterval(() => {}, 2 * 60 * 1000);
+  syncInterval = setInterval(async () => {
+    try {
+      const liveMatches = await getLiveMatches();
+      for (const match of liveMatches) {
+        const details = await getMatchDetails(match.id);
+        if (details) {
+          const matchRef = doc(db, 'live_matches', `WC2026_LIVE_${match.id}`);
+          await setDoc(matchRef, {
+            ...formatApiMatch(match),
+            minute:  details.minute,
+            events:  details.events,
+            stats:   details.stats,
+            updatedAt: new Date(),
+          }, { merge: true });
+        }
+      }
+    } catch {}
+  }, 60 * 1000); // cada minuto
 }
 
 export function stopAutoSync() {

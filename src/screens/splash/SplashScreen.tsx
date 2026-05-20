@@ -101,23 +101,26 @@ export default function SplashScreen() {
 
       {/* Fondo — imagen trofeo GOLZI CUP */}
       <Animated.Image
-        source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/splash-bg.png?alt=media&token=ea49a7a6-bb16-4a0f-9763-9cfd23695bab' }}
+        source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/Sin%20t%C3%ADtulo.png?alt=media&token=a4db3ca6-57b7-478d-86ac-f622ffa953cc' }}
         style={[s.bgStadium, { opacity: stadiumFade, transform:[{ scale: stadiumScale }] }]}
         resizeMode="cover"
       />
 
-      
+      {/* Overlay oscuro para mejorar legibilidad */}
+      <View style={s.overlay} />
 
       <Animated.View style={[s.inner, { opacity: fadeAnim }]}>
 
-        {/* Logo GOLZI flotante */}
-        <Animated.View style={{ transform:[{ translateY: trophyY }] }}>
-          <Image
-            source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
-            style={s.trophy}
-            resizeMode="contain"
-          />
-        </Animated.View>
+        {/* Logo GOLZI flotante DESACTIVADO */}
+        {false && (
+          <Animated.View style={{ transform:[{ translateY: trophyY }] }}>
+            <Image
+              source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
+              style={s.trophy}
+              resizeMode="contain"
+            />
+          </Animated.View>
+        )}
 
         <Text style={s.tagline}>MUNDIAL 2026</Text>
 
@@ -201,8 +204,11 @@ const s = StyleSheet.create({
     position:'absolute', top:0, left:0, right:0, bottom:0,
   },
 
-  // Overlay semitransparente para mejorar legibilidad sin oscurecer demasiado
-  
+  // ✅ NUEVO: Overlay semitransparente para mejorar legibilidad
+  overlay:{
+    position:'absolute', top:0, left:0, right:0, bottom:0,
+    backgroundColor:'rgba(0,0,0,0.45)',
+  },
 
   inner:{
     flex:1, alignItems:'center', justifyContent:'center',
@@ -211,18 +217,25 @@ const s = StyleSheet.create({
 
   trophy:{ width:180, height:180, marginBottom:6, tintColor:'#FFD700' },
 
+  // ✅ MEJORADO: fontSize 16 → 32, sombra de texto añadida
   tagline:{
     fontFamily:'BarlowCondensed_600SemiBold',
-    fontSize:16, letterSpacing:5, color:C.text,
+    fontSize:32, letterSpacing:6, color:C.text,
     textTransform:'uppercase', marginBottom:10,
+    textShadowColor:'rgba(0,0,0,0.8)',
+    textShadowOffset:{ width:0, height:2 },
+    textShadowRadius:6,
   },
+
+  // ✅ MEJORADO: fontSize 14 → 18, fondo más oscuro
   dateRange:{
     fontFamily:'BarlowCondensed_600SemiBold',
-    fontSize:14, color:C.cyan, letterSpacing:3,
+    fontSize:18, color:C.cyan, letterSpacing:4,
     marginBottom:6, textTransform:'uppercase',
-    backgroundColor:'rgba(0,0,0,0.4)',
-    paddingHorizontal:10, paddingVertical:3, borderRadius:6,
+    backgroundColor:'rgba(0,0,0,0.55)',
+    paddingHorizontal:12, paddingVertical:4, borderRadius:6,
   },
+
   cdRow:{ flexDirection:'row', gap:8, marginBottom:12 },
   cdUnit:{
     alignItems:'center', backgroundColor:'rgba(0,0,0,0.4)',
@@ -240,14 +253,16 @@ const s = StyleSheet.create({
   langName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.gold, letterSpacing:0.5, marginTop:2 },
   langNameOff:{ color:C.muted, opacity:0.6 },
 
+  // ✅ MEJORADO: fontSize 11 → 13, letterSpacing más amplio
   infoTxt:{
     fontFamily:'BarlowCondensed_700Bold',
-    fontSize:11, color:C.gold, letterSpacing:2,
+    fontSize:13, color:C.gold, letterSpacing:3,
     marginBottom:14, textTransform:'uppercase',
     textShadowColor:'rgba(255,215,0,0.5)',
     textShadowOffset:{ width:0, height:0 },
     textShadowRadius:8,
   },
+
   btnWrap:{ width:'100%', marginBottom:10, overflow:'hidden', borderRadius:13 },
   btnMain:{
     borderRadius:13, paddingVertical:14,

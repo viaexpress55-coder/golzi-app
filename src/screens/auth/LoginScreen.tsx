@@ -205,7 +205,7 @@ const s = StyleSheet.create({
   backTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.muted, letterSpacing:0.5 },
   topLogo:{ width:36, height:36 },
 
-  scroll:{ paddingHorizontal:20, paddingTop:24, paddingBottom:20, flexGrow:1 },
+  scroll:{ paddingHorizontal:20, paddingTop:24, paddingBottom:20, flexGrow:1, minHeight:'100%' as any },
 
   header:{ marginBottom:24 },
   eyebrow:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'rgba(255,215,0,0.5)', letterSpacing:3, marginBottom:4 },

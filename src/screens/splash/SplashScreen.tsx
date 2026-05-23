@@ -58,12 +58,19 @@ export default function SplashScreen() {
   const shineAnim    = useRef(new Animated.Value(-1)).current;
   const fadeAnim     = useRef(new Animated.Value(0)).current;
   const stadiumFade  = useRef(new Animated.Value(0)).current;
-  const stadiumScale = useRef(new Animated.Value(1.08)).current;
+  const stadiumScale = useRef(new Animated.Value(1)).current;
 
   const fontsLoaded = useAppFonts();
 
-  useEffect(() => {
+ useEffect(() => {
     const timer = setInterval(() => setCD(getCD()), 1000);
+
+    const savedLang = typeof window !== 'undefined' ? localStorage.getItem('golzi_lang') : null;
+    if (savedLang) {
+      i18n.changeLanguage(savedLang);
+      const found = LANGS.find(l => l.i18n === savedLang);
+      if (found) setSelectedLang(found.code);
+    }
 
     Animated.loop(
       Animated.sequence([
@@ -80,12 +87,11 @@ export default function SplashScreen() {
 
     Animated.parallel([
       Animated.timing(stadiumFade,  { toValue:1, duration:2000, useNativeDriver:false }),
-      Animated.timing(stadiumScale, { toValue:1, duration:2500, useNativeDriver:false }),
+      Animated.timing(stadiumScale, { toValue:1, duration:0, useNativeDriver:false }),
     ]).start();
 
     return () => clearInterval(timer);
   }, []);
-
   if (!fontsLoaded) return null;
 
   const trophyY = floatAnim.interpolate({ inputRange:[0,1], outputRange:[0,-7] });
@@ -94,6 +100,9 @@ export default function SplashScreen() {
   function changeLang(lang: typeof LANGS[0]) {
     i18n.changeLanguage(lang.i18n);
     setSelectedLang(lang.code);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('golzi_lang', lang.i18n);
+    }
   }
 
   return (
@@ -192,6 +201,23 @@ export default function SplashScreen() {
           <Text style={s.loginTxt}>{t('splash_have_account')}</Text>
         </TouchableOpacity>
 
+        {/* Botón instalar PWA - solo web */}
+        {typeof window !== 'undefined' && (window as any).__pwaInstallPrompt && (
+          <TouchableOpacity
+            style={s.installBtn}
+            onPress={() => {
+              const prompt = (window as any).__pwaInstallPrompt;
+              prompt.prompt();
+              prompt.userChoice.then(() => {
+                (window as any).__pwaInstallPrompt = null;
+              });
+            }}
+            activeOpacity={0.85}
+          >
+            <Text style={s.installTxt}>⬇️  INSTALAR GOLZI — GRATIS</Text>
+          </TouchableOpacity>
+        )}
+
       </Animated.View>
     </View>
   );
@@ -283,6 +309,15 @@ const s = StyleSheet.create({
     letterSpacing:0.5, lineHeight:15, marginBottom:8,
   },
   loginBtn:{ paddingVertical:8 },
+  installBtn:{
+    marginTop:8, borderWidth:1, borderColor:'rgba(255,215,0,0.4)',
+    borderRadius:12, paddingVertical:10, paddingHorizontal:24,
+    backgroundColor:'rgba(255,215,0,0.08)',
+  },
+  installTxt:{
+    fontFamily:'BarlowCondensed_700Bold',
+    fontSize:13, color:C.gold, letterSpacing:1,
+  },
   loginTxt:{
     fontFamily:'BarlowCondensed_600SemiBold',
     fontSize:13, color:C.gold, letterSpacing:0.5,

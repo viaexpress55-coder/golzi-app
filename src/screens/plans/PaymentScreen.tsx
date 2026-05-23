@@ -6,8 +6,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_700Bold, BarlowCondensed_400Regular } from '@expo-google-fonts/barlow-condensed';
-import { createPaymentPreference, PLANS } from '../../services/payments';
+import { createPaymentPreference, createWompiPaymentSession, PLANS } from '../../services/payments';
 import { getAuth } from 'firebase/auth';
+import { Platform } from 'react-native';
+import { initIAP, purchaseSubscription, PRODUCT_IDS } from '../../services/iap';
 
 const C = {
   dark: '#05080F', surface: '#0D1117', surface2: '#161B26',
@@ -26,9 +28,15 @@ export default function PaymentScreen() {
     BarlowCondensed_400Regular,
   });
 
-  if (!fontsLoaded) return <View style={s.root} />;
+  if (!fontsLoaded) {
+    console.log('⏳ fonts not loaded yet');
+    return <View style={s.root} />;
+  }
+  console.log('✅ fonts loaded, rendering PaymentScreen');
 
+  // ✅ FUNCIÓN ACTUALIZADA
   async function handleBuy(planId: string) {
+    console.log('🔑 handleBuy called', planId);
     try {
       setLoading(planId);
       setError('');
@@ -37,13 +45,44 @@ export default function PaymentScreen() {
       const email = user?.email || 'test@golzi.app';
       const userId = user?.uid || 'anonymous';
 
-      const result = await createPaymentPreference(planId, userId, email);
+      // 🥇 Android — Google Play Billing
+      if (Platform.OS === 'android') {
+        const productId = PRODUCT_IDS[planId as keyof typeof PRODUCT_IDS];
+        if (productId) {
+          await initIAP();
+          await purchaseSubscription(productId);
+          return;
+        }
+      }
 
-      if (result.success && result.initPoint) {
-        await Linking.openURL(result.initPoint);
+      // 🥈 Web/iOS — Plan A: Mercado Pago
+      try {
+        const mpResult = await createPaymentPreference(planId);
+        if (mpResult.success && mpResult.initPoint) {
+          if (typeof window !== 'undefined') {
+  window.location.href = mpResult.initPoint;
+} else {
+  await Linking.openURL(mpResult.initPoint);
+}
+          return;
+        }
+      } catch (mpError) {
+        console.log('MP falló, intentando Wompi...', mpError);
+      }
+
+      // 🥉 Web/iOS — Plan B: Wompi (fallback)
+      const wompiResult = await createWompiPaymentSession(planId, userId, email);
+      if (wompiResult.success) {
+        const wompiUrl = `https://checkout.wompi.co/p/?public-key=${wompiResult.publicKey}&currency=${wompiResult.currency}&amount-in-cents=${wompiResult.amountCents}&reference=${wompiResult.reference}&signature:integrity=${wompiResult.signature}&redirect-url=${encodeURIComponent('https://golzi.app')}`;
+        if (typeof window !== 'undefined') {
+  window.location.href = wompiUrl;
+} else {
+  await Linking.openURL(wompiUrl);
+}
       } else {
         setError('Error procesando el pago. Intenta de nuevo.');
       }
+
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -87,7 +126,6 @@ export default function PaymentScreen() {
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* FREE */}
         <View style={s.freeCard}>
           <Text style={s.freeTitle}>FREE</Text>
           <Text style={s.freePrice}>$0 <Text style={s.freeSub}>siempre</Text></Text>

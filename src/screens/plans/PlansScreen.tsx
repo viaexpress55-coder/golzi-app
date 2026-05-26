@@ -16,112 +16,134 @@ const C = {
   border:'rgba(255,215,0,0.15)', border2:'rgba(255,255,255,0.06)',
 };
 
+// ─── B2C PLANS ────────────────────────────────────────────────────────────────
+// Precios promo válidos hasta 10 jun 2026. Post-mundial cambiar a precios lista.
 const B2C_PLANS = [
   {
-    id:'free', name:'FREE', price:'$0', period:'', emoji:'👁️',
-    desc:'Participa en ligas públicas',
+    id:'free', name:'FREE', price:'$0', originalPrice: null, period:'', emoji:'👁️',
+    desc:'Acceso básico al ecosistema GOLZI',
     color:C.muted,
     popular:false,
     features:[
-      'Únete a ligas públicas',
-      'Máximo 5 ligas simultáneas',
-      'Ranking global en tiempo real',
-      'Sin pagos requeridos',
+      'Entrada básica al ecosistema',
+      'Exploración inicial',
+      'Acceso reducido',
     ],
     addons:[],
     legal:'Acceso gratuito permanente. Sin compromisos.',
   },
   {
-    id:'golzair', name:'GOLZAIR', price:'$1.99', period:'/torneo', emoji:'⚽',
-    desc:'Crea tu primera liga',
+    id:'golzair', name:'GOLZAIR', price:'$1.99', originalPrice:'$3.99', period:'/torneo', emoji:'⚽',
+    desc:'Acceso completo a ligas',
     color:C.gold,
     popular:true,
     features:[
-      'Crea 1 liga (hasta 20 personas)',
-      'Únete a ligas ilimitadas',
-      'Ranking en tiempo real',
+      'Unirse a ligas públicas o privadas',
+      'Pago individual por usuario',
+      'Acceso principal al ecosistema',
       'Sin publicidad',
     ],
     addons:[
       '+1 Liga adicional — $1.99',
       '+10 personas/liga — $0.99',
     ],
-    legal:'Pago único por torneo. Sin renovación automática.',
+    legal:'Precio promo hasta 10 jun. Pago único por torneo. Sin renovación automática.',
   },
   {
-    id:'liga', name:'LIGA', price:'$4.99', period:'/torneo', emoji:'🏆',
-    desc:'Crea hasta 3 ligas',
+    id:'liga', name:'LIGA', price:'$4.99', originalPrice:'$9.99', period:'/torneo', emoji:'🏆',
+    desc:'Crea y administra tus ligas',
     color:C.cyan,
     popular:false,
     features:[
-      'Crea hasta 3 ligas (25 personas c/u)',
-      'Únete a ligas ilimitadas',
-      'Ranking en tiempo real',
+      'Crear ligas propias',
+      'Configuración personalizada',
       'QR de invitación',
+      'Ranking en tiempo real',
     ],
     addons:[
       '+1 Liga adicional — $2.99',
       '+10 personas/liga — $1.99',
     ],
-    legal:'Pago único por torneo. Sin renovación automática.',
+    legal:'Precio promo hasta 10 jun. Pago único por torneo. Sin renovación automática.',
   },
   {
-    id:'pro', name:'PRO', price:'$9.99', period:'/mes', emoji:'👑',
-    desc:'Crea hasta 5 ligas',
+    // PRO FLEX: suscripción mensual durante el torneo.
+    // TODO post-mundial (11 jun+): revisar modelo de precio.
+    id:'pro', name:'PRO FLEX', price:'$9.99', originalPrice:'$19.99', period:'/torneo', emoji:'👑',
+    desc:'Experiencia competitiva avanzada',
     color:C.green,
     popular:false,
     features:[
-      'Crea hasta 5 ligas (30 personas c/u)',
-      'Todos los torneos incluidos',
-      'Badge PRO exclusivo',
-      'Soporte prioritario',
+      'Multi ligas',
+      'Herramientas premium',
+      'Perfil competitivo',
+      'Funciones avanzadas',
     ],
     addons:[
-      '+1 Liga adicional — $2.99/mes',
-      '+10 personas/liga — $1.99/mes',
-      '+100 usuarios — $4.99/mes',
+      '+1 Liga adicional — $2.99',
+      '+10 personas/liga — $1.99',
     ],
-    legal:'Suscripción mensual. Cancela cuando quieras.',
+    legal:'Precio promo hasta 10 jun. Pago único por torneo. Sin renovación automática.',
   },
 ];
 
+// ─── B2B PLANS ────────────────────────────────────────────────────────────────
 const B2B_PLANS = [
   {
-    id:'starter', name:'STARTER', price:'$14.99', originalPrice:'$29.99', period:'/mes', emoji:'🏪',
-    desc:'Bares · Restaurantes · Empresas',
+    id:'partners', name:'PARTNERS', price:'$49.99', originalPrice:'$99.99', period:'/torneo', emoji:'🏪',
+    desc:'Bares · Restaurantes · Comunidades',
     color:C.cyan,
+    popular:false,
     features:[
-      'Ligas ilimitadas (1 sucursal)',
-      'Hasta 180 usuarios',
-      'QR con geofencing',
-      'Pantalla TV incluida',
+      'El negocio crea la liga',
+      'Cada participante activa su acceso GOLZAIR ($1.99)',
+      'Ideal para comunidades sin pago centralizado',
+      'Baja barrera de entrada',
       'Badge GOLZI activo',
     ],
     addons:[
-      '+100 usuarios — $9.99/mes',
-      '+1 Sucursal — $29.99/mes',
+      '+100 usuarios — $9.99',
+      '+1 Sucursal — $29.99',
     ],
+    note: 'Cada participante activa su acceso GOLZAIR desde $1.99.',
   },
   {
-    id:'business', name:'BUSINESS', price:'$39.99', originalPrice:'$79.99', period:'/mes', emoji:'🏢',
-    desc:'Cadenas · Franquicias · Corporativos',
+    id:'businessfull', name:'BUSINESS FULL', price:'$499', originalPrice: null, period:'', emoji:'🏢',
+    desc:'Torneos · Empresas · Comunidades activas',
     color:C.gold,
+    popular:true,
     features:[
-      'Ligas ilimitadas (3 sucursales)',
-      'Hasta 500 usuarios por sucursal',
+      '1,000 accesos incluidos',
+      '$0.49 por jugador',
+      'Usuarios ingresan con QR o link',
+      'Sin pago individual por usuario',
       'Dashboard B2B completo',
-      'Soporte dedicado',
-      'Reportes en tiempo real',
     ],
     addons:[
-      '+100 usuarios/sucursal — $9.99/mes',
-      '+1 Sucursal — $79.99/mes',
+      'Upgrade disponible al superar 1,000 accesos',
     ],
+    note: 'Accesos no acumulables. Upgrade disponible al superar 1,000.',
   },
   {
-    id:'enterprise', name:'ENTERPRISE', price:'Custom', period:'', emoji:'🌐',
+    id:'golzigold', name:'GOLZI GOLD', price:'$999', originalPrice: null, period:'', emoji:'🥇',
+    desc:'Marcas · Eventos · Comunidades masivas',
+    color:'#FFD700',
+    popular:false,
+    features:[
+      '2,500 accesos incluidos',
+      '$0.39 por jugador',
+      'Activaciones de alto volumen',
+      'Ideal para eventos, marcas y comunidades grandes',
+      'Badge "Plan Oficial Mundial"',
+    ],
+    addons:[],
+    note: 'Si superas 2,500 accesos → Enterprise.',
+  },
+  {
+    id:'enterprise', name:'ENTERPRISE', price:'Custom', originalPrice: null, period:'', emoji:'🌐',
     desc:'Solución a medida',
     color:C.purple,
+    popular:false,
     features:[
       'Todo ilimitado',
       'Sucursales ilimitadas',
@@ -130,6 +152,7 @@ const B2B_PLANS = [
       'SLA garantizado',
     ],
     addons:[],
+    note: null,
   },
 ];
 
@@ -186,9 +209,14 @@ export default function PlansScreen() {
           ))}
         </View>
 
-        {/* B2C Plans */}
+        {/* ── B2C PLANS ── */}
         {tab === 0 && (
           <View style={s.plansGrid}>
+
+            <View style={s.promoBanner}>
+              <Text style={s.promoTxt}>🎯 Precio promo · Válido hasta el 10 de junio de 2026</Text>
+            </View>
+
             {B2C_PLANS.map(plan => (
               <Pressable
                 key={plan.id}
@@ -215,8 +243,8 @@ export default function PlansScreen() {
                     <Text style={s.planDesc}>{plan.desc}</Text>
                   </View>
                   <View style={s.planPriceBox}>
-                    {(plan as any).originalPrice && (
-                      <Text style={s.originalPrice}>{(plan as any).originalPrice}</Text>
+                    {plan.originalPrice && (
+                      <Text style={s.originalPrice}>{plan.originalPrice}</Text>
                     )}
                     <Text style={[s.planPrice, { color: plan.color }]}>{plan.price}</Text>
                     {plan.period ? <Text style={s.planPeriod}>{plan.period}</Text> : null}
@@ -251,7 +279,13 @@ export default function PlansScreen() {
                 {selected === plan.id && (
                   <TouchableOpacity
                     style={s.selectBtn}
-                    onPress={() => navigation.navigate('Main')}
+                    onPress={() => {
+                      if (plan.id === 'free') {
+                        navigation.navigate('Main');
+                      } else {
+                        navigation.navigate('Payment');
+                      }
+                    }}
                     activeOpacity={0.85}
                   >
                     <LinearGradient
@@ -271,13 +305,13 @@ export default function PlansScreen() {
             {/* Disclaimer legal B2C */}
             <View style={s.disclaimerBox}>
               <Text style={s.disclaimerTxt}>
-                🔒 GOLZI es un juego de predicciones deportivas. Los pagos son por acceso a funcionalidades, no por participación en apuestas. Los puntos no tienen valor monetario. Sin reembolsos una vez iniciado el torneo. Puedes cancelar suscripciones en cualquier momento.
+                🔒 GOLZI es un juego de predicciones deportivas. Los pagos son por acceso a funcionalidades, no por participación en apuestas. Los puntos no tienen valor monetario. Sin reembolsos una vez iniciado el torneo.
               </Text>
             </View>
           </View>
         )}
 
-        {/* B2B Plans */}
+        {/* ── B2B PLANS ── */}
         {tab === 1 && (
           <View style={s.plansGrid}>
 
@@ -286,7 +320,14 @@ export default function PlansScreen() {
             </View>
 
             {B2B_PLANS.map(plan => (
-              <View key={plan.id} style={[s.planCard, { borderColor:`${plan.color}30` }]}>
+              <View key={plan.id} style={[s.planCard, plan.popular && { borderColor:`${plan.color}50`, borderWidth:1.5 }, !plan.popular && { borderColor:`${plan.color}30` }]}>
+
+                {plan.popular && (
+                  <LinearGradient colors={[C.gold, C.gold2]} start={{x:0,y:0}} end={{x:1,y:0}} style={s.popularBadge}>
+                    <Text style={s.popularTxt}>⭐ MÁS POPULAR</Text>
+                  </LinearGradient>
+                )}
+
                 <LinearGradient
                   colors={[`${plan.color}10`,'transparent']}
                   style={s.planCardGlow}
@@ -300,8 +341,8 @@ export default function PlansScreen() {
                     <Text style={s.planDesc}>{plan.desc}</Text>
                   </View>
                   <View style={s.planPriceBox}>
-                    {(plan as any).originalPrice && (
-                      <Text style={s.originalPrice}>{(plan as any).originalPrice}</Text>
+                    {plan.originalPrice && (
+                      <Text style={s.originalPrice}>{plan.originalPrice}</Text>
                     )}
                     <Text style={[s.planPrice, { color: plan.color }]}>{plan.price}</Text>
                     {plan.period ? <Text style={s.planPeriod}>{plan.period}</Text> : null}
@@ -331,6 +372,10 @@ export default function PlansScreen() {
                   </View>
                 )}
 
+                {plan.note && (
+                  <Text style={s.legalTxt}>ℹ️ {plan.note}</Text>
+                )}
+
                 <TouchableOpacity style={[s.b2bBtn, { borderColor:`${plan.color}40` }]}>
                   <Text style={[s.b2bBtnTxt, { color: plan.color }]}>
                     {plan.id === 'enterprise' ? '📞 CONTACTAR VENTAS' : '💬 HABLAR CON UN ASESOR'}
@@ -339,10 +384,92 @@ export default function PlansScreen() {
               </View>
             ))}
 
+            {/* ── GOLZI GROUP — sección diferenciada ── */}
+            <View style={s.groupSection}>
+              <View style={s.groupHeader}>
+                <LinearGradient
+                  colors={['rgba(255,215,0,0.12)', 'rgba(255,165,0,0.06)']}
+                  start={{x:0,y:0}} end={{x:1,y:1}}
+                  style={StyleSheet.absoluteFill}
+                />
+                <View style={s.groupBadgeRow}>
+                  <View style={s.groupBadge}>
+                    <Text style={s.groupBadgeTxt}>💳 MÉTODO DE PAGO GRUPAL</Text>
+                  </View>
+                </View>
+                <Text style={s.groupTitle}>🔥 GOLZI GROUP</Text>
+                <Text style={s.groupSubtitle}>Un solo pago. Todos dentro.</Text>
+                <Text style={s.groupDesc}>
+                  El administrador cubre el acceso de todos los jugadores en una sola transacción. Los participantes ingresan directo, sin pagar individualmente.
+                </Text>
+              </View>
+
+              <View style={s.groupBody}>
+                {/* Cómo funciona */}
+                <Text style={s.groupSectionLabel}>¿CÓMO FUNCIONA?</Text>
+                <View style={s.groupSteps}>
+                  {[
+                    { n:'1', txt:'Define cuántos jugadores participan (mínimo 11)' },
+                    { n:'2', txt:'El sistema calcula: jugadores × $1.99' },
+                    { n:'3', txt:'Un solo pago del administrador' },
+                    { n:'4', txt:'Se genera QR + link de acceso automáticamente' },
+                    { n:'5', txt:'Los jugadores entran sin pagar nada' },
+                  ].map(step => (
+                    <View key={step.n} style={s.groupStep}>
+                      <View style={s.groupStepNum}>
+                        <Text style={s.groupStepNumTxt}>{step.n}</Text>
+                      </View>
+                      <Text style={s.groupStepTxt}>{step.txt}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                {/* Ejemplos de precio */}
+                <Text style={s.groupSectionLabel}>EJEMPLOS</Text>
+                <View style={s.groupExamples}>
+                  {[
+                    { n:'11', total:'$21.89' },
+                    { n:'33', total:'$65.67' },
+                    { n:'100', total:'$199' },
+                  ].map(ex => (
+                    <View key={ex.n} style={s.groupExRow}>
+                      <Text style={s.groupExPlayers}>👥 {ex.n} jugadores</Text>
+                      <Text style={s.groupExArrow}>→</Text>
+                      <Text style={s.groupExTotal}>{ex.total}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                {/* Casos de uso */}
+                <Text style={s.groupSectionLabel}>IDEAL PARA</Text>
+                <View style={s.groupUseCases}>
+                  {['Equipos amateur', 'Torneos rápidos', 'Empresas y colegios', 'Comunidades con baja bancarización'].map(u => (
+                    <View key={u} style={s.groupUseTag}>
+                      <Text style={s.groupUseTagTxt}>{u}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                <TouchableOpacity style={s.groupBtn}>
+                  <LinearGradient
+                    colors={[C.gold, C.gold2]}
+                    start={{x:0,y:0}} end={{x:1,y:0}}
+                    style={s.groupBtnInner}
+                  >
+                    <Text style={s.groupBtnTxt}>🔥 ACTIVAR GOLZI GROUP</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                <Text style={s.groupLegal}>
+                  ⚠️ El acceso de todos los jugadores es cubierto en un solo pago por el administrador. No aplica como plan mensual.
+                </Text>
+              </View>
+            </View>
+
             {/* Disclaimer legal B2B */}
             <View style={s.disclaimerBox}>
               <Text style={s.disclaimerTxt}>
-                🔒 Los planes B2B están sujetos a contrato de servicio. GOLZI no se responsabiliza por el uso que terceros hagan de la plataforma. Los precios pueden variar. ENTERPRISE sujeto a negociación y contrato formal. Puedes cancelar suscripciones en cualquier momento con 30 días de aviso.
+                🔒 Los planes B2B están sujetos a contrato de servicio. GOLZI no se responsabiliza por el uso que terceros hagan de la plataforma. Los precios pueden variar. ENTERPRISE sujeto a negociación y contrato formal. Puedes cancelar con 30 días de aviso.
               </Text>
             </View>
           </View>
@@ -425,4 +552,40 @@ const s = StyleSheet.create({
 
   disclaimerBox:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:12, borderWidth:1, borderColor:'rgba(255,255,255,0.06)', padding:14 },
   disclaimerTxt:{ fontFamily:'Barlow_400Regular', fontSize:10, color:C.muted, lineHeight:16, textAlign:'center' },
+
+  // ── GOLZI GROUP ──────────────────────────────────────────────────────────────
+  groupSection:{ borderRadius:16, overflow:'hidden', borderWidth:1.5, borderColor:'rgba(255,215,0,0.35)', shadowColor:'#FFD700', shadowOffset:{width:0,height:8}, shadowOpacity:0.3, shadowRadius:16, elevation:10 },
+
+  groupHeader:{ overflow:'hidden', padding:16, paddingBottom:14 },
+  groupBadgeRow:{ flexDirection:'row', marginBottom:8 },
+  groupBadge:{ backgroundColor:'rgba(255,215,0,0.15)', borderWidth:1, borderColor:'rgba(255,215,0,0.4)', borderRadius:20, paddingHorizontal:10, paddingVertical:4 },
+  groupBadgeTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.gold, letterSpacing:2 },
+  groupTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:32, color:C.gold, letterSpacing:2, lineHeight:36 },
+  groupSubtitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:C.text, letterSpacing:0.5, marginBottom:6 },
+  groupDesc:{ fontFamily:'Barlow_400Regular', fontSize:12, color:C.muted2, lineHeight:18 },
+
+  groupBody:{ backgroundColor:'rgba(255,255,255,0.02)', padding:16, gap:12 },
+  groupSectionLabel:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:3, marginBottom:2 },
+
+  groupSteps:{ gap:8 },
+  groupStep:{ flexDirection:'row', alignItems:'center', gap:10 },
+  groupStepNum:{ width:22, height:22, borderRadius:11, backgroundColor:'rgba(255,215,0,0.15)', borderWidth:1, borderColor:'rgba(255,215,0,0.4)', alignItems:'center', justifyContent:'center' },
+  groupStepNumTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.gold },
+  groupStepTxt:{ fontFamily:'Barlow_400Regular', fontSize:12, color:C.muted2, flex:1 },
+
+  groupExamples:{ backgroundColor:'rgba(255,215,0,0.04)', borderRadius:10, borderWidth:1, borderColor:'rgba(255,215,0,0.12)', padding:12, gap:8 },
+  groupExRow:{ flexDirection:'row', alignItems:'center', gap:8 },
+  groupExPlayers:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.muted2, flex:1 },
+  groupExArrow:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted },
+  groupExTotal:{ fontFamily:'BebasNeue_400Regular', fontSize:20, color:C.gold },
+
+  groupUseCases:{ flexDirection:'row', flexWrap:'wrap', gap:6 },
+  groupUseTag:{ backgroundColor:'rgba(255,255,255,0.05)', borderRadius:20, paddingHorizontal:10, paddingVertical:5, borderWidth:1, borderColor:'rgba(255,255,255,0.1)' },
+  groupUseTagTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted2 },
+
+  groupBtn:{ borderRadius:12, overflow:'hidden', marginTop:4 },
+  groupBtnInner:{ paddingVertical:13, alignItems:'center' },
+  groupBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:17, color:'#000', letterSpacing:2 },
+
+  groupLegal:{ fontFamily:'Barlow_400Regular', fontSize:9, color:C.muted, lineHeight:14, textAlign:'center' },
 });

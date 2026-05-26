@@ -1,5 +1,11 @@
 export default ({ config }) => ({
   ...config,
+
+  plugins: [
+    ...(config.plugins || []),
+    "expo-iap",
+  ],
+
   extra: {
     ...config.extra,
     eas: {

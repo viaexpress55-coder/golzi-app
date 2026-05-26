@@ -14,7 +14,7 @@ export { submitPrediction } from './predictions/validatePrediction';
 // ── Ligas ──
 export { onLeagueMemberAdded }  from './leagues/checkCapacity';
 export { rivalryNotification }  from './leagues/rivalryNotification';
-export { generateLeagueAssets }  from './leagues/generateLeagueAssets';
+export { generateLeagueAssets } from './leagues/generateLeagueAssets';
 
 // ── Streaks ──
 export { calculateStreak } from './streaks/calculateStreak';
@@ -22,6 +22,10 @@ export { calculateStreak } from './streaks/calculateStreak';
 // ── Rankings pre-calculados ──
 export { calculateRanking } from './rankings/calculateRanking';
 
-// ── Pagos ── (implementar en Bloque 2)
-// export { webhookDLocal }  from './payments/webhookDLocal';
-// export { webhookPaddle }  from './payments/webhookPaddle';
+// ── Pagos ──
+export { createPaymentPreference } from './payments/createPreference';
+export { createWompiPayment } from './payments/createWompiPayment';
+
+// 👉 Webhooks Wompi
+export { wompiWebhook } from './payments/wompiWebhook';
+export { wompiWebhookRouter } from './payments/wompiWebhookRouter';

@@ -44,3 +44,5 @@ yarn-error.*
 service-account.json
 *-adminsdk-*.jsonserviceAccountKey.json.json 
 serviceAccountKey.json.json 
+
+functions/.env

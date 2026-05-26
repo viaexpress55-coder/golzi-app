@@ -17,23 +17,24 @@ const C = {
   text:'#F0F4FF', muted:'#6B7A99', cyan:'#00C6FF', green:'#00FF87',
 };
 
+// 🔥 STEPS con imágenes (sin emojis)
 const STEPS = [
   {
-    emoji: '⚽',
+    image: require('../../../assets/onboarding1.jpg'),
     titleKey: 'onboard_1_title',
     descKey:  'onboard_1_desc',
     color:    C.gold,
     gradient: ['rgba(255,215,0,0.15)', 'rgba(255,215,0,0.02)'] as const,
   },
   {
-    emoji: '🏆',
+    image: require('../../../assets/onboarding2.jpg'),
     titleKey: 'onboard_2_title',
     descKey:  'onboard_2_desc',
     color:    C.cyan,
     gradient: ['rgba(0,198,255,0.15)', 'rgba(0,198,255,0.02)'] as const,
   },
   {
-    emoji: '🎯',
+    image: require('../../../assets/onboarding3.jpg'),
     titleKey: 'onboard_3_title',
     descKey:  'onboard_3_desc',
     color:    C.green,
@@ -76,27 +77,22 @@ export default function OnboardingScreen() {
   return (
     <View style={s.root}>
 
-      {/* Fondo degradado dinámico */}
       <LinearGradient
         colors={['#020408', '#05080F', '#020408']}
         style={StyleSheet.absoluteFill}
       />
 
-      {/* Glow superior */}
       <Animated.View style={[
         s.bgGlow,
         { backgroundColor: step.color + '20' }
       ]} />
 
-      {/* Línea dorada superior */}
       <View style={s.topLine} />
 
-      {/* SKIP */}
       <TouchableOpacity style={s.skipBtn} onPress={skip}>
         <Text style={s.skipTxt}>OMITIR</Text>
       </TouchableOpacity>
 
-      {/* Logo pequeño */}
       <Image
         source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
         style={s.logoSmall}
@@ -113,19 +109,21 @@ export default function OnboardingScreen() {
         style={{ position:'absolute', opacity:0 }}
       />
 
-      {/* Contenido animado */}
       <Animated.View style={[s.content, { opacity: fadeAnim, transform:[{ scale: scaleAnim }] }]}>
 
-        {/* Card de icono */}
-        <LinearGradient
-          colors={step.gradient}
-          style={[s.iconCard, { borderColor: step.color + '40' }]}
-        >
-          <Text style={s.emoji}>{step.emoji}</Text>
-          <View style={[s.iconGlow, { backgroundColor: step.color + '15' }]} />
-        </LinearGradient>
+        {/* 🔥 NUEVO: imagen en vez de emoji */}
+        <View style={[s.iconCard, { borderColor: step.color + '40' }]}>
+          <Image
+            source={step.image}
+            style={{ width: '100%', height: '100%', borderRadius: 28 }}
+            resizeMode="cover"
+          />
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.4)']}
+            style={StyleSheet.absoluteFill}
+          />
+        </View>
 
-        {/* Número de paso */}
         <Text style={[s.stepNum, { color: step.color + '60' }]}>
           0{current + 1} / 03
         </Text>
@@ -134,13 +132,11 @@ export default function OnboardingScreen() {
           {t(step.titleKey)}
         </Text>
 
-        {/* Línea decorativa */}
         <View style={[s.titleLine, { backgroundColor: step.color }]} />
 
         <Text style={s.desc}>{t(step.descKey)}</Text>
       </Animated.View>
 
-      {/* Dots */}
       <View style={s.dots}>
         {STEPS.map((st, i) => (
           <TouchableOpacity key={i} onPress={() => goTo(i)}>
@@ -152,7 +148,6 @@ export default function OnboardingScreen() {
         ))}
       </View>
 
-      {/* Botón */}
       <TouchableOpacity style={s.btnWrap} onPress={next} activeOpacity={0.9}>
         <LinearGradient
           colors={['#FFD700', '#FFA500', '#E8A000']}
@@ -173,7 +168,6 @@ export default function OnboardingScreen() {
         <Text style={s.guestTxt}>Explorar sin cuenta →</Text>
       </TouchableOpacity>
 
-      {/* Línea dorada inferior */}
       <View style={s.bottomLine} />
 
     </View>
@@ -195,13 +189,23 @@ const s = StyleSheet.create({
 
   content:{ alignItems:'center', flex:1, justifyContent:'center', width:'100%' },
 
+  // 🔥 responsive
   iconCard:{
-    width:140, height:140, borderRadius:28, alignItems:'center', justifyContent:'center',
-    marginBottom:20, borderWidth:1, position:'relative', overflow:'hidden',
-    shadowColor:C.gold, shadowOffset:{width:0,height:8}, shadowOpacity:0.3, shadowRadius:20,
+    width: width * 0.85,
+    height: height * 0.35,
+    borderRadius:28,
+    alignItems:'center',
+    justifyContent:'center',
+    marginBottom:20,
+    borderWidth:1,
+    position:'relative',
+    overflow:'hidden',
+    shadowColor:C.gold,
+    shadowOffset:{width:0,height:8},
+    shadowOpacity:0.3,
+    shadowRadius:20,
+    elevation:10,
   },
-  iconGlow:{ position:'absolute', width:100, height:100, borderRadius:50 },
-  emoji:{ fontSize:72, zIndex:2 },
 
   stepNum:{ fontSize:10, letterSpacing:4, marginBottom:10, fontWeight:'700' },
 

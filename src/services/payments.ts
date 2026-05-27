@@ -13,7 +13,7 @@ export const PLANS = {
 export async function createPaymentPreference(planId: string) {
   try {
     const createPreference = httpsCallable(functions, 'createPaymentPreference');
-    const result = await createPreference({ planId });
+    const result = await createPreference({ planId: planId.toUpperCase() });
     const data = result.data as any;
     return { success: true, preferenceId: data.preferenceId, initPoint: data.initPoint };
   } catch (error: any) {
@@ -24,7 +24,7 @@ export async function createPaymentPreference(planId: string) {
 export async function createWompiPaymentSession(planId: string, userId: string, userEmail: string) {
   try {
     const createWompi = httpsCallable(functions, 'createWompiPayment');
-    const result = await createWompi({ planId, userId, userEmail });
+    const result = await createWompi({ planId: planId.toUpperCase(), userId, userEmail });
     const data = result.data as any;
     return {
       success: true,

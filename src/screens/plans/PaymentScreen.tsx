@@ -114,7 +114,7 @@ export default function PaymentScreen() {
 
       {/* HEADER */}
       <View style={s.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={s.backBtn}>
+        <TouchableOpacity onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Plans')} style={s.backBtn}>
           <Text style={s.backTxt}>← Volver</Text>
         </TouchableOpacity>
         <Image

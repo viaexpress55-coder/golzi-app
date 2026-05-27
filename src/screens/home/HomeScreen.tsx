@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, TextInput, ActivityIndicator, Animated, Image, Modal,
-  RefreshControl,
+  RefreshControl, Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, doc, setDoc, getDoc, where } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { savePrediction } from '../../services/auth';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { Barlow_400Regular, Barlow_500Medium } from '@expo-google-fonts/barlow';
@@ -31,7 +31,6 @@ const C = {
   purple:'#A855F7',
 };
 
-// ─── RETOS RÁPIDOS ────────────────────────────────────────────────────────────
 const RETOS_GRUPOS = [
   { id:'first_goal', label:'¿Quién marca primero?',  type:'team', pts:15, icon:'⚽' },
   { id:'over_goals', label:'¿Más de 2.5 goles?',    type:'yn',   pts:8,  icon:'🎯' },
@@ -58,25 +57,21 @@ function AnimatedBorder({ children, style }: { children: React.ReactNode; style?
   const translateX = anim.interpolate({ inputRange:[0,1], outputRange:[-400, 400] });
   return (
     <View style={[style, { position:'relative' }]}>
-      {/* Línea animada top */}
       <View style={{ position:'absolute', top:0, left:0, right:0, height:2, overflow:'hidden', zIndex:10, borderTopLeftRadius:18, borderTopRightRadius:18 }}>
         <Animated.View style={{ position:'absolute', top:0, height:2, width:200, transform:[{ translateX }] }}>
           <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={{ height:2, width:200 }} />
         </Animated.View>
       </View>
-      {/* Línea animada bottom */}
       <View style={{ position:'absolute', bottom:0, left:0, right:0, height:2, overflow:'hidden', zIndex:10, borderBottomLeftRadius:18, borderBottomRightRadius:18 }}>
         <Animated.View style={{ position:'absolute', bottom:0, height:2, width:200, transform:[{ translateX }] }}>
           <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={{ height:2, width:200 }} />
         </Animated.View>
       </View>
-      {/* Línea animada left */}
       <View style={{ position:'absolute', top:0, left:0, bottom:0, width:2, overflow:'hidden', zIndex:10, borderTopLeftRadius:18, borderBottomLeftRadius:18 }}>
         <Animated.View style={{ position:'absolute', left:0, width:2, height:200, transform:[{ translateY: translateX }] }}>
           <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:0,y:1}} style={{ width:2, height:200 }} />
         </Animated.View>
       </View>
-      {/* Línea animada right */}
       <View style={{ position:'absolute', top:0, right:0, bottom:0, width:2, overflow:'hidden', zIndex:10, borderTopRightRadius:18, borderBottomRightRadius:18 }}>
         <Animated.View style={{ position:'absolute', right:0, width:2, height:200, transform:[{ translateY: translateX }] }}>
           <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:0,y:1}} style={{ width:2, height:200 }} />
@@ -154,7 +149,6 @@ const rs = StyleSheet.create({
   savedPts:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:'#A855F7' },
 });
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
 function getMatchCountdown(kickoffTime: any, status?: string): { text: string; isLive: boolean; isToday: boolean } {
   if (status === 'live' || status === 'IN_PLAY' || status === 'PAUSED') return { text:'EN VIVO', isLive:true, isToday:true };
   const kickoff = new Date(kickoffTime?.seconds ? kickoffTime.seconds * 1000 : kickoffTime);
@@ -163,7 +157,6 @@ function getMatchCountdown(kickoffTime: any, status?: string): { text: string; i
   const days = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
   const minutes = Math.floor((diff % 3600000) / 60000);
-  // Es hoy si faltan menos de 24 horas
   const isToday = diff > 0 && diff < 86400000;
   if (days > 0) return { text:`${days}d ${hours}h`, isLive:false, isToday:false };
   if (hours > 0) return { text:`${hours}h ${minutes}m`, isLive:false, isToday };
@@ -223,7 +216,6 @@ function LiveBadge() {
   );
 }
 
-// ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 export default function HomeScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
@@ -240,14 +232,12 @@ export default function HomeScreen() {
   const [userPlan, setUserPlan]     = useState<string>('free');
   const [userData, setUserData]     = useState<any>(null);
 
-  // Retos
   const [showRetos, setShowRetos]       = useState<Record<string,boolean>>({});
   const [retoAnswers, setRetoAnswers]   = useState<Record<string,Record<string,string>>>({});
   const [retosSaved, setRetosSaved]     = useState<Record<string,boolean>>({});
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmMatch, setConfirmMatch]         = useState<any>(null);
 
-  // ShareCard
   const { cardRef, shareCard }          = useShareCard();
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [shareMatch, setShareMatch]     = useState<any>(null);
@@ -264,19 +254,40 @@ export default function HomeScreen() {
     Barlow_400Regular, Barlow_500Medium,
   });
 
+  // ── Auth + predicciones ──────────────────────────────────────────────────
   useEffect(() => {
-    const user = getAuth().currentUser;
-    if (!user) return;
-    getDoc(doc(db, 'users', user.uid)).then(snap => {
+    const auth = getAuth();
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      const snap = await getDoc(doc(db, 'users', user.uid));
       if (snap.exists()) {
         const planValue = snap.data()?.plan ?? 'free';
-console.log('Plan cargado:', planValue, 'UID:', user.uid);
-setUserPlan(planValue);
+        console.log('Plan cargado:', planValue, 'UID:', user.uid, 'time:', Date.now());
+        setUserPlan(planValue.toLowerCase());
         setUserData(snap.data());
+        try {
+          const predSnap = await getDocs(
+            query(collection(db, 'predictions'), where('userId', '==', user.uid))
+          );
+          console.log('📦 Predicciones encontradas:', predSnap.docs.length, 'time:', Date.now());
+          const savedScores: Record<string, [string, string]> = {};
+          const savedConfirmed: Record<string, boolean> = {};
+          predSnap.docs.forEach(d => {
+            const data = d.data();
+            savedScores[data.matchId] = [String(data.homeScore), String(data.awayScore)];
+            savedConfirmed[data.matchId] = true;
+          });
+          setScores(prev => ({ ...prev, ...savedScores }));
+          setConfirmed(prev => ({ ...prev, ...savedConfirmed }));
+        } catch (e) {
+          console.error('Error cargando predicciones:', e);
+        }
       }
     });
+    return () => unsub();
   }, []);
 
+  // ── Cargar partidos ──────────────────────────────────────────────────────
   useEffect(() => {
     loadMatches();
     const timer = setInterval(() => forceUpdate(n => n+1), 60000);
@@ -287,46 +298,24 @@ setUserPlan(planValue);
     try {
       if (forceRefresh) await refreshMatches();
 
-      // PASO 1: Cargar Firestore primero — instantáneo
+      // PASO 1: Cargar Firestore — instantáneo
       try {
-        const q = query(collection(db, 'matches'), orderBy('kickoffTime'));
+        const q = query(collection(db, 'matches'));
         const snap = await getDocs(q);
         if (!snap.empty) {
           setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
-          setLoading(false); // mostrar UI inmediatamente
-
-          // Cargar predicciones después de matches
-          const user = getAuth().currentUser;
-          if (user) {
-            try {
-              const predSnap = await getDocs(
-                query(collection(db, 'predictions'), where('userId', '==', user.uid))
-              );
-              console.log('📦 Predicciones encontradas:', predSnap.docs.length);
-              const savedScores: Record<string, [string, string]> = {};
-              const savedConfirmed: Record<string, boolean> = {};
-              predSnap.docs.forEach(d => {
-                const data = d.data();
-                savedScores[data.matchId] = [String(data.homeScore), String(data.awayScore)];
-                savedConfirmed[data.matchId] = true;
-              });
-              setScores(prev => ({ ...prev, ...savedScores }));
-              setConfirmed(prev => ({ ...prev, ...savedConfirmed }));
-            } catch (e) {
-              console.error('Error cargando predicciones:', e);
-            }
-          }
+          setLoading(false);
         }
       } catch {}
 
-      // PASO 2: Actualizar con API en background
-      try {
-        const [live, upcoming] = await Promise.all([getLiveMatches(), getUpcomingMatches(8)]);
-        const api = [...live, ...upcoming];
-        if (api.length > 0) {
-          setMatches(api.map(formatApiMatch));
-        }
-      } catch {}
+      // PASO 2: Solo en app nativa (no web)
+      if (typeof window === 'undefined') {
+        try {
+          const [live, upcoming] = await Promise.all([getLiveMatches(), getUpcomingMatches(8)]);
+          const api = [...live, ...upcoming];
+          if (api.length > 0) setMatches(api.map(formatApiMatch));
+        } catch {}
+      }
 
     } finally {
       setLoading(false);
@@ -385,16 +374,32 @@ setUserPlan(planValue);
     } catch {}
   }
 
-  async function confirm(id:string) {
+  async function confirm(id: string) {
     const match = matches.find(m => m.id === id);
     try {
       const user = getAuth().currentUser;
       if (user) {
         const [home, away] = getScore(id);
-        await savePrediction(user.uid, id, parseInt(home)||0, parseInt(away)||0);
+        await savePrediction(user.uid, id, parseInt(home) || 0, parseInt(away) || 0);
       }
-    } catch {}
-    setConfirmed(prev => ({ ...prev, [id]:true }));
+    } catch (error: any) {
+      const code = error?.code ?? '';
+      if (code === 'functions/permission-denied') {
+        navigation.navigate('Plans');
+        return;
+      }
+      if (code === 'functions/failed-precondition') {
+        Alert.alert('⏱ Tiempo cerrado', 'El partido ya inició. Sin excepciones.');
+        return;
+      }
+      if (code === 'functions/already-exists') {
+        Alert.alert('⚽ Ya predicho', 'Ya tienes una predicción para este partido.');
+        return;
+      }
+      console.error('Error al predecir:', error);
+      return;
+    }
+    setConfirmed(prev => ({ ...prev, [id]: true }));
     setSelected(null);
     const [home, away] = getScore(id);
     if (home !== '' && away !== '' && home === away) {
@@ -403,7 +408,6 @@ setUserPlan(planValue);
       triggerGoalAnimation();
     }
     playGoalSound();
-    // Mostrar modal de compartir después de 1.5s
     if (match) {
       setTimeout(() => {
         setShareMatch(match);
@@ -417,16 +421,11 @@ setUserPlan(planValue);
     if (!user) return;
     const answers = retoAnswers[matchId] ?? {};
     if (Object.keys(answers).length === 0) return;
-    // Verificar que el partido no haya comenzado
     const match = matches.find(m => m.id === matchId);
     if (match?.kickoffTime) {
       const kickoff = new Date(match.kickoffTime?.seconds ? match.kickoffTime.seconds * 1000 : match.kickoffTime);
-      if (new Date() >= kickoff) {
-        console.log('Retos bloqueados - partido ya inició');
-        return;
-      }
+      if (new Date() >= kickoff) return;
     }
-
     try {
       await setDoc(doc(db, 'quick_challenges', `${user.uid}_${matchId}`), {
         userId: user.uid, matchId, answers,
@@ -440,7 +439,6 @@ setUserPlan(planValue);
     setRetoAnswers(prev => ({ ...prev, [matchId]: { ...(prev[matchId] ?? {}), [retoId]: value } }));
   }
 
-  // Compartir tarjeta
   async function handleShare() {
     await shareCard({
       message: `⚽ ¡Mira mi predicción GOLZI — Mundial 2026!\n¿Puedes superarme? 👉 golzi.app`,
@@ -448,7 +446,7 @@ setUserPlan(planValue);
     setShareModalVisible(false);
   }
 
-  if (!fontsLoaded || loading) {
+  if (loading) {
     return (
       <View style={[s.root, { justifyContent:'center', alignItems:'center' }]}>
         <Image source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }} style={{ width:60, height:60, marginBottom:16 }} resizeMode="contain" />
@@ -460,14 +458,12 @@ setUserPlan(planValue);
 
   return (
     <View style={s.root}>
-      {/* Fondo imagen estadio */}
       <Image
         source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/home-bg.png?alt=media&token=03237c0b-eb6d-4534-a21e-ae59da366365' }}
         style={{ position:'absolute', top:0, left:0, right:0, bottom:0, width:'100%', height:'100%', opacity:0.08 }}
         resizeMode="cover"
       />
 
-      {/* WOW Exact overlay */}
       {showExact && (
         <Animated.View style={[s.exactOverlay, { opacity: exactOpacity }]}>
           <Animated.Text style={[s.exactStar, { transform:[{ scale: exactScale }] }]}>⭐</Animated.Text>
@@ -477,7 +473,6 @@ setUserPlan(planValue);
         </Animated.View>
       )}
 
-      {/* Goal overlay */}
       {showGoal && (
         <Animated.View style={[s.goalOverlay, { opacity: goalOpacity }]}>
           <Animated.Text style={[s.goalEmoji, { transform:[{ scale: goalScale }] }]}>⚽</Animated.Text>
@@ -486,22 +481,13 @@ setUserPlan(planValue);
         </Animated.View>
       )}
 
-      {/* ── MODAL COMPARTIR ── */}
-      <Modal
-        visible={shareModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShareModalVisible(false)}
-      >
+      <Modal visible={shareModalVisible} transparent animationType="slide" onRequestClose={() => setShareModalVisible(false)}>
         <View style={s.modalOverlay}>
           <View style={s.modalCard}>
             <LinearGradient colors={['#0A0F1A','#020408']} style={StyleSheet.absoluteFill} />
             <View style={s.modalTopLine} />
-
             <Text style={s.modalTitle}>¡PREDICCIÓN CONFIRMADA!</Text>
             <Text style={s.modalSub}>Comparte tu predicción y desafía a tus amigos</Text>
-
-            {/* ShareCard preview */}
             {shareMatch && (
               <View style={s.cardPreviewWrap}>
                 <ShareCard
@@ -518,8 +504,6 @@ setUserPlan(planValue);
                 />
               </View>
             )}
-
-            {/* Botones */}
             <View style={s.modalBtns}>
               <TouchableOpacity style={s.shareBtn} onPress={handleShare} activeOpacity={0.85}>
                 <LinearGradient colors={[C.gold, C.gold2]} start={{x:0,y:0}} end={{x:1,y:0}} style={s.shareBtnInner}>
@@ -534,43 +518,27 @@ setUserPlan(planValue);
         </View>
       </Modal>
 
-      {/* MODAL CONFIRMACIÓN PREDICCIÓN */}
       <Modal visible={showConfirmModal} transparent animationType="fade" onRequestClose={() => setShowConfirmModal(false)}>
         <View style={{ flex:1, backgroundColor:'rgba(0,0,0,0.85)', alignItems:'center', justifyContent:'center', padding:24 }}>
           <View style={{ backgroundColor:'#0A0F1A', borderRadius:20, padding:24, width:'100%', borderWidth:1, borderColor:'rgba(255,215,0,0.3)', gap:16 }}>
             <View style={{ height:2, backgroundColor:'#FFD700', borderRadius:1 }} />
-            <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:'#FFD700', letterSpacing:3, textAlign:'center' }}>
-              ¿CONFIRMAS TU PREDICCIÓN?
-            </Text>
+            <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:'#FFD700', letterSpacing:3, textAlign:'center' }}>¿CONFIRMAS TU PREDICCIÓN?</Text>
             {confirmMatch && (
               <View style={{ alignItems:'center', gap:8 }}>
-                <Text style={{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:16, color:'#9AAABB', textAlign:'center' }}>
-                  {confirmMatch.homeTeam} vs {confirmMatch.awayTeam}
-                </Text>
+                <Text style={{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:16, color:'#9AAABB', textAlign:'center' }}>{confirmMatch.homeTeam} vs {confirmMatch.awayTeam}</Text>
                 <View style={{ flexDirection:'row', alignItems:'center', gap:16, backgroundColor:'rgba(255,215,0,0.1)', borderRadius:14, paddingHorizontal:24, paddingVertical:14, borderWidth:1, borderColor:'rgba(255,215,0,0.25)' }}>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:'#FFD700' }}>{getScore(confirmMatch.id)[0] || '0'}</Text>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:'#6B7A99' }}>-</Text>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:'#FFD700' }}>{getScore(confirmMatch.id)[1] || '0'}</Text>
                 </View>
-                <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:'#6B7A99' }}>
-                  Esta predicción no se puede cambiar después
-                </Text>
+                <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:'#6B7A99' }}>Esta predicción no se puede cambiar después</Text>
               </View>
             )}
             <View style={{ flexDirection:'row', gap:10 }}>
-              <TouchableOpacity 
-                style={{ flex:1, borderRadius:12, borderWidth:1, borderColor:'rgba(255,255,255,0.1)', paddingVertical:14, alignItems:'center' }}
-                onPress={() => setShowConfirmModal(false)}
-              >
+              <TouchableOpacity style={{ flex:1, borderRadius:12, borderWidth:1, borderColor:'rgba(255,255,255,0.1)', paddingVertical:14, alignItems:'center' }} onPress={() => setShowConfirmModal(false)}>
                 <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#6B7A99', letterSpacing:1 }}>CANCELAR</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={{ flex:2, borderRadius:12, overflow:'hidden' }}
-                onPress={() => {
-                  setShowConfirmModal(false);
-                  if (confirmMatch) confirm(confirmMatch.id);
-                }}
-              >
+              <TouchableOpacity style={{ flex:2, borderRadius:12, overflow:'hidden' }} onPress={() => { setShowConfirmModal(false); if (confirmMatch) confirm(confirmMatch.id); }}>
                 <LinearGradient colors={['#FFD700','#FFA500']} start={{x:0,y:0}} end={{x:1,y:0}} style={{ paddingVertical:14, alignItems:'center', borderRadius:12 }}>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:'#000', letterSpacing:2 }}>⚡ CONFIRMAR</Text>
                 </LinearGradient>
@@ -580,7 +548,6 @@ setUserPlan(planValue);
         </View>
       </Modal>
 
-      {/* HEADER */}
       <LinearGradient colors={['#020408','#05080F']} style={s.header}>
         <View style={s.topLine} />
         <View style={s.headerLeft}>
@@ -596,12 +563,8 @@ setUserPlan(planValue);
       </LinearGradient>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.gold} colors={[C.gold]} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.gold} colors={[C.gold]} />}
       >
-
-        {/* STATS BANNER */}
         <LinearGradient colors={['rgba(255,215,0,0.1)','rgba(255,215,0,0.03)']} start={{x:0,y:0}} end={{x:1,y:0}} style={s.statsBanner}>
           <View style={s.statsBannerGlow} />
           {[
@@ -619,7 +582,6 @@ setUserPlan(planValue);
           ))}
         </LinearGradient>
 
-        {/* MATCH CARDS */}
         {matches.map(m => {
           const cd           = getMatchCountdown(m.kickoffTime, m.status);
           const isSelected   = selected === m.id;
@@ -715,10 +677,7 @@ setUserPlan(planValue);
                   {isConfirmed && (
                     <View style={s.confirmedActions}>
                       <View style={s.ptsPill}><Text style={s.ptsPillTxt}>+10 PTS ✓</Text></View>
-                      <TouchableOpacity
-                        style={s.shareSmallBtn}
-                        onPress={() => { setShareMatch(m); setShareModalVisible(true); }}
-                      >
+                      <TouchableOpacity style={s.shareSmallBtn} onPress={() => { setShareMatch(m); setShareModalVisible(true); }}>
                         <Text style={s.shareSmallTxt}>📤</Text>
                       </TouchableOpacity>
                     </View>
@@ -727,20 +686,20 @@ setUserPlan(planValue);
               )}
 
               {m.status !== 'finished' && (
-                <TouchableOpacity 
-  style={[s.predictBtn, isSelected && !getScore(m.id)[0] && !getScore(m.id)[1] && { opacity: 0.4 }]} 
-  onPress={() => {
-    if (isSelected) {
-      const [h, a] = getScore(m.id);
-      if (!h && !a) return; // no hace nada si está vacío
-      setConfirmMatch(m);
-      setShowConfirmModal(true);
-    } else {
-      setSelected(m.id);
-    }
-  }} 
-  activeOpacity={0.85}
->
+                <TouchableOpacity
+                  style={[s.predictBtn, isSelected && !getScore(m.id)[0] && !getScore(m.id)[1] && { opacity: 0.4 }]}
+                  onPress={() => {
+                    if (isSelected) {
+                      const [h, a] = getScore(m.id);
+                      if (!h && !a) return;
+                      setConfirmMatch(m);
+                      setShowConfirmModal(true);
+                    } else {
+                      setSelected(m.id);
+                    }
+                  }}
+                  activeOpacity={0.85}
+                >
                   <LinearGradient
                     colors={isConfirmed ? ['#00FF87','#00C853'] : isSelected ? [C.gold, C.gold2] : ['rgba(255,215,0,0.12)','rgba(255,215,0,0.04)']}
                     start={{x:0,y:0}} end={{x:1,y:0}} style={s.predictBtnInner}
@@ -752,7 +711,6 @@ setUserPlan(planValue);
                 </TouchableOpacity>
               )}
 
-              {/* RETOS RÁPIDOS */}
               {m.status !== 'finished' && !cd.isLive && (() => {
                 const kickoff = m.kickoffTime ? new Date(m.kickoffTime?.seconds ? m.kickoffTime.seconds * 1000 : m.kickoffTime) : null;
                 const isLocked = kickoff ? new Date() >= kickoff : false;
@@ -805,7 +763,6 @@ setUserPlan(planValue);
           );
         })}
 
-        {/* POINTS GUIDE */}
         <LinearGradient colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']} style={s.ptsGuide}>
           <Text style={s.ptsGuideTitle}>{t('home_points')}</Text>
           <View style={s.ptsRow}>
@@ -839,19 +796,15 @@ setUserPlan(planValue);
 const s = StyleSheet.create({
   root:{ flex:1, backgroundColor:C.bg },
   topLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:'rgba(255,215,0,0.5)' },
-
   exactOverlay:{ position:'absolute', top:0, left:0, right:0, bottom:0, backgroundColor:'rgba(2,4,8,0.95)', alignItems:'center', justifyContent:'center', zIndex:1000 },
   exactStar:{ fontSize:80, marginBottom:10 },
   exactTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:36, color:C.gold, letterSpacing:4, marginBottom:8, textAlign:'center' },
   exactPts:{ fontFamily:'BebasNeue_400Regular', fontSize:72, color:C.gold, letterSpacing:4, lineHeight:76 },
   exactSub:{ fontFamily:'BarlowCondensed_700Bold', fontSize:18, color:C.green, letterSpacing:2, marginTop:8 },
-
   goalOverlay:{ position:'absolute', top:0, left:0, right:0, bottom:0, backgroundColor:'rgba(0,0,0,0.88)', alignItems:'center', justifyContent:'center', zIndex:999 },
   goalEmoji:{ fontSize:100, marginBottom:16 },
   goalTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold, letterSpacing:4, marginBottom:8 },
   goalPts:{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:C.green, letterSpacing:4 },
-
-  // Modal compartir
   modalOverlay:{ flex:1, backgroundColor:'rgba(0,0,0,0.85)', alignItems:'center', justifyContent:'flex-end' },
   modalCard:{ width:'100%', borderTopLeftRadius:24, borderTopRightRadius:24, overflow:'hidden', padding:24, alignItems:'center', borderWidth:1, borderColor:'rgba(255,215,0,0.2)' },
   modalTopLine:{ position:'absolute', top:0, left:0, right:0, height:3, backgroundColor:C.gold },
@@ -864,14 +817,12 @@ const s = StyleSheet.create({
   shareBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:'#000', letterSpacing:2 },
   skipBtn:{ alignItems:'center', paddingVertical:12 },
   skipTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted },
-
   header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:16, paddingTop:52, paddingBottom:14, borderBottomWidth:1, borderBottomColor:'rgba(255,215,0,0.15)', position:'relative' },
   headerLeft:{ flexDirection:'row', alignItems:'center', gap:10 },
   headerLogo:{ width:36, height:36 },
   headerTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold, letterSpacing:3 },
   headerSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted, letterSpacing:2 },
   bellBtn:{ width:40, height:40, borderRadius:12, backgroundColor:'rgba(255,255,255,0.05)', alignItems:'center', justifyContent:'center' },
-
   statsBanner:{ flexDirection:'row', marginHorizontal:12, marginTop:12, marginBottom:8, borderRadius:16, borderWidth:1, borderColor:C.goldBorder, padding:14, alignItems:'center', justifyContent:'space-around', overflow:'hidden' },
   statsBannerGlow:{ position:'absolute', top:0, left:0, right:0, bottom:0, backgroundColor:'rgba(255,215,0,0.03)' },
   statItem:{ alignItems:'center' },
@@ -879,7 +830,6 @@ const s = StyleSheet.create({
   statLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2, marginTop:2 },
   statDivider:{ width:1, height:36, backgroundColor:'rgba(255,215,0,0.2)' },
   scroll:{ paddingBottom:40 },
-
   card:{ marginHorizontal:12, marginBottom:10, backgroundColor:C.surface2, borderRadius:18, borderWidth:1, borderColor:'rgba(255,215,0,0.35)', overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:6}, shadowOpacity:0.35, shadowRadius:12, elevation:10 },
   cardTopLine:{ height:2 },
   cardGlow:{ position:'absolute', top:0, left:0, right:0, height:80, zIndex:0 },
@@ -890,17 +840,14 @@ const s = StyleSheet.create({
   stadiumTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted, flex:1 },
   countdownPill:{ backgroundColor:'rgba(255,215,0,0.08)', borderRadius:20, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', paddingHorizontal:10, paddingVertical:4 },
   countdownTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.gold },
-
   liveBadge:{ flexDirection:'row', alignItems:'center', gap:5, backgroundColor:'rgba(255,51,85,0.12)', borderWidth:1, borderColor:'rgba(255,51,85,0.35)', borderRadius:20, paddingHorizontal:10, paddingVertical:4 },
   liveDot:{ width:7, height:7, borderRadius:4, backgroundColor:C.red },
   liveTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.red, letterSpacing:1 },
-
   teamsRow:{ flexDirection:'row', alignItems:'center', paddingHorizontal:10, paddingVertical:14, zIndex:1 },
   teamBox:{ flex:1, alignItems:'center', gap:6 },
   teamFlagImg:{ width:56, height:40, borderRadius:4 },
   teamCode:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.gold, letterSpacing:2 },
   teamName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted2, textAlign:'center' },
-
   centerBox:{ alignItems:'center', justifyContent:'center', paddingHorizontal:8, width:84 },
   vsCircle:{ width:68, height:68, borderRadius:34, borderWidth:2, borderColor:C.goldBorder, alignItems:'center', justifyContent:'center' },
   vsTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold },
@@ -910,7 +857,6 @@ const s = StyleSheet.create({
   confirmedBox:{ flexDirection:'row', alignItems:'center', gap:6, borderRadius:12, paddingHorizontal:14, paddingVertical:12, borderWidth:1, borderColor:'rgba(0,255,135,0.25)' },
   confirmedNum:{ fontFamily:'BebasNeue_400Regular', fontSize:34, color:C.green },
   confirmedDash:{ fontFamily:'BebasNeue_400Regular', fontSize:20, color:C.green },
-
   dateRow:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:14, paddingBottom:10, zIndex:1 },
   dateTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted },
   confirmedActions:{ flexDirection:'row', alignItems:'center', gap:8 },
@@ -918,11 +864,9 @@ const s = StyleSheet.create({
   ptsPillTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.green, letterSpacing:1 },
   shareSmallBtn:{ width:32, height:32, borderRadius:16, backgroundColor:'rgba(255,215,0,0.1)', alignItems:'center', justifyContent:'center', borderWidth:1, borderColor:'rgba(255,215,0,0.3)' },
   shareSmallTxt:{ fontSize:14 },
-
   predictBtn:{ marginHorizontal:14, marginBottom:14, zIndex:1, borderRadius:12, overflow:'hidden' },
   predictBtnInner:{ borderRadius:12, paddingVertical:14, alignItems:'center', borderWidth:1, borderColor:'rgba(255,215,0,0.2)' },
   predictBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:17, letterSpacing:3 },
-
   analysisBox:{ marginHorizontal:14, marginBottom:10, backgroundColor:'rgba(0,198,255,0.05)', borderRadius:12, borderWidth:1, borderColor:'rgba(0,198,255,0.2)', padding:12 },
   analysisHeader:{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:10 },
   analysisTitleTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.cyan, letterSpacing:1 },
@@ -936,7 +880,6 @@ const s = StyleSheet.create({
   analysisPctLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2, marginTop:2 },
   analysisBars:{ flexDirection:'row', height:4, borderRadius:2, overflow:'hidden', marginBottom:10, gap:2 },
   analysisBar:{ height:4, borderRadius:2 },
-
   retosSection:{ marginHorizontal:14, marginBottom:14 },
   retosToggle:{ borderRadius:12, overflow:'hidden' },
   retosToggleInner:{ flexDirection:'row', alignItems:'center', gap:10, padding:12, borderRadius:12, borderWidth:1, borderColor:'rgba(168,85,247,0.25)' },
@@ -955,7 +898,6 @@ const s = StyleSheet.create({
   retosGuardarTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:'#fff', letterSpacing:2 },
   retosDoneBox:{ backgroundColor:'rgba(0,255,135,0.06)', borderRadius:10, padding:12, borderWidth:1, borderColor:'rgba(0,255,135,0.2)', marginTop:4 },
   retosDoneTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#00FF87', textAlign:'center' },
-
   ptsGuide:{ marginHorizontal:12, marginTop:4, borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.15)', padding:14 },
   ptsGuideTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:10 },
   ptsRow:{ flexDirection:'row', gap:8 },

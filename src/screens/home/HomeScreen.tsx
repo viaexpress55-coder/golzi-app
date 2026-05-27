@@ -294,6 +294,28 @@ setUserPlan(planValue);
         if (!snap.empty) {
           setMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
           setLoading(false); // mostrar UI inmediatamente
+
+          // Cargar predicciones después de matches
+          const user = getAuth().currentUser;
+          if (user) {
+            try {
+              const predSnap = await getDocs(
+                query(collection(db, 'predictions'), where('userId', '==', user.uid))
+              );
+              console.log('📦 Predicciones encontradas:', predSnap.docs.length);
+              const savedScores: Record<string, [string, string]> = {};
+              const savedConfirmed: Record<string, boolean> = {};
+              predSnap.docs.forEach(d => {
+                const data = d.data();
+                savedScores[data.matchId] = [String(data.homeScore), String(data.awayScore)];
+                savedConfirmed[data.matchId] = true;
+              });
+              setScores(prev => ({ ...prev, ...savedScores }));
+              setConfirmed(prev => ({ ...prev, ...savedConfirmed }));
+            } catch (e) {
+              console.error('Error cargando predicciones:', e);
+            }
+          }
         }
       } catch {}
 

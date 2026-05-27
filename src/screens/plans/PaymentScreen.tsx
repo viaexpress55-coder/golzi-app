@@ -1,51 +1,59 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, ActivityIndicator, Linking,
+  ScrollView, ActivityIndicator, Linking, Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
-import { BarlowCondensed_700Bold, BarlowCondensed_400Regular } from '@expo-google-fonts/barlow-condensed';
-import { createPaymentPreference, createWompiPaymentSession, PLANS } from '../../services/payments';
+import { BarlowCondensed_700Bold, BarlowCondensed_400Regular, BarlowCondensed_600SemiBold } from '@expo-google-fonts/barlow-condensed';
+import { Barlow_400Regular } from '@expo-google-fonts/barlow';
+import { createPaymentPreference, createWompiPaymentSession } from '../../services/payments';
 import { getAuth } from 'firebase/auth';
 import { Platform } from 'react-native';
 import { initIAP, purchaseSubscription, PRODUCT_IDS } from '../../services/iap';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParams } from '../../navigation/AppNavigator';
 
 const C = {
-  dark: '#05080F', surface: '#0D1117', surface2: '#161B26',
-  text: '#F0F4FF', muted: '#6B7A99',
-  gold: '#FFD700', green: '#00FF87', red: '#E8003D',
-  border: 'rgba(255,255,255,0.07)',
+  bg: '#020408', surface: '#0A0F1A', surface2: '#0F1520',
+  text: '#F0F4FF', muted: '#6B7A99', muted2: '#9AAABB',
+  gold: '#FFD700', gold2: '#FFA500', green: '#00FF87',
+  red: '#E8003D', border: 'rgba(255,255,255,0.07)',
 };
 
+type PaymentRouteProp = RouteProp<RootStackParams, 'Payment'>;
+
 export default function PaymentScreen() {
-  const [loading, setLoading] = useState<string | null>(null);
+  const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+  const route = useRoute<PaymentRouteProp>();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const { planId, planName, price, emoji } = route.params ?? {
+    planId: 'golzair', planName: 'GOLZAIR', price: 1.99, emoji: '⚽',
+  };
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular,
     BarlowCondensed_700Bold,
     BarlowCondensed_400Regular,
+    BarlowCondensed_600SemiBold,
+    Barlow_400Regular,
   });
 
-  if (!fontsLoaded) {
-    console.log('⏳ fonts not loaded yet');
-    return <View style={s.root} />;
-  }
-  console.log('✅ fonts loaded, rendering PaymentScreen');
+  if (!fontsLoaded) return <View style={s.root} />;
 
-  // ✅ FUNCIÓN ACTUALIZADA
-  async function handleBuy(planId: string) {
-    console.log('🔑 handleBuy called', planId);
+  async function handleBuy() {
     try {
-      setLoading(planId);
+      setLoading(true);
       setError('');
 
       const user = getAuth().currentUser;
       const email = user?.email || 'test@golzi.app';
       const userId = user?.uid || 'anonymous';
 
-      // 🥇 Android — Google Play Billing
+      // Android — Google Play Billing
       if (Platform.OS === 'android') {
         const productId = PRODUCT_IDS[planId as keyof typeof PRODUCT_IDS];
         if (productId) {
@@ -55,139 +63,148 @@ export default function PaymentScreen() {
         }
       }
 
-      // 🥈 Web/iOS — Plan A: Mercado Pago
+      // Web/iOS — Plan A: Mercado Pago
       try {
         const mpResult = await createPaymentPreference(planId);
         if (mpResult.success && mpResult.initPoint) {
           if (typeof window !== 'undefined') {
-  window.location.href = mpResult.initPoint;
-} else {
-  await Linking.openURL(mpResult.initPoint);
-}
+            window.location.href = mpResult.initPoint;
+          } else {
+            await Linking.openURL(mpResult.initPoint);
+          }
           return;
         }
       } catch (mpError) {
         console.log('MP falló, intentando Wompi...', mpError);
       }
 
-      // 🥉 Web/iOS — Plan B: Wompi (fallback)
+      // Plan B: Wompi (fallback)
       const wompiResult = await createWompiPaymentSession(planId, userId, email);
-      if (wompiResult.success) {
+      if (wompiResult.success && wompiResult.publicKey) {
         const wompiUrl = `https://checkout.wompi.co/p/?public-key=${wompiResult.publicKey}&currency=${wompiResult.currency}&amount-in-cents=${wompiResult.amountCents}&reference=${wompiResult.reference}&signature:integrity=${wompiResult.signature}&redirect-url=${encodeURIComponent('https://golzi.app')}`;
         if (typeof window !== 'undefined') {
-  window.location.href = wompiUrl;
-} else {
-  await Linking.openURL(wompiUrl);
-}
+          window.location.href = wompiUrl;
+        } else {
+          await Linking.openURL(wompiUrl);
+        }
       } else {
         setError('Error procesando el pago. Intenta de nuevo.');
       }
-
     } catch (e: any) {
       setError(e.message);
     } finally {
-      setLoading(null);
+      setLoading(false);
     }
   }
 
-  const plans = [
-    {
-      key: 'GOLZAIR',
-      emoji: '⚡',
-      color: ['#FFD700', '#E8A000'] as [string, string],
-      features: ['1 liga × 20 personas', 'Ligas privadas ilimitadas', 'Sin publicidad', 'Por torneo completo'],
-    },
-    {
-      key: 'LIGA',
-      emoji: '🏆',
-      color: ['#00C6FF', '#0072FF'] as [string, string],
-      features: ['3 ligas × 25 personas', 'Estadísticas avanzadas', 'QR code', 'Historial permanente'],
-    },
-    {
-      key: 'PRO',
-      emoji: '🔥',
-      color: ['#FF416C', '#FF4B2B'] as [string, string],
-      features: ['5 ligas × 30 personas', 'Todos los deportes', 'IA GOLZI avanzada', 'Badge PRO exclusivo'],
-    },
-    {
-      key: 'STARTER',
-      emoji: '🏢',
-      color: ['#11998e', '#38ef7d'] as [string, string],
-      features: ['Ligas ilimitadas', '1 sucursal', 'Pantalla TV', 'Dashboard métricas'],
-    },
-  ];
+  const FEATURES: Record<string, string[]> = {
+    golzair: ['Todo lo del plan Free','Crear 1 liga privada propia','Hasta 20 participantes','Participar en hasta 3 ligas privadas','Chat en tu liga','Retos diarios · puntos extra','Sin anuncios'],
+    liga:    ['Todo lo del plan GOLZAIR','Crear hasta 3 ligas privadas','Hasta 25 participantes por liga','Participación ilimitada en ligas','Chat en cada liga','Retos diarios · puntos extra','Sin anuncios'],
+    pro:     ['Todo lo del plan LIGA','200 cupos flexibles distribuibles','Participación ilimitada en ligas','Estadísticas avanzadas','Historial de predicciones','% de aciertos y comparativa','QR + Token de acceso','Dashboard de gestión básico'],
+    business:['1,000 cupos flexibles','Ligas grandes para clientes o equipo','Chat en cada liga','Retos diarios · puntos extra','Estadísticas avanzadas completas','QR + Token de liga','Dashboard avanzado de gestión','Ranking en pantallas del local','Sin anuncios · Soporte prioritario'],
+    golzigold:['2,500 cupos flexibles','Todo lo del plan Business','Dashboard completo + API','Branding propio en tu liga','Torneos públicos propios','Soporte dedicado 24/7','Integraciones personalizadas','Eventos masivos y activaciones'],
+  };
+
+  const features = FEATURES[planId] ?? FEATURES['golzair'];
 
   return (
     <View style={s.root}>
+      <LinearGradient colors={['#020408','#05080F','#020408']} style={StyleSheet.absoluteFill} />
+      <View style={s.topLine} />
+
+      {/* HEADER */}
       <View style={s.header}>
-        <Text style={s.title}>PLANES GOLZI</Text>
-        <Text style={s.subtitle}>Sin apuestas · Sin riesgo · 100% legal</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={s.backBtn}>
+          <Text style={s.backTxt}>← Volver</Text>
+        </TouchableOpacity>
+        <Image
+          source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
+          style={s.headerLogo} resizeMode="contain"
+        />
+        <View style={{ width:60 }} />
       </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-        <View style={s.freeCard}>
-          <Text style={s.freeTitle}>FREE</Text>
-          <Text style={s.freePrice}>$0 <Text style={s.freeSub}>siempre</Text></Text>
-          <Text style={s.freeDesc}>Únete a 5 ligas públicas · Ranking global</Text>
+        {/* Plan card */}
+        <View style={s.planCard}>
+          <LinearGradient colors={[C.gold+'22', 'transparent']} style={StyleSheet.absoluteFill} />
+          <View style={s.planTopLine} />
+          <View style={s.planTop}>
+            <Text style={s.planEmoji}>{emoji}</Text>
+            <View style={s.planInfo}>
+              <Text style={s.planName}>{planName}</Text>
+              <Text style={s.planDesc}>Precio de lanzamiento · Por el torneo completo</Text>
+            </View>
+            <View style={s.planPriceBox}>
+              <Text style={s.planPrice}>${price}</Text>
+              <Text style={s.planPeriod}>/torneo</Text>
+            </View>
+          </View>
+
+          <View style={s.divider} />
+
+          <View style={s.featureList}>
+            {features.map((f, i) => (
+              <View key={i} style={s.featureRow}>
+                <Text style={s.featureCheck}>✓</Text>
+                <Text style={s.featureText}>{f}</Text>
+              </View>
+            ))}
+          </View>
         </View>
 
-        {plans.map(plan => {
-          const planData = PLANS[plan.key as keyof typeof PLANS];
-          return (
-            <View key={plan.key} style={s.planCard}>
-              <LinearGradient
-                colors={plan.color}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={s.planHeader}
-              >
-                <Text style={s.planEmoji}>{plan.emoji}</Text>
-                <Text style={s.planName}>{planData.name}</Text>
-                <Text style={s.planPrice}>${planData.price}</Text>
-                <Text style={s.planPer}>
-                  {plan.key === 'PRO' || plan.key === 'STARTER' || plan.key === 'BUSINESS'
-                    ? '/mes' : '/torneo'}
-                </Text>
-              </LinearGradient>
+        {/* Promo banner */}
+        <View style={s.promoBanner}>
+          <Text style={s.promoTxt}>🎯 Precio promo · Válido hasta el 10 de junio de 2026</Text>
+        </View>
 
-              <View style={s.planBody}>
-                {plan.features.map((f, i) => (
-                  <View key={i} style={s.featureRow}>
-                    <Text style={s.featureCheck}>✓</Text>
-                    <Text style={s.featureText}>{f}</Text>
-                  </View>
-                ))}
+        {/* Métodos de pago */}
+        <View style={s.paymentSection}>
+          <Text style={s.paymentTitle}>MÉTODO DE PAGO</Text>
 
-                <TouchableOpacity
-                  style={s.buyBtn}
-                  onPress={() => handleBuy(plan.key)}
-                  disabled={loading === plan.key}
-                  activeOpacity={0.85}
-                >
-                  <LinearGradient
-                    colors={plan.color}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={s.buyBtnInner}
-                  >
-                    {loading === plan.key ? (
-                      <ActivityIndicator color="#000" size="small" />
-                    ) : (
-                      <Text style={s.buyBtnTxt}>OBTENER {planData.name}</Text>
-                    )}
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-            </View>
-          );
-        })}
+          <View style={s.methodsRow}>
+            <View style={s.methodPill}><Text style={s.methodTxt}>💳 Tarjeta</Text></View>
+            <View style={s.methodPill}><Text style={s.methodTxt}>🏦 PSE</Text></View>
+            <View style={s.methodPill}><Text style={s.methodTxt}>📱 Nequi</Text></View>
+            <View style={s.methodPill}><Text style={s.methodTxt}>💰 Efecty</Text></View>
+          </View>
 
-        {error ? <Text style={s.errorTxt}>{error}</Text> : null}
+          {/* Botón principal */}
+          <TouchableOpacity
+            style={s.buyBtn}
+            onPress={handleBuy}
+            disabled={loading}
+            activeOpacity={0.85}
+          >
+            <LinearGradient
+              colors={[C.gold, C.gold2]}
+              start={{ x:0, y:0 }} end={{ x:1, y:0 }}
+              style={s.buyBtnInner}
+            >
+              {loading ? (
+                <ActivityIndicator color="#000" size="small" />
+              ) : (
+                <Text style={s.buyBtnTxt}>⚡ ACTIVAR {planName} — ${price}</Text>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
 
+          {error ? <Text style={s.errorTxt}>{error}</Text> : null}
+        </View>
+
+        {/* Seguridad */}
+        <View style={s.securityBox}>
+          <Text style={s.securityTitle}>🔒 PAGO 100% SEGURO</Text>
+          <Text style={s.securityTxt}>
+            Procesado por Mercado Pago o Wompi. GOLZI no almacena datos de tarjeta.
+            Los puntos no tienen valor monetario. Sin apuestas. 100% legal.
+          </Text>
+        </View>
+
+        {/* Legal */}
         <Text style={s.legal}>
-          Los pagos son procesados de forma segura. GOLZI no almacena datos de tarjeta.
-          Los puntos no tienen valor monetario.
+          ℹ️ Precio promo hasta 10 jun. Pago único por torneo. Sin renovación automática. Sin reembolsos una vez iniciado el torneo.
         </Text>
 
       </ScrollView>
@@ -196,29 +213,49 @@ export default function PaymentScreen() {
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#05080F' },
-  header: { paddingTop: 52, paddingHorizontal: 20, paddingBottom: 16 },
-  title: { fontFamily: 'BebasNeue_400Regular', fontSize: 36, color: '#FFD700', letterSpacing: 3 },
-  subtitle: { fontFamily: 'BarlowCondensed_400Regular', fontSize: 12, color: '#6B7A99', marginTop: 2 },
-  scroll: { paddingHorizontal: 16, paddingBottom: 40 },
-  freeCard: { backgroundColor: '#0D1117', borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', borderRadius: 12, padding: 16, marginBottom: 12, alignItems: 'center' },
-  freeTitle: { fontFamily: 'BebasNeue_400Regular', fontSize: 24, color: '#6B7A99', letterSpacing: 2 },
-  freePrice: { fontFamily: 'BebasNeue_400Regular', fontSize: 32, color: '#F0F4FF', marginTop: 4 },
-  freeSub: { fontSize: 16, color: '#6B7A99' },
-  freeDesc: { fontFamily: 'BarlowCondensed_400Regular', fontSize: 12, color: '#6B7A99', marginTop: 6 },
-  planCard: { backgroundColor: '#0D1117', borderRadius: 16, marginBottom: 16, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
-  planHeader: { padding: 20, alignItems: 'center' },
-  planEmoji: { fontSize: 32, marginBottom: 8 },
-  planName: { fontFamily: 'BebasNeue_400Regular', fontSize: 28, color: '#000', letterSpacing: 3 },
-  planPrice: { fontFamily: 'BebasNeue_400Regular', fontSize: 40, color: '#000', marginTop: 4 },
-  planPer: { fontFamily: 'BarlowCondensed_700Bold', fontSize: 12, color: '#000', opacity: 0.7 },
-  planBody: { padding: 16 },
-  featureRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  featureCheck: { color: '#00FF87', fontSize: 14, marginRight: 8, fontFamily: 'BarlowCondensed_700Bold' },
-  featureText: { fontFamily: 'BarlowCondensed_400Regular', fontSize: 13, color: '#F0F4FF' },
-  buyBtn: { marginTop: 12 },
-  buyBtnInner: { borderRadius: 10, paddingVertical: 13, alignItems: 'center' },
-  buyBtnTxt: { fontFamily: 'BebasNeue_400Regular', fontSize: 16, letterSpacing: 2, color: '#000' },
-  errorTxt: { color: '#E8003D', fontFamily: 'BarlowCondensed_400Regular', fontSize: 12, textAlign: 'center', marginTop: 8 },
-  legal: { fontFamily: 'BarlowCondensed_400Regular', fontSize: 10, color: '#6B7A99', textAlign: 'center', marginTop: 16, lineHeight: 16 },
+  root:{ flex:1, backgroundColor:C.bg },
+  topLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:'rgba(255,215,0,0.5)', zIndex:10 },
+  header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:16, paddingTop:52, paddingBottom:14, borderBottomWidth:1, borderBottomColor:'rgba(255,215,0,0.1)' },
+  backBtn:{ width:60 },
+  backTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.muted },
+  headerLogo:{ width:36, height:36 },
+  scroll:{ paddingHorizontal:16, paddingTop:20, paddingBottom:40 },
+
+  planCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderWidth:1.5, borderColor:'rgba(255,215,0,0.35)', borderRadius:16, overflow:'hidden', marginBottom:14 },
+  planTopLine:{ height:2, backgroundColor:C.gold },
+  planTop:{ flexDirection:'row', alignItems:'center', gap:10, padding:16, paddingBottom:0 },
+  planEmoji:{ fontSize:28 },
+  planInfo:{ flex:1 },
+  planName:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold, letterSpacing:1 },
+  planDesc:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted },
+  planPriceBox:{ alignItems:'flex-end' },
+  planPrice:{ fontFamily:'BebasNeue_400Regular', fontSize:32, color:C.gold },
+  planPeriod:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted },
+  divider:{ height:1, backgroundColor:'rgba(255,255,255,0.06)', margin:16, marginBottom:10 },
+  featureList:{ gap:8, paddingHorizontal:16, paddingBottom:16 },
+  featureRow:{ flexDirection:'row', alignItems:'center', gap:8 },
+  featureCheck:{ color:C.green, fontSize:13, fontFamily:'BarlowCondensed_700Bold', width:14 },
+  featureText:{ fontFamily:'Barlow_400Regular', fontSize:12, color:C.muted2, flex:1 },
+
+  promoBanner:{ backgroundColor:'rgba(255,215,0,0.06)', borderWidth:1, borderColor:'rgba(255,215,0,0.4)', borderRadius:10, padding:12, alignItems:'center', marginBottom:14 },
+  promoTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.gold, letterSpacing:0.5 },
+
+  paymentSection:{ backgroundColor:'rgba(255,255,255,0.03)', borderWidth:1, borderColor:'rgba(255,255,255,0.08)', borderRadius:16, padding:16, marginBottom:14 },
+  paymentTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.muted2, letterSpacing:2, marginBottom:12 },
+
+  methodsRow:{ flexDirection:'row', flexWrap:'wrap', gap:8, marginBottom:16 },
+  methodPill:{ backgroundColor:'rgba(255,255,255,0.05)', borderWidth:1, borderColor:'rgba(255,255,255,0.1)', borderRadius:20, paddingHorizontal:12, paddingVertical:6 },
+  methodTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.muted2 },
+
+  buyBtn:{ borderRadius:12, overflow:'hidden' },
+  buyBtnInner:{ paddingVertical:16, alignItems:'center', borderRadius:12 },
+  buyBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:'#000', letterSpacing:2 },
+
+  errorTxt:{ color:C.red, fontFamily:'BarlowCondensed_400Regular', fontSize:12, textAlign:'center', marginTop:10 },
+
+  securityBox:{ backgroundColor:'rgba(0,255,135,0.05)', borderWidth:1, borderColor:'rgba(0,255,135,0.2)', borderRadius:12, padding:14, marginBottom:14 },
+  securityTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.green, letterSpacing:2, marginBottom:6 },
+  securityTxt:{ fontFamily:'Barlow_400Regular', fontSize:11, color:C.muted2, lineHeight:16 },
+
+  legal:{ fontFamily:'Barlow_400Regular', fontSize:9, color:C.muted, textAlign:'center', lineHeight:14 },
 });

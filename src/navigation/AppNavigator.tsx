@@ -4,7 +4,6 @@ import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-// deep linking
 import SplashScreen from '../screens/splash/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import RegisterScreen from '../screens/register/RegisterScreen';
@@ -26,7 +25,7 @@ export type RootStackParams = {
   Plans:       undefined;
   Main:        undefined;
   Login:       undefined;
-  Payment:     undefined;
+  Payment:     { planId: string; planName: string; price: number; emoji: string };
 };
 
 export type MainTabParams = {
@@ -49,13 +48,8 @@ const C = {
   border2: 'rgba(255,255,255,0.07)',
 };
 
-// ── Deep Linking config ───────────────────────────────────────────────────────
 const linking = {
-  prefixes: [
-    'golzi://',
-    'https://golzi.app',
-    'https://www.golzi.app',
-  ],
+  prefixes: ['golzi://','https://golzi.app','https://www.golzi.app'],
 };
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
@@ -86,63 +80,22 @@ function MainTabs() {
         },
       }}
     >
-      <Tab.Screen
-        name="Predictor"
-        options={{
-          tabBarLabel: t('home_predict'),
-          tabBarIcon: ({ focused }) => <TabIcon emoji="⚽" focused={focused} />,
-        }}
-      >
+      <Tab.Screen name="Predictor" options={{ tabBarLabel: t('home_predict'), tabBarIcon: ({ focused }) => <TabIcon emoji="⚽" focused={focused} /> }}>
         {() => <HomeScreen />}
       </Tab.Screen>
-
-      <Tab.Screen
-        name="Live"
-        options={{
-          tabBarLabel: t('live_title'),
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📡" focused={focused} />,
-        }}
-      >
+      <Tab.Screen name="Live" options={{ tabBarLabel: t('live_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="📡" focused={focused} /> }}>
         {() => <LiveScreen />}
       </Tab.Screen>
-
-      <Tab.Screen
-        name="Ranking"
-        options={{
-          tabBarLabel: t('ranking_title'),
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} />,
-        }}
-      >
+      <Tab.Screen name="Ranking" options={{ tabBarLabel: t('ranking_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} /> }}>
         {() => <RankingScreen />}
       </Tab.Screen>
-
-      <Tab.Screen
-        name="Mundial"
-        options={{
-          tabBarLabel: t('mundial_title'),
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🌍" focused={focused} />,
-        }}
-      >
+      <Tab.Screen name="Mundial" options={{ tabBarLabel: t('mundial_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🌍" focused={focused} /> }}>
         {() => <MundialScreen />}
       </Tab.Screen>
-
-      <Tab.Screen
-        name="Liga"
-        options={{
-          tabBarLabel: t('liga_title'),
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🔗" focused={focused} />,
-        }}
-      >
+      <Tab.Screen name="Liga" options={{ tabBarLabel: t('liga_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🔗" focused={focused} /> }}>
         {() => <LigaScreen />}
       </Tab.Screen>
-
-      <Tab.Screen
-        name="Perfil"
-        options={{
-          tabBarLabel: t('profile_tab'),
-          tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
-        }}
-      >
+      <Tab.Screen name="Perfil" options={{ tabBarLabel: t('profile_tab'), tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }}>
         {() => <ProfileScreen />}
       </Tab.Screen>
     </Tab.Navigator>
@@ -150,7 +103,6 @@ function MainTabs() {
 }
 
 export default function AppNavigator() {
-  const { t } = useTranslation();
   return (
     <NavigationContainer linking={linking as any}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>

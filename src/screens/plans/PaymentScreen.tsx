@@ -24,6 +24,23 @@ const C = {
 
 type PaymentRouteProp = RouteProp<RootStackParams, 'Payment'>;
 
+const FEATURES: Record<string, string[]> = {
+  liga:      ['Crea tu liga privada','Hasta 5 jugadores','Chat en tu liga','Retos diarios y puntos extra','Sin anuncios'],
+  pro:       ['Todo lo de LIGA','Hasta 10 jugadores','Mejor experiencia grupal','Sin anuncios'],
+  master:    ['Todo lo de PRO','Hasta 25 jugadores','Historial de liga','Métricas básicas','Sin anuncios'],
+  golzair:   ['Multiligas (ilimitadas)','Hasta 100 usuarios','Dashboard básico','Chat y comunicación','Reportes básicos','Soporte prioritario'],
+  partner:   ['Multiligas','Hasta 500 usuarios','Dashboard básico','Panel de estadísticas','Branding básico'],
+  business:  ['Multiligas','Hasta 1,000 usuarios','Dashboard avanzado','Reportes y métricas','Exportación de datos','Soporte prioritario'],
+  gold:      ['Multiligas','Hasta 2,500 usuarios','Branding personalizado','Eventos y activaciones','Soporte VIP 24/7'],
+  golziplus: ['Todo ilimitado','White label','Integraciones avanzadas','SLA personalizado','Soporte dedicado','Escalabilidad total'],
+};
+
+const PLAN_USERS: Record<string, string> = {
+  liga: '5 jugadores', pro: '10 jugadores', master: '25 jugadores',
+  golzair: '100 usuarios', partner: '500 usuarios', business: '1,000 usuarios',
+  gold: '2,500 usuarios', golziplus: '5,000+ usuarios',
+};
+
 export default function PaymentScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const route = useRoute<PaymentRouteProp>();
@@ -31,7 +48,7 @@ export default function PaymentScreen() {
   const [error, setError] = useState('');
 
   const { planId, planName, price, emoji } = route.params ?? {
-    planId: 'golzair', planName: 'GOLZAIR', price: 1.99, emoji: '⚽',
+    planId: 'liga', planName: 'LIGA', price: 14.99, emoji: '⚡',
   };
 
   const [fontsLoaded] = useFonts({
@@ -43,6 +60,8 @@ export default function PaymentScreen() {
   });
 
   if (!fontsLoaded) return <View style={s.root} />;
+
+  const b2bPlans = ['partner', 'business', 'gold', 'golziplus'];
 
   async function handleBuy() {
     try {
@@ -64,7 +83,6 @@ export default function PaymentScreen() {
       }
 
       // B2B — directo a Wompi
-      const b2bPlans = ['partners', 'businessfull', 'golzigold', 'enterprise'];
       if (b2bPlans.includes(planId)) {
         const wompiResult = await createWompiPaymentSession(planId, userId, email);
         if (wompiResult.success && wompiResult.publicKey) {
@@ -92,7 +110,7 @@ export default function PaymentScreen() {
         console.log('MP falló, intentando Wompi...', mpError);
       }
 
-      // Plan B: Wompi (fallback)
+      // Plan B: Wompi fallback
       const wompiResult = await createWompiPaymentSession(planId, userId, email);
       if (wompiResult.success && wompiResult.publicKey) {
         const wompiUrl = `https://checkout.wompi.co/p/?public-key=${wompiResult.publicKey}&currency=${wompiResult.currency}&amount-in-cents=${wompiResult.amountCents}&reference=${wompiResult.reference}&signature:integrity=${wompiResult.signature}&redirect-url=${encodeURIComponent('https://golzi.app')}`;
@@ -111,17 +129,8 @@ export default function PaymentScreen() {
     }
   }
 
-  const FEATURES: Record<string, string[]> = {
-    golzair: ['Todo lo del plan Free','Crear 1 liga privada propia','Hasta 20 participantes','Participar en hasta 3 ligas privadas','Chat en tu liga','Retos diarios · puntos extra','Sin anuncios'],
-    liga:    ['Todo lo del plan GOLZAIR','Crear hasta 3 ligas privadas','Hasta 25 participantes por liga','Participación ilimitada en ligas','Chat en cada liga','Retos diarios · puntos extra','Sin anuncios'],
-    pro:     ['Todo lo del plan LIGA','200 cupos flexibles distribuibles','Participación ilimitada en ligas','Estadísticas avanzadas','Historial de predicciones','% de aciertos y comparativa','QR + Token de acceso','Dashboard de gestión básico'],
-    partners:    ['El negocio crea la liga + QR','Cada cliente paga su GOLZAIR ($1.99)','Dashboard avanzado de gestión','Ranking en pantallas del local','Badge GOLZI activo','Soporte prioritario'],
-    businessfull:['1,000 accesos incluidos','$0.49 por jugador','Usuarios ingresan con QR o link','Sin pago individual por usuario','Dashboard B2B completo','Soporte prioritario'],
-    business:['1,000 cupos flexibles','Ligas grandes para clientes o equipo','Chat en cada liga','Retos diarios · puntos extra','Estadísticas avanzadas completas','QR + Token de liga','Dashboard avanzado de gestión','Ranking en pantallas del local','Sin anuncios · Soporte prioritario'],
-    golzigold:['2,500 cupos flexibles','Todo lo del plan Business','Dashboard completo + API','Branding propio en tu liga','Torneos públicos propios','Soporte dedicado 24/7','Integraciones personalizadas','Eventos masivos y activaciones'],
-  };
-
-  const features = FEATURES[planId] ?? FEATURES['golzair'];
+  const features = FEATURES[planId] ?? FEATURES['liga'];
+  const planUsers = PLAN_USERS[planId] ?? '';
 
   return (
     <View style={s.root}>
@@ -142,6 +151,12 @@ export default function PaymentScreen() {
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
+        {/* Hero */}
+        <View style={s.heroBox}>
+          <Text style={s.heroTitle}>1 PAGA, TODOS JUEGAN</Text>
+          <Text style={s.heroSub}>Tú pagas · Invitas por link · Todos entran gratis</Text>
+        </View>
+
         {/* Plan card */}
         <View style={s.planCard}>
           <LinearGradient colors={[C.gold+'22', 'transparent']} style={StyleSheet.absoluteFill} />
@@ -150,11 +165,11 @@ export default function PaymentScreen() {
             <Text style={s.planEmoji}>{emoji}</Text>
             <View style={s.planInfo}>
               <Text style={s.planName}>{planName}</Text>
-              <Text style={s.planDesc}>Precio de lanzamiento · Por el torneo completo</Text>
+              {planUsers ? <Text style={s.planUsers}>👥 {planUsers}</Text> : null}
             </View>
             <View style={s.planPriceBox}>
               <Text style={s.planPrice}>${price}</Text>
-              <Text style={s.planPeriod}>/torneo</Text>
+              <Text style={s.planPeriod}>pago único</Text>
             </View>
           </View>
 
@@ -178,26 +193,15 @@ export default function PaymentScreen() {
         {/* Métodos de pago */}
         <View style={s.paymentSection}>
           <Text style={s.paymentTitle}>MÉTODO DE PAGO</Text>
-
           <View style={s.methodsRow}>
             <View style={s.methodPill}><Text style={s.methodTxt}>💳 Tarjeta</Text></View>
             <View style={s.methodPill}><Text style={s.methodTxt}>🏦 PSE</Text></View>
             <View style={s.methodPill}><Text style={s.methodTxt}>📱 Nequi</Text></View>
-            <View style={s.methodPill}><Text style={s.methodTxt}>💰 Efecty</Text></View>
+            <View style={s.methodPill}><Text style={s.methodTxt}>💵 Efecty</Text></View>
           </View>
 
-          {/* Botón principal */}
-          <TouchableOpacity
-            style={s.buyBtn}
-            onPress={handleBuy}
-            disabled={loading}
-            activeOpacity={0.85}
-          >
-            <LinearGradient
-              colors={[C.gold, C.gold2]}
-              start={{ x:0, y:0 }} end={{ x:1, y:0 }}
-              style={s.buyBtnInner}
-            >
+          <TouchableOpacity style={s.buyBtn} onPress={handleBuy} disabled={loading} activeOpacity={0.85}>
+            <LinearGradient colors={[C.gold, C.gold2]} start={{ x:0, y:0 }} end={{ x:1, y:0 }} style={s.buyBtnInner}>
               {loading ? (
                 <ActivityIndicator color="#000" size="small" />
               ) : (
@@ -218,7 +222,6 @@ export default function PaymentScreen() {
           </Text>
         </View>
 
-        {/* Legal */}
         <Text style={s.legal}>
           ℹ️ Precio promo hasta 10 jun. Pago único por torneo. Sin renovación automática. Sin reembolsos una vez iniciado el torneo.
         </Text>
@@ -235,7 +238,11 @@ const s = StyleSheet.create({
   backBtn:{ width:60 },
   backTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.muted },
   headerLogo:{ width:36, height:36 },
-  scroll:{ paddingHorizontal:16, paddingTop:20, paddingBottom:40 },
+  scroll:{ paddingHorizontal:16, paddingTop:16, paddingBottom:40 },
+
+  heroBox:{ alignItems:'center', marginBottom:16, backgroundColor:'rgba(255,215,0,0.05)', borderRadius:12, padding:14, borderWidth:1, borderColor:'rgba(255,215,0,0.2)' },
+  heroTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:C.gold, letterSpacing:2, textAlign:'center' },
+  heroSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:C.muted2, textAlign:'center', marginTop:4 },
 
   planCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderWidth:1.5, borderColor:'rgba(255,215,0,0.35)', borderRadius:16, overflow:'hidden', marginBottom:14 },
   planTopLine:{ height:2, backgroundColor:C.gold },
@@ -243,7 +250,7 @@ const s = StyleSheet.create({
   planEmoji:{ fontSize:28 },
   planInfo:{ flex:1 },
   planName:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold, letterSpacing:1 },
-  planDesc:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted },
+  planUsers:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.muted2, marginTop:2 },
   planPriceBox:{ alignItems:'flex-end' },
   planPrice:{ fontFamily:'BebasNeue_400Regular', fontSize:32, color:C.gold },
   planPeriod:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted },
@@ -258,7 +265,6 @@ const s = StyleSheet.create({
 
   paymentSection:{ backgroundColor:'rgba(255,255,255,0.03)', borderWidth:1, borderColor:'rgba(255,255,255,0.08)', borderRadius:16, padding:16, marginBottom:14 },
   paymentTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.muted2, letterSpacing:2, marginBottom:12 },
-
   methodsRow:{ flexDirection:'row', flexWrap:'wrap', gap:8, marginBottom:16 },
   methodPill:{ backgroundColor:'rgba(255,255,255,0.05)', borderWidth:1, borderColor:'rgba(255,255,255,0.1)', borderRadius:20, paddingHorizontal:12, paddingVertical:6 },
   methodTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.muted2 },
@@ -266,7 +272,6 @@ const s = StyleSheet.create({
   buyBtn:{ borderRadius:12, overflow:'hidden' },
   buyBtnInner:{ paddingVertical:16, alignItems:'center', borderRadius:12 },
   buyBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:'#000', letterSpacing:2 },
-
   errorTxt:{ color:C.red, fontFamily:'BarlowCondensed_400Regular', fontSize:12, textAlign:'center', marginTop:10 },
 
   securityBox:{ backgroundColor:'rgba(0,255,135,0.05)', borderWidth:1, borderColor:'rgba(0,255,135,0.2)', borderRadius:12, padding:14, marginBottom:14 },

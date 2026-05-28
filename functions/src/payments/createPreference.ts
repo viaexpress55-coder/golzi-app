@@ -4,17 +4,16 @@ import * as admin from 'firebase-admin';
 
 const mpAccessToken = defineSecret('MP_ACCESS_TOKEN');
 
+// PLANES v3 - Modelo "1 paga, todos juegan" - Precio base $1.99/jugador
 const PLANS: Record<string, { id: string; name: string; price: number; currency: string; description: string }> = {
-  GOLZAIR: { id: 'golzair', name: 'GOLZAIR', price: 1.99, currency: 'USD', description: '1 liga × 20 personas · Por torneo' },
-  LIGA:    { id: 'liga',    name: 'LIGA',    price: 4.99, currency: 'USD', description: '3 ligas × 25 personas · Por torneo' },
-  PRO:     { id: 'pro',     name: 'PRO',     price: 9.99, currency: 'USD', description: '5 ligas × 30 personas · Por mes' },
-  STARTER: { id: 'starter', name: 'STARTER', price: 29.99, currency: 'USD', description: 'Ligas ilimitadas · 1 sucursal · Por mes' },
-BUSINESS:    { id: 'business',    name: 'BUSINESS',      price: 79.99,  currency: 'USD', description: 'Ligas ilimitadas · 3 sucursales · Por mes' },
-  PARTNERS:    { id: 'partners',    name: 'PARTNERS',      price: 49.99,  currency: 'USD', description: 'El negocio crea la liga · Clientes pagan GOLZAIR' },
-  BUSINESSFULL:{ id: 'businessfull',name: 'BUSINESS FULL', price: 499.00, currency: 'USD', description: '1,000 accesos incluidos · $0.49 por jugador' },
-  GOLZIGOLD:   { id: 'golzigold',   name: 'GOLZI GOLD',    price: 999.00, currency: 'USD', description: '2,500 accesos incluidos · $0.39 por jugador' },
-  ENTERPRISE:  { id: 'enterprise',  name: 'ENTERPRISE',    price: 1.00,   currency: 'USD', description: 'Solución a medida · Contactar ventas' },
-  GOLZIGROUP:  { id: 'golzigroup',  name: 'GOLZI GROUP',   price: 2.99,   currency: 'USD', description: 'Pago grupal · jugadores × $2.99' },
+  LIGA:      { id: 'liga',      name: 'LIGA',      price: 9.95,   currency: 'USD', description: '5 jugadores · $1.99/jugador' },
+  PRO:       { id: 'pro',       name: 'PRO',        price: 18.99,  currency: 'USD', description: '10 jugadores · $1.90/jugador · 5% ahorro' },
+  MASTER:    { id: 'master',    name: 'MASTER',     price: 39.99,  currency: 'USD', description: '25 jugadores · $1.60/jugador · 20% ahorro' },
+  GOLZAIR:   { id: 'golzair',   name: 'GOLZAIR',    price: 99.99,  currency: 'USD', description: '100 usuarios · $1.00/usuario · 50% ahorro' },
+  PARTNER:   { id: 'partner',   name: 'PARTNER',    price: 349.99, currency: 'USD', description: '500 usuarios · $0.70/usuario · 65% ahorro' },
+  BUSINESS:  { id: 'business',  name: 'BUSINESS',   price: 499.99, currency: 'USD', description: '1,000 usuarios · $0.50/usuario · 75% ahorro' },
+  GOLD:      { id: 'gold',      name: 'GOLD',        price: 999.99, currency: 'USD', description: '2,500 usuarios · $0.40/usuario · 80% ahorro' },
+  GOLZIPLUS: { id: 'golziplus', name: 'GOLZI+',     price: 1.00,   currency: 'USD', description: 'Enterprise · A medida' },
 };
 
 export const createPaymentPreference = onCall(

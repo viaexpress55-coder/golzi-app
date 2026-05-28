@@ -5,19 +5,20 @@ import * as crypto from 'crypto';
 
 const wompiIntegrityKey = defineSecret('WOMPI_INTEGRITY_KEY');
 
+// PLANES ACTUALIZADOS - Modelo "1 paga, todos juegan"
+// Precios en COP (1 USD ≈ 4,000 COP)
 const PLANS: Record<string, { id: string; name: string; amountCents: number; description: string }> = {
-  GOLZAIR: { id: 'golzair', name: 'GOLZAIR', amountCents: 800000, description: '1 liga × 20 personas · Por torneo' },
-  LIGA:    { id: 'liga',    name: 'LIGA',    amountCents: 1990000, description: '3 ligas × 25 personas · Por torneo' },
-  PRO:     { id: 'pro',     name: 'PRO',     amountCents: 3990000, description: '5 ligas × 30 personas · Por mes' },
-  STARTER: { id: 'starter', name: 'STARTER', amountCents: 11900000, description: 'Ligas ilimitadas · 1 sucursal · Por mes' },
-  BUSINESS:    { id: 'business',    name: 'BUSINESS',      amountCents: 31900000,  description: 'Ligas ilimitadas · 3 sucursales · Por mes' },
-  PARTNERS:    { id: 'partners',    name: 'PARTNERS',      amountCents: 19900000,  description: 'El negocio crea la liga · Clientes pagan GOLZAIR' },
-  BUSINESSFULL:{ id: 'businessfull',name: 'BUSINESS FULL', amountCents: 199500000, description: '1,000 accesos incluidos · $0.49 por jugador' },
-  GOLZIGOLD:   { id: 'golzigold',   name: 'GOLZI GOLD',    amountCents: 399500000, description: '2,500 accesos incluidos · $0.39 por jugador' },
-  ENTERPRISE:  { id: 'enterprise',  name: 'ENTERPRISE',    amountCents: 1,         description: 'Solución a medida · Contactar ventas' },
-  GOLZIGROUP:  { id: 'golzigroup',  name: 'GOLZI GROUP',   amountCents: 119600,    description: 'Pago grupal · jugadores × $2.99 (mínimo 11)' },
+  // B2C Personal
+  LIGA:        { id: 'liga',        name: 'LIGA',        amountCents: 5996000,   description: '5 jugadores · Pago único' },
+  PRO:         { id: 'pro',         name: 'PRO',         amountCents: 11996000,  description: '10 jugadores · Pago único' },
+  MASTER:      { id: 'master',      name: 'MASTER',      amountCents: 23996000,  description: '25 jugadores · Pago único' },
+  GOLZAIR:     { id: 'golzair',     name: 'GOLZAIR',     amountCents: 39996000,  description: '100 usuarios · Multiligas' },
+  // B2B Empresas
+  PARTNER:     { id: 'partner',     name: 'PARTNER',     amountCents: 139996000, description: '500 usuarios · Pago único' },
+  BUSINESS:    { id: 'business',    name: 'BUSINESS',    amountCents: 199996000, description: '1,000 usuarios · Pago único' },
+  GOLD:        { id: 'gold',        name: 'GOLD',        amountCents: 399996000, description: '2,500 usuarios · Pago único' },
+  GOLZIPLUS:   { id: 'golziplus',   name: 'GOLZI+',      amountCents: 1,         description: 'Enterprise · A medida' },
 };
-
 export const createWompiPayment = onCall(
   { secrets: ['WOMPI_INTEGRITY_KEY'] },
   async (request) => {

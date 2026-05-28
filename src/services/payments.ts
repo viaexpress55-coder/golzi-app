@@ -3,11 +3,14 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from './firebase';
 
 export const PLANS = {
-  golzair:  { id: 'golzair',  name: 'GOLZAIR',      price: 1.99  },
-  liga:     { id: 'liga',     name: 'LIGA',          price: 4.99  },
-  pro:      { id: 'pro',      name: 'PRO FLEX',      price: 9.99  },
-  business: { id: 'business', name: 'BUSINESS',      price: 49.99 },
-  golzigold:{ id: 'golzigold',name: 'GOLZI GOLD',    price: 999   },
+  liga:      { id: 'liga',      name: 'LIGA',      price: 9.95   },
+  pro:       { id: 'pro',       name: 'PRO',        price: 18.99  },
+  master:    { id: 'master',    name: 'MASTER',     price: 39.99  },
+  golzair:   { id: 'golzair',   name: 'GOLZAIR',    price: 99.99  },
+  partner:   { id: 'partner',   name: 'PARTNER',    price: 349.99 },
+  business:  { id: 'business',  name: 'BUSINESS',   price: 499.99 },
+  gold:      { id: 'gold',      name: 'GOLD',        price: 999.99 },
+  golziplus: { id: 'golziplus', name: 'GOLZI+',     price: 1.00   },
 };
 
 export async function createPaymentPreference(planId: string) {

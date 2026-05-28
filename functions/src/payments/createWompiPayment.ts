@@ -10,7 +10,11 @@ const PLANS: Record<string, { id: string; name: string; amountCents: number; des
   LIGA:    { id: 'liga',    name: 'LIGA',    amountCents: 1990000, description: '3 ligas × 25 personas · Por torneo' },
   PRO:     { id: 'pro',     name: 'PRO',     amountCents: 3990000, description: '5 ligas × 30 personas · Por mes' },
   STARTER: { id: 'starter', name: 'STARTER', amountCents: 11900000, description: 'Ligas ilimitadas · 1 sucursal · Por mes' },
-  BUSINESS:{ id: 'business',name: 'BUSINESS',amountCents: 31900000, description: 'Ligas ilimitadas · 3 sucursales · Por mes' },
+  BUSINESS:    { id: 'business',    name: 'BUSINESS',      amountCents: 31900000,  description: 'Ligas ilimitadas · 3 sucursales · Por mes' },
+  PARTNERS:    { id: 'partners',    name: 'PARTNERS',      amountCents: 19900000,  description: 'El negocio crea la liga · Clientes pagan GOLZAIR' },
+  BUSINESSFULL:{ id: 'businessfull',name: 'BUSINESS FULL', amountCents: 199500000, description: '1,000 accesos incluidos · $0.49 por jugador' },
+  GOLZIGOLD:   { id: 'golzigold',   name: 'GOLZI GOLD',    amountCents: 399500000, description: '2,500 accesos incluidos · $0.39 por jugador' },
+  ENTERPRISE:  { id: 'enterprise',  name: 'ENTERPRISE',    amountCents: 1,         description: 'Solución a medida · Contactar ventas' },
 };
 
 export const createWompiPayment = onCall(

@@ -9,7 +9,11 @@ const PLANS: Record<string, { id: string; name: string; price: number; currency:
   LIGA:    { id: 'liga',    name: 'LIGA',    price: 4.99, currency: 'USD', description: '3 ligas × 25 personas · Por torneo' },
   PRO:     { id: 'pro',     name: 'PRO',     price: 9.99, currency: 'USD', description: '5 ligas × 30 personas · Por mes' },
   STARTER: { id: 'starter', name: 'STARTER', price: 29.99, currency: 'USD', description: 'Ligas ilimitadas · 1 sucursal · Por mes' },
-  BUSINESS:{ id: 'business',name: 'BUSINESS',price: 79.99, currency: 'USD', description: 'Ligas ilimitadas · 3 sucursales · Por mes' },
+BUSINESS:    { id: 'business',    name: 'BUSINESS',      price: 79.99,  currency: 'USD', description: 'Ligas ilimitadas · 3 sucursales · Por mes' },
+  PARTNERS:    { id: 'partners',    name: 'PARTNERS',      price: 49.99,  currency: 'USD', description: 'El negocio crea la liga · Clientes pagan GOLZAIR' },
+  BUSINESSFULL:{ id: 'businessfull',name: 'BUSINESS FULL', price: 499.00, currency: 'USD', description: '1,000 accesos incluidos · $0.49 por jugador' },
+  GOLZIGOLD:   { id: 'golzigold',   name: 'GOLZI GOLD',    price: 999.00, currency: 'USD', description: '2,500 accesos incluidos · $0.39 por jugador' },
+  ENTERPRISE:  { id: 'enterprise',  name: 'ENTERPRISE',    price: 1.00,   currency: 'USD', description: 'Solución a medida · Contactar ventas' },
 };
 
 export const createPaymentPreference = onCall(

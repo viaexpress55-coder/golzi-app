@@ -63,6 +63,20 @@ export default function PaymentScreen() {
         }
       }
 
+      // B2B — directo a Wompi
+      const b2bPlans = ['partners', 'businessfull', 'golzigold', 'enterprise'];
+      if (b2bPlans.includes(planId)) {
+        const wompiResult = await createWompiPaymentSession(planId, userId, email);
+        if (wompiResult.success && wompiResult.publicKey) {
+          const wompiUrl = `https://checkout.wompi.co/p/?public-key=${wompiResult.publicKey}&currency=${wompiResult.currency}&amount-in-cents=${wompiResult.amountCents}&reference=${wompiResult.reference}&signature:integrity=${wompiResult.signature}&redirect-url=${encodeURIComponent('https://golzi.app')}`;
+          if (typeof window !== 'undefined') { window.location.href = wompiUrl; }
+          else { await Linking.openURL(wompiUrl); }
+        } else {
+          setError('Error procesando el pago. Intenta de nuevo.');
+        }
+        return;
+      }
+
       // Web/iOS — Plan A: Mercado Pago
       try {
         const mpResult = await createPaymentPreference(planId);
@@ -101,6 +115,8 @@ export default function PaymentScreen() {
     golzair: ['Todo lo del plan Free','Crear 1 liga privada propia','Hasta 20 participantes','Participar en hasta 3 ligas privadas','Chat en tu liga','Retos diarios · puntos extra','Sin anuncios'],
     liga:    ['Todo lo del plan GOLZAIR','Crear hasta 3 ligas privadas','Hasta 25 participantes por liga','Participación ilimitada en ligas','Chat en cada liga','Retos diarios · puntos extra','Sin anuncios'],
     pro:     ['Todo lo del plan LIGA','200 cupos flexibles distribuibles','Participación ilimitada en ligas','Estadísticas avanzadas','Historial de predicciones','% de aciertos y comparativa','QR + Token de acceso','Dashboard de gestión básico'],
+    partners:    ['El negocio crea la liga + QR','Cada cliente paga su GOLZAIR ($1.99)','Dashboard avanzado de gestión','Ranking en pantallas del local','Badge GOLZI activo','Soporte prioritario'],
+    businessfull:['1,000 accesos incluidos','$0.49 por jugador','Usuarios ingresan con QR o link','Sin pago individual por usuario','Dashboard B2B completo','Soporte prioritario'],
     business:['1,000 cupos flexibles','Ligas grandes para clientes o equipo','Chat en cada liga','Retos diarios · puntos extra','Estadísticas avanzadas completas','QR + Token de liga','Dashboard avanzado de gestión','Ranking en pantallas del local','Sin anuncios · Soporte prioritario'],
     golzigold:['2,500 cupos flexibles','Todo lo del plan Business','Dashboard completo + API','Branding propio en tu liga','Torneos públicos propios','Soporte dedicado 24/7','Integraciones personalizadas','Eventos masivos y activaciones'],
   };

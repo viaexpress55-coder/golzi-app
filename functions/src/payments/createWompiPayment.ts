@@ -15,6 +15,7 @@ const PLANS: Record<string, { id: string; name: string; amountCents: number; des
   BUSINESSFULL:{ id: 'businessfull',name: 'BUSINESS FULL', amountCents: 199500000, description: '1,000 accesos incluidos · $0.49 por jugador' },
   GOLZIGOLD:   { id: 'golzigold',   name: 'GOLZI GOLD',    amountCents: 399500000, description: '2,500 accesos incluidos · $0.39 por jugador' },
   ENTERPRISE:  { id: 'enterprise',  name: 'ENTERPRISE',    amountCents: 1,         description: 'Solución a medida · Contactar ventas' },
+  GOLZIGROUP:  { id: 'golzigroup',  name: 'GOLZI GROUP',   amountCents: 119600,    description: 'Pago grupal · jugadores × $2.99 (mínimo 11)' },
 };
 
 export const createWompiPayment = onCall(

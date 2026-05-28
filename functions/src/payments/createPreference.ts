@@ -14,6 +14,7 @@ BUSINESS:    { id: 'business',    name: 'BUSINESS',      price: 79.99,  currency
   BUSINESSFULL:{ id: 'businessfull',name: 'BUSINESS FULL', price: 499.00, currency: 'USD', description: '1,000 accesos incluidos · $0.49 por jugador' },
   GOLZIGOLD:   { id: 'golzigold',   name: 'GOLZI GOLD',    price: 999.00, currency: 'USD', description: '2,500 accesos incluidos · $0.39 por jugador' },
   ENTERPRISE:  { id: 'enterprise',  name: 'ENTERPRISE',    price: 1.00,   currency: 'USD', description: 'Solución a medida · Contactar ventas' },
+  GOLZIGROUP:  { id: 'golzigroup',  name: 'GOLZI GROUP',   price: 2.99,   currency: 'USD', description: 'Pago grupal · jugadores × $2.99' },
 };
 
 export const createPaymentPreference = onCall(

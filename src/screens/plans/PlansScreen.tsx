@@ -42,6 +42,7 @@ const B2B_PLANS = [
     desc:'Sports bars · Restaurantes · Empresas',
     features:['El negocio crea la liga + QR', 'Cada cliente paga su GOLZAIR', 'Dashboard avanzado de gestión', 'Ranking en pantallas del local'],
     note:'El negocio crea la liga y comparte el QR. Los clientes acceden con GOLZAIR ($1.99 c/u).',
+    popular:false,
   },
   {
     id:'businessfull', emoji:'🏢', name:'BUSINESS FULL', price:'$499', originalPrice:null, color:C.gold,
@@ -55,12 +56,21 @@ const B2B_PLANS = [
     desc:'Marcas · Eventos · Comunidades masivas',
     features:['2,500 accesos incluidos', '$0.39 por jugador', 'Badge Plan Oficial Mundial', 'API personalizada'],
     note:'Si superas 2,500 accesos → Enterprise',
+    popular:false,
+  },
+  {
+    id:'golzigroup', emoji:'🔥', name:'GOLZI GROUP', price:'$2.99', originalPrice:null, color:C.gold,
+    desc:'Un solo pago. Todos dentro.',
+    features:['El admin paga por todos', 'Mínimo 11 jugadores', 'jugadores × $2.99', 'QR + link automático', 'Sin pago individual'],
+    note:'11 jugadores → $32.89 · 33 jugadores → $98.67 · 100 jugadores → $299',
+    popular:false,
   },
   {
     id:'enterprise', emoji:'🌐', name:'ENTERPRISE', price:'Custom', originalPrice:null, color:C.purple,
     desc:'Solución a medida',
     features:['Todo ilimitado', 'Sucursales ilimitadas', 'Integración API', 'SLA garantizado'],
     note:null,
+    popular:false,
   },
 ];
 
@@ -246,26 +256,21 @@ export default function PlansScreen() {
 
 const s = StyleSheet.create({
   root:{ flex:1, backgroundColor:C.bg },
-
   header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:16, paddingTop:52, paddingBottom:12, borderBottomWidth:1, borderBottomColor:'rgba(255,215,0,0.1)', backgroundColor:C.bg },
   headerTopLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:'rgba(255,215,0,0.5)' },
   backBtn:{ width:60 },
   backTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.muted },
   logo:{ width:32, height:32 },
-
   hero:{ alignItems:'center', paddingVertical:10, paddingHorizontal:16 },
   heroEyebrow:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'rgba(255,215,0,0.5)', letterSpacing:3, marginBottom:2 },
   heroTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:34, color:C.gold, letterSpacing:2 },
   heroLine:{ width:40, height:2, backgroundColor:C.gold, borderRadius:1, marginVertical:5 },
   heroPromo:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:'rgba(255,215,0,0.7)', textAlign:'center' },
-
   tabs:{ flexDirection:'row', gap:8, paddingHorizontal:16, marginBottom:10 },
   tab:{ flex:1, paddingVertical:8, borderRadius:8, backgroundColor:'rgba(255,255,255,0.04)', alignItems:'center', borderWidth:1, borderColor:'rgba(255,255,255,0.06)' },
   tabOn:{ backgroundColor:'rgba(255,215,0,0.1)', borderColor:'rgba(255,215,0,0.3)' },
   tabTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.muted, letterSpacing:1 },
   tabTxtOn:{ color:C.gold },
-
-  // B2C grid
   grid:{ flexDirection:'row', flexWrap:'wrap', paddingHorizontal:10, gap:8 },
   card:{ width:(width - 36) / 2, backgroundColor:'rgba(255,255,255,0.03)', borderWidth:1, borderRadius:14 },
   cardTopLine:{ height:2, borderTopLeftRadius:14, borderTopRightRadius:14 },
@@ -282,8 +287,6 @@ const s = StyleSheet.create({
   featureTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted2, flex:1 },
   cta:{ margin:8, borderRadius:8, paddingVertical:9, alignItems:'center' },
   ctaTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:12, letterSpacing:1 },
-
-  // B2B list
   b2bList:{ paddingHorizontal:14, gap:10, paddingBottom:20 },
   promoBanner:{ backgroundColor:'rgba(255,215,0,0.06)', borderWidth:1, borderColor:'rgba(255,215,0,0.4)', borderRadius:10, padding:10, alignItems:'center' },
   promoTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:11, color:C.gold, letterSpacing:0.5 },
@@ -298,7 +301,6 @@ const s = StyleSheet.create({
   b2bBtns:{ flexDirection:'row', gap:8, margin:10, marginTop:4 },
   asesorBtn:{ borderWidth:1, borderRadius:8, paddingHorizontal:12, alignItems:'center', justifyContent:'center' },
   asesorTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:16 },
-
   legalBox:{ paddingHorizontal:16, paddingVertical:8 },
   legalTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted, textAlign:'center' },
 });

@@ -77,9 +77,13 @@ const userId = user.uid;
       if (Platform.OS === 'android') {
         const productId = PRODUCT_IDS[planId as keyof typeof PRODUCT_IDS];
         if (productId) {
-          await initIAP();
-          await purchaseProduct(productId);
-          return;
+          try {
+            await initIAP();
+            await purchaseProduct(productId);
+            return;
+          } catch (iapError) {
+            console.log('IAP no disponible, usando Wompi...', iapError);
+          }
         }
       }
 

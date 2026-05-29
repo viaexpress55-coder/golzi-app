@@ -22,7 +22,7 @@ const B2C_PLANS = [
     cta:'EMPEZAR GRATIS',
   },
   {
-    id:'liga', emoji:'⚡', name:'LIGA', price:'$9.95', originalPrice:null,
+    id:'liga', emoji:'⚡', name:'LIGA', price:'$9.99', originalPrice:null,
     users:5, perUser:'$1.99', saving:'0%', color:C.gold, popular:false,
     features:['Crea tu liga privada','Hasta 5 jugadores','Chat en tu liga','Retos diarios y puntos extra','Sin anuncios'],
     noFeatures:[],

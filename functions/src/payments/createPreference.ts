@@ -29,7 +29,7 @@ export const createPaymentPreference = onCall(
 
     const planId = request.data.planId;
     const userId = request.auth.uid;
-    const userEmail = 'TESTUSER6176683595540047590@testuser.com';
+    const userEmail = request.auth.token.email || '';
     const plan = PLANS[planId];
 
     if (!plan) {
@@ -87,7 +87,7 @@ export const createPaymentPreference = onCall(
         return {
           success: true,
           preferenceId: mpData.id,
-          initPoint: mpData.sandbox_init_point
+          initPoint: mpData.init_point || mpData.sandbox_init_point
         };
       } else {
         throw new HttpsError('internal', JSON.stringify(mpData));

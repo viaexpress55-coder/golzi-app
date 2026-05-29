@@ -64,7 +64,7 @@ export const createWompiPayment = onCall(
         signature,
         expirationTime,
         // TODO: cambiar a pub_prod_... antes del lanzamiento en Wompi producción
-        publicKey: 'pub_test_xgcvZVpkIav8qbwBp0NpjPXda3G3FoPP',
+        publicKey: 'pub_prod_0AcAYIM169cWh7oHnlileBnsubQafOfs',
         redirectUrl: 'https://golzi.app/payment/success',
       };
     } catch (error: any) {

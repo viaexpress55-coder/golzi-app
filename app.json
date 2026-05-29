@@ -2,7 +2,7 @@
   "expo": {
     "name": "GOLZI",
     "slug": "golzi-app",
-    "version": "1.0.0",
+    "version": "1.0.9",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -17,12 +17,13 @@
       "bundleIdentifier": "com.golzi.app"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#020408"
       },
       "package": "com.viaexdev.golziapp",
-      "versionCode": 1
+      "versionCode": 9
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,7 +32,14 @@
       "@react-native-google-signin/google-signin",
       "expo-font",
       
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#020408"
+        }
+      ]
     ],
     "extra": {
       "eas": {

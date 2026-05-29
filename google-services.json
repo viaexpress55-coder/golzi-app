@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "466137327410",
+    "project_id": "golzi-2026",
+    "storage_bucket": "golzi-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466137327410:android:ed618582a36b100852192b",
+        "android_client_info": {
+          "package_name": "com.viaexdev.golziapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "466137327410-u48pcmv8m8h5bfpjjv7atn08if93tjtr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAX5lHL7WMai9aoDscoL3aKks2b5I_57xs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "466137327410-u48pcmv8m8h5bfpjjv7atn08if93tjtr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

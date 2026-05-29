@@ -31,18 +31,19 @@ export const wompiWebhookRouter = onRequest(
 
       // Verificar firma
       const signature = req.headers['x-event-checksum'] as string;
-      if (signature) {
-        const expectedSignature = crypto
-          .createHmac('sha256', wompiEventsKey.value())
-          .update(JSON.stringify(event))
-          .digest('hex');
-
-        if (signature !== expectedSignature) {
-          console.error('Invalid signature');
-          await jumpsellerForward;
-          res.status(200).send('OK');
-          return;
-        }
+      if (!signature) {
+        console.error('Missing signature');
+        res.status(401).send('Unauthorized');
+        return;
+      }
+      const expectedSignature = crypto
+        .createHmac('sha256', wompiEventsKey.value())
+        .update(JSON.stringify(event))
+        .digest('hex');
+      if (signature !== expectedSignature) {
+        console.error('Invalid signature');
+        res.status(401).send('Invalid signature');
+        return;
       }
 
       // Procesar evento GOLZI

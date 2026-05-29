@@ -19,7 +19,12 @@ export const wompiWebhook = onRequest(
 
       // Verificar firma del evento
       const signature = req.headers['x-event-checksum'] as string;
-      if (signature) {
+      if (!signature) {
+  console.error('Missing signature');
+  res.status(401).send('Unauthorized');
+  return;
+}
+if (signature) {
         const expectedSignature = crypto
           .createHmac('sha256', wompiEventsKey.value())
           .update(JSON.stringify(event))

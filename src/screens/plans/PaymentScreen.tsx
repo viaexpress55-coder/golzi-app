@@ -68,9 +68,10 @@ export default function PaymentScreen() {
       setLoading(true);
       setError('');
 
-      const user = getAuth().currentUser;
-      const email = user?.email || 'test@golzi.app';
-      const userId = user?.uid || 'anonymous';
+     const user = getAuth().currentUser;
+if (!user) { setError('Debes iniciar sesión para continuar.'); setLoading(false); return; }
+const email = user.email || '';
+const userId = user.uid;
 
       // Android — Google Play Billing
       if (Platform.OS === 'android') {

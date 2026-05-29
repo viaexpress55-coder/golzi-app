@@ -6,7 +6,7 @@ const mpAccessToken = defineSecret('MP_ACCESS_TOKEN');
 
 // PLANES v3 - Modelo "1 paga, todos juegan" - Precio base $1.99/jugador
 const PLANS: Record<string, { id: string; name: string; price: number; currency: string; description: string }> = {
-  LIGA:      { id: 'liga',      name: 'LIGA',      price: 9.95,   currency: 'USD', description: '5 jugadores · $1.99/jugador' },
+  LIGA:      { id: 'liga',      name: 'LIGA',      price: 9.99,   currency: 'USD', description: '5 jugadores · $1.99/jugador' },
   PRO:       { id: 'pro',       name: 'PRO',        price: 18.99,  currency: 'USD', description: '10 jugadores · $1.90/jugador · 5% ahorro' },
   MASTER:    { id: 'master',    name: 'MASTER',     price: 39.99,  currency: 'USD', description: '25 jugadores · $1.60/jugador · 20% ahorro' },
   GOLZAIR:   { id: 'golzair',   name: 'GOLZAIR',    price: 99.99,  currency: 'USD', description: '100 usuarios · $1.00/usuario · 50% ahorro' },

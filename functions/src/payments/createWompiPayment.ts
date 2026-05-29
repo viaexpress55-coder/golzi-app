@@ -5,19 +5,19 @@ import * as crypto from 'crypto';
 
 const wompiIntegrityKey = defineSecret('WOMPI_INTEGRITY_KEY');
 
-// PLANES ACTUALIZADOS - Modelo "1 paga, todos juegan"
+// PLANES v3 - Modelo "1 paga, todos juegan" - Precio base $1.99/jugador
 // Precios en COP (1 USD ≈ 4,000 COP)
 const PLANS: Record<string, { id: string; name: string; amountCents: number; description: string }> = {
   // B2C Personal
-  LIGA:        { id: 'liga',        name: 'LIGA',        amountCents: 5996000,   description: '5 jugadores · Pago único' },
-  PRO:         { id: 'pro',         name: 'PRO',         amountCents: 11996000,  description: '10 jugadores · Pago único' },
-  MASTER:      { id: 'master',      name: 'MASTER',      amountCents: 23996000,  description: '25 jugadores · Pago único' },
-  GOLZAIR:     { id: 'golzair',     name: 'GOLZAIR',     amountCents: 39996000,  description: '100 usuarios · Multiligas' },
+  LIGA:      { id: 'liga',      name: 'LIGA',      amountCents: 3996000,   description: '5 jugadores · $1.99/jugador' },
+  PRO:       { id: 'pro',       name: 'PRO',        amountCents: 7596000,   description: '10 jugadores · $1.90/jugador · 5% ahorro' },
+  MASTER:    { id: 'master',    name: 'MASTER',     amountCents: 15996000,  description: '25 jugadores · $1.60/jugador · 20% ahorro' },
+  GOLZAIR:   { id: 'golzair',   name: 'GOLZAIR',    amountCents: 39996000,  description: '100 usuarios · $1.00/usuario · 50% ahorro' },
   // B2B Empresas
-  PARTNER:     { id: 'partner',     name: 'PARTNER',     amountCents: 139996000, description: '500 usuarios · Pago único' },
-  BUSINESS:    { id: 'business',    name: 'BUSINESS',    amountCents: 199996000, description: '1,000 usuarios · Pago único' },
-  GOLD:        { id: 'gold',        name: 'GOLD',        amountCents: 399996000, description: '2,500 usuarios · Pago único' },
-  GOLZIPLUS:   { id: 'golziplus',   name: 'GOLZI+',      amountCents: 1,         description: 'Enterprise · A medida' },
+  PARTNER:   { id: 'partner',   name: 'PARTNER',    amountCents: 139996000, description: '500 usuarios · $0.70/usuario · 65% ahorro' },
+  BUSINESS:  { id: 'business',  name: 'BUSINESS',   amountCents: 199996000, description: '1,000 usuarios · $0.50/usuario · 75% ahorro' },
+  GOLD:      { id: 'gold',      name: 'GOLD',        amountCents: 399996000, description: '2,500 usuarios · $0.40/usuario · 80% ahorro' },
+  GOLZIPLUS: { id: 'golziplus', name: 'GOLZI+',     amountCents: 1,         description: 'Enterprise · A medida · 85% ahorro' },
 };
 export const createWompiPayment = onCall(
   { secrets: ['WOMPI_INTEGRITY_KEY'] },

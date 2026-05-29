@@ -3,7 +3,7 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from './firebase';
 
 export const PLANS = {
-  liga:      { id: 'liga',      name: 'LIGA',      price: 9.95   },
+  liga:      { id: 'liga',      name: 'LIGA',      price: 9.99   },
   pro:       { id: 'pro',       name: 'PRO',        price: 18.99  },
   master:    { id: 'master',    name: 'MASTER',     price: 39.99  },
   golzair:   { id: 'golzair',   name: 'GOLZAIR',    price: 99.99  },

@@ -65,7 +65,7 @@ export default function SplashScreen() {
  useEffect(() => {
     const timer = setInterval(() => setCD(getCD()), 1000);
 
-    const savedLang = typeof window !== 'undefined' ? localStorage.getItem('golzi_lang') : null;
+    const savedLang = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('golzi_lang') : null;
     if (savedLang) {
       i18n.changeLanguage(savedLang);
       const found = LANGS.find(l => l.i18n === savedLang);
@@ -101,7 +101,7 @@ export default function SplashScreen() {
     i18n.changeLanguage(lang.i18n);
     setSelectedLang(lang.code);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('golzi_lang', lang.i18n);
+      if (typeof localStorage !== 'undefined') localStorage.setItem('golzi_lang', lang.i18n);
     }
   }
 

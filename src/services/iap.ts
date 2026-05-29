@@ -1,9 +1,10 @@
 import * as IAP from 'expo-iap';
 
-export const PRODUCT_IDS = {
-  GOLZAIR: 'golzi_golzair',
-  LIGA: 'golzi_liga',
-  PRO: 'golzi_pro',
+export const PRODUCT_IDS: Record<string, string> = {
+  liga:    'golzi_liga_5',
+  pro:     'golzi_pro_10',
+  master:  'golzi_master_25',
+  golzair: 'golzi_golzair_100',
 };
 
 export async function initIAP() {
@@ -17,7 +18,7 @@ export async function initIAP() {
 
 export async function getProducts() {
   try {
-    const products = await IAP.getSubscriptions({
+    const products = await IAP.getProducts({
       skus: Object.values(PRODUCT_IDS),
     });
     return products;
@@ -27,9 +28,9 @@ export async function getProducts() {
   }
 }
 
-export async function purchaseSubscription(productId: string) {
+export async function purchaseProduct(productId: string) {
   try {
-    await IAP.requestSubscription({ sku: productId });
+    await IAP.requestPurchase({ sku: productId });
   } catch (e) {
     console.log('❌ Error en compra:', e);
     throw e;

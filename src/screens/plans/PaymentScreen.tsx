@@ -10,7 +10,7 @@ import { Barlow_400Regular } from '@expo-google-fonts/barlow';
 import { createPaymentPreference, createWompiPaymentSession } from '../../services/payments';
 import { getAuth } from 'firebase/auth';
 import { Platform } from 'react-native';
-import { initIAP, purchaseSubscription, PRODUCT_IDS } from '../../services/iap';
+import { initIAP, purchaseProduct, PRODUCT_IDS } from '../../services/iap';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
@@ -77,7 +77,7 @@ export default function PaymentScreen() {
         const productId = PRODUCT_IDS[planId as keyof typeof PRODUCT_IDS];
         if (productId) {
           await initIAP();
-          await purchaseSubscription(productId);
+          await purchaseProduct(productId);
           return;
         }
       }

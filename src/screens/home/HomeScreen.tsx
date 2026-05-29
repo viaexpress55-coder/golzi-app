@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView,
+  View, Text, StyleSheet, ScrollView, FlatList,
   TouchableOpacity, TextInput, ActivityIndicator, Animated, Image, Modal,
   RefreshControl, Alert,
 } from 'react-native';
@@ -47,36 +47,10 @@ function getRetosForMatch(phase?: string) {
   return elim.includes(phase ?? '') ? RETOS_ELIMINATORIA : RETOS_GRUPOS;
 }
 
+// AnimatedBorder — estático en Android para evitar stack overflow
 function AnimatedBorder({ children, style }: { children: React.ReactNode; style?: any }) {
-  const anim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(anim, { toValue:1, duration:3000, useNativeDriver:false })
-    ).start();
-  }, []);
-  const translateX = anim.interpolate({ inputRange:[0,1], outputRange:[-400, 400] });
   return (
-    <View style={[style, { position:'relative' }]}>
-      <View style={{ position:'absolute', top:0, left:0, right:0, height:2, overflow:'hidden', zIndex:10, borderTopLeftRadius:18, borderTopRightRadius:18 }}>
-        <Animated.View style={{ position:'absolute', top:0, height:2, width:200, transform:[{ translateX }] }}>
-          <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={{ height:2, width:200 }} />
-        </Animated.View>
-      </View>
-      <View style={{ position:'absolute', bottom:0, left:0, right:0, height:2, overflow:'hidden', zIndex:10, borderBottomLeftRadius:18, borderBottomRightRadius:18 }}>
-        <Animated.View style={{ position:'absolute', bottom:0, height:2, width:200, transform:[{ translateX }] }}>
-          <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={{ height:2, width:200 }} />
-        </Animated.View>
-      </View>
-      <View style={{ position:'absolute', top:0, left:0, bottom:0, width:2, overflow:'hidden', zIndex:10, borderTopLeftRadius:18, borderBottomLeftRadius:18 }}>
-        <Animated.View style={{ position:'absolute', left:0, width:2, height:200, transform:[{ translateY: translateX }] }}>
-          <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:0,y:1}} style={{ width:2, height:200 }} />
-        </Animated.View>
-      </View>
-      <View style={{ position:'absolute', top:0, right:0, bottom:0, width:2, overflow:'hidden', zIndex:10, borderTopRightRadius:18, borderBottomRightRadius:18 }}>
-        <Animated.View style={{ position:'absolute', right:0, width:2, height:200, transform:[{ translateY: translateX }] }}>
-          <LinearGradient colors={['transparent','#FFD700','#FF3355','#FFD700','transparent']} start={{x:0,y:0}} end={{x:0,y:1}} style={{ width:2, height:200 }} />
-        </Animated.View>
-      </View>
+    <View style={[style, { borderWidth:1.5, borderColor:'rgba(255,215,0,0.5)', borderRadius:18 }]}>
       {children}
     </View>
   );
@@ -200,17 +174,11 @@ function getMatchStats(teamName: string) {
   return stats[teamName] || def;
 }
 
+// LiveBadge — estático para evitar stack overflow en Android
 function LiveBadge() {
-  const pulse = useRef(new Animated.Value(1)).current;
-  useEffect(() => {
-    Animated.loop(Animated.sequence([
-      Animated.timing(pulse, { toValue:0.2, duration:600, useNativeDriver:true }),
-      Animated.timing(pulse, { toValue:1, duration:600, useNativeDriver:true }),
-    ])).start();
-  }, []);
   return (
     <View style={s.liveBadge}>
-      <Animated.View style={[s.liveDot, { opacity:pulse }]} />
+      <View style={[s.liveDot, { opacity:1 }]} />
       <Text style={s.liveTxt}>EN VIVO</Text>
     </View>
   );
@@ -254,7 +222,7 @@ export default function HomeScreen() {
     Barlow_400Regular, Barlow_500Medium,
   });
 
-  // ── Auth + predicciones ──────────────────────────────────────────────────
+  // ── Auth + predicciones ──────────────────────────────────────────
   useEffect(() => {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -277,8 +245,8 @@ export default function HomeScreen() {
             savedScores[data.matchId] = [String(data.homeScore), String(data.awayScore)];
             savedConfirmed[data.matchId] = true;
           });
-          setScores(prev => ({ ...prev, ...savedScores }));
-          setConfirmed(prev => ({ ...prev, ...savedConfirmed }));
+          setScores(savedScores);
+          setConfirmed(savedConfirmed);
         } catch (e) {
           console.error('Error cargando predicciones:', e);
         }
@@ -287,7 +255,7 @@ export default function HomeScreen() {
     return () => unsub();
   }, []);
 
-  // ── Cargar partidos ──────────────────────────────────────────────────────
+  // ── Cargar partidos ──────────────────────────────────────────────
   useEffect(() => {
     loadMatches();
     const timer = setInterval(() => forceUpdate(n => n+1), 60000);
@@ -445,6 +413,8 @@ export default function HomeScreen() {
     });
     setShareModalVisible(false);
   }
+
+  if (!fontsLoaded) return <View style={s.root} />;
 
   if (loading) {
     return (

@@ -31,10 +31,10 @@ exports.matchReminder = onSchedule('every 60 minutes', async () => {
   if (matchesSnap.empty) return;
 
   const usersSnap = await db.collection('users')
-    .where('pushToken', '!=', null)
+    .where('fcmToken', '!=', null)
     .get();
 
-  const tokens = usersSnap.docs.map(d => d.data().pushToken).filter(Boolean);
+  const tokens = usersSnap.docs.map(d => d.data().fcmToken).filter(Boolean);
   if (tokens.length === 0) return;
 
   for (const match of matchesSnap.docs) {
@@ -55,12 +55,12 @@ exports.rankingUp = onDocumentUpdated('users/{userId}', async (event) => {
   const before = event.data.before.data();
   const after  = event.data.after.data();
 
-  if (!after.pushToken) return;
+  if (!after.fcmToken) return;
   if (!before.globalRank || !after.globalRank) return;
   if (after.globalRank >= before.globalRank) return;
 
   await sendPush(
-    after.pushToken,
+    after.fcmToken,
     '📈 ¡SUBISTE EN EL RANKING!',
     `Ahora eres #${after.globalRank} global 🔥 ¡Sigue prediciendo!`,
     { type: 'rankingUp', rank: after.globalRank }
@@ -77,7 +77,7 @@ exports.predictionResult = onDocumentUpdated('predictions/{predId}', async (even
 
   const userDoc = await db.collection('users').doc(after.userId).get();
   const user = userDoc.data();
-  if (!user?.pushToken) return;
+  if (!user?.fcmToken) return;
 
   let title = '';
   let body  = '';
@@ -93,7 +93,7 @@ exports.predictionResult = onDocumentUpdated('predictions/{predId}', async (even
     body  = 'Sigue intentando, Golzair 💪';
   }
 
-  await sendPush(user.pushToken, title, body, {
+  await sendPush(user.fcmToken, title, body, {
     type: 'predictionResult',
     predId: event.params.predId,
   });
@@ -106,10 +106,10 @@ exports.leagueInvite = onDocumentCreated('leagues/{leagueId}/members/{userId}', 
 
   const userDoc = await db.collection('users').doc(event.params.userId).get();
   const user = userDoc.data();
-  if (!user?.pushToken) return;
+  if (!user?.fcmToken) return;
 
   await sendPush(
-    user.pushToken,
+    user.fcmToken,
     '🏆 ¡INVITACIÓN A LIGA!',
     `Te han invitado a "${league?.name}" ¡Únete ahora!`,
     { type: 'leagueInvite', leagueId: event.params.leagueId }

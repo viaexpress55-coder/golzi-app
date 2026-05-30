@@ -1,0 +1,9 @@
+@echo off
+echo Building web...
+call npx expo export --platform web
+echo Copying PWA files...
+copy web\manifest.json dist\manifest.json /Y
+copy web\index.html dist\index.html /Y
+echo Deploying to Firebase...
+call firebase deploy --only hosting
+echo Done!

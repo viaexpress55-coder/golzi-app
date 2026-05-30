@@ -282,6 +282,24 @@ export default function HomeScreen() {
         } catch (e) {
           console.error('Error cargando predicciones:', e);
         }
+
+        // Cargar retos rápidos guardados
+        try {
+          const retosSnap = await getDocs(
+            query(collection(db, 'quick_challenges'), where('userId', '==', user.uid))
+          );
+          const savedAnswers: Record<string, Record<string, string>> = {};
+          const savedRetosSaved: Record<string, boolean> = {};
+          retosSnap.docs.forEach(d => {
+            const data = d.data();
+            savedAnswers[data.matchId] = data.answers ?? {};
+            savedRetosSaved[data.matchId] = true;
+          });
+          setRetoAnswers(prev => ({ ...prev, ...savedAnswers }));
+          setRetosSaved(prev => ({ ...prev, ...savedRetosSaved }));
+        } catch (e) {
+          console.error('Error cargando retos:', e);
+        }
       }
     });
     return () => unsub();

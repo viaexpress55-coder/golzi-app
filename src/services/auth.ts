@@ -138,15 +138,13 @@ export async function getUserProfile(uid: string) {
 export async function savePrediction(
   userId: string, matchId: string, homeScore: number, awayScore: number,
 ) {
-  await addDoc(collection(db, 'predictions'), {
-    userId,
+  const { getFunctions, httpsCallable } = await import('firebase/functions');
+  const fns = getFunctions();
+  const submitPrediction = httpsCallable(fns, 'submitPrediction');
+  await submitPrediction({
     matchId,
-    tournamentId: 'FIFA_WC_2026',
     homeScore,
     awayScore,
-    pointsEarned: 0,
-    status:       'pending',
-    createdAt:    serverTimestamp(),
-    lockedAt:     serverTimestamp(),
+    tournamentId: 'FIFA_WC_2026',
   });
 }

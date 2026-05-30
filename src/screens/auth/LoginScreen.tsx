@@ -171,7 +171,11 @@ export default function LoginScreen() {
         </View>
 
         {/* Links */}
-        <TouchableOpacity onPress={() => navigation.navigate('Register')} style={s.linkBtn}>
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={s.anonBtn}>
+  <Text style={s.forgotTxt}>¿Olvidaste tu contraseña?</Text>
+</TouchableOpacity>
+
+<TouchableOpacity onPress={() => navigation.navigate('Register')} style={s.linkBtn}>
           <LinearGradient
             colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.03)']}
             style={s.linkBtnInner}
@@ -205,7 +209,7 @@ const s = StyleSheet.create({
   backTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.muted, letterSpacing:0.5 },
   topLogo:{ width:36, height:36 },
 
-  scroll:{ paddingHorizontal:20, paddingTop:24, paddingBottom:40, flexGrow:1 },
+  scroll:{ paddingHorizontal:20, paddingTop:24, paddingBottom:20, flexGrow:1 },
 
   header:{ marginBottom:24 },
   eyebrow:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'rgba(255,215,0,0.5)', letterSpacing:3, marginBottom:4 },
@@ -238,5 +242,6 @@ const s = StyleSheet.create({
   linkTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:14, color:C.gold, letterSpacing:0.5 },
 
   anonBtn:{ alignItems:'center', paddingVertical:10 },
+forgotTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.gold, letterSpacing:0.5 },
   anonTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.cyan, letterSpacing:0.5 },
 });

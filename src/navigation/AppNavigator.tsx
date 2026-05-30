@@ -15,6 +15,7 @@ import MundialScreen from '../screens/mundial/MundialScreen';
 import LigaScreen from '../screens/league/LigaScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import PaymentScreen from '../screens/plans/PaymentScreen';
 import PostMatchSummary from '../components/PostMatchSummary';
 
@@ -24,7 +25,8 @@ export type RootStackParams = {
   Register:    undefined;
   Plans:       undefined;
   Main:        undefined;
-  Login:       undefined;
+  Login:           undefined;
+ForgotPassword:  undefined;
   Payment:     { planId: string; planName: string; price: number; emoji: string };
 };
 
@@ -110,7 +112,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Onboarding"  component={OnboardingScreen} />
         <Stack.Screen name="Register"    component={RegisterScreen}   />
         <Stack.Screen name="Plans"       component={PlansScreen}      />
-        <Stack.Screen name="Login"       component={LoginScreen}      />
+        <Stack.Screen name="Login"           component={LoginScreen}           />
+<Stack.Screen name="ForgotPassword"  component={ForgotPasswordScreen}  />
         <Stack.Screen name="Main"        component={MainTabs}         />
         <Stack.Screen name="Payment"     component={PaymentScreen}    />
       </Stack.Navigator>

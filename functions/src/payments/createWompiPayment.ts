@@ -8,7 +8,7 @@ const wompiIntegrityKey = defineSecret('WOMPI_INTEGRITY_KEY');
 // PLANES v3 - Modelo "1 paga, todos juegan" - Precio base $1.99/jugador
 // Precios en COP (1 USD ≈ 4,000 COP)
 const PLANS: Record<string, { id: string; name: string; amountCents: number; description: string }> = {
-  LIGA:      { id: 'liga',      name: 'LIGA',      amountCents: 3996000,   description: '5 jugadores · $1.99/jugador' },
+  LIGA:      { id: 'liga',      name: 'LIGA',      amountCents: 999000,   description: '5 jugadores · $1.99/jugador' },
   PRO:       { id: 'pro',       name: 'PRO',        amountCents: 7596000,   description: '10 jugadores · $1.90/jugador · 5% ahorro' },
   MASTER:    { id: 'master',    name: 'MASTER',     amountCents: 15996000,  description: '25 jugadores · $1.60/jugador · 20% ahorro' },
   GOLZAIR:   { id: 'golzair',   name: 'GOLZAIR',    amountCents: 39996000,  description: '100 usuarios · $1.00/usuario · 50% ahorro' },

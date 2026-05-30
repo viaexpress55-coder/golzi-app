@@ -10,7 +10,7 @@ import { Barlow_400Regular } from '@expo-google-fonts/barlow';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
-import { loginWithEmail } from '../../services/auth';
+import { loginWithEmail, loginAnonymous } from '../../services/auth';
 import { useTranslation } from 'react-i18next';
 
 const C = {
@@ -184,7 +184,7 @@ export default function LoginScreen() {
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Main')} style={s.anonBtn}>
+        <TouchableOpacity onPress={async () => { try { await loginAnonymous(); } catch {} navigation.navigate('Main'); }} style={s.anonBtn}>
           <Text style={s.anonTxt}>{t('login_guest')}</Text>
         </TouchableOpacity>
 

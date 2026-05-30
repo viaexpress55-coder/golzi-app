@@ -9,7 +9,7 @@ import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondense
 import { useTranslation } from 'react-i18next';
 import { httpsCallable } from 'firebase/functions';
 import { functions, db } from '../../services/firebase';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import {
@@ -40,14 +40,16 @@ export default function LigaScreen() {
     return () => unsub();
   }, []);
 
-  const [tab, setTab] = useState(0);
+  const route = useRoute<any>();
+  const [tab, setTab] = useState(route?.params?.inviteCode ? 2 : 0);
+  const [autoCode] = useState(route?.params?.inviteCode || '');
   const [loading, setLoading] = useState(true);
   const [myLeagues, setMyLeagues] = useState<any[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<any>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [chatMsgs, setChatMsgs] = useState<any[]>([]);
   const [chatMsg, setChatMsg] = useState('');
-  const [joinCode, setJoinCode] = useState('');
+  const [joinCode, setJoinCode] = useState(route?.params?.inviteCode || '');
   const [ligaName, setLigaName] = useState('');
   const [creating, setCreating] = useState(false);
   const [joining, setJoining] = useState(false);
@@ -184,10 +186,19 @@ export default function LigaScreen() {
 
   async function handleShare() {
     if (!selectedLeague) return;
+    const msg = `🏆 ¡Únete a mi liga "${selectedLeague.name}" en GOLZI!\n\n⚡ Código: ${selectedLeague.code}\n🔗 Link: ${selectedLeague.inviteLink || `https://golzi.app/liga/${selectedLeague.code}`}\n\n📲 Descarga GOLZI: https://golzi.app`;
     try {
-      await Share.share({
-        message: `¡Únete a mi liga en GOLZI! Código: ${selectedLeague.code}\n${selectedLeague.inviteLink || 'https://golzi.app'}`,
-      });
+      await Share.share({ message: msg, url: selectedLeague.inviteLink });
+    } catch(e) {}
+  }
+
+  async function copyCode() {
+    if (!selectedLeague) return;
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(selectedLeague.code);
+        Alert.alert('✅ Copiado', `Código ${selectedLeague.code} copiado`);
+      }
     } catch(e) {}
   }
 
@@ -343,12 +354,19 @@ export default function LigaScreen() {
                   ))}
                 </View>
 
-                {/* Share button */}
-                <TouchableOpacity style={s.shareBtn} onPress={handleShare} activeOpacity={0.85}>
-                  <LinearGradient colors={['rgba(0,255,135,0.12)','rgba(0,255,135,0.04)']} style={s.shareBtnInner}>
-                    <Text style={s.shareBtnTxt}>📤 COMPARTIR LIGA</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
+                {/* Share buttons */}
+                <View style={{ gap:8 }}>
+                  <TouchableOpacity style={s.shareBtn} onPress={handleShare} activeOpacity={0.85}>
+                    <LinearGradient colors={['rgba(0,255,135,0.12)','rgba(0,255,135,0.04)']} style={s.shareBtnInner}>
+                      <Text style={s.shareBtnTxt}>📤 COMPARTIR POR WHATSAPP / REDES</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={s.shareBtn} onPress={copyCode} activeOpacity={0.85}>
+                    <LinearGradient colors={['rgba(255,215,0,0.1)','rgba(255,215,0,0.03)']} style={[s.shareBtnInner, {borderColor:'rgba(255,215,0,0.3)'}]}>
+                      <Text style={[s.shareBtnTxt, {color:C.gold}]}>📋 COPIAR CÓDIGO: {selectedLeague?.code}</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
               </>
             )}
           </View>

@@ -52,6 +52,15 @@ const C = {
 
 const linking = {
   prefixes: ['golzi://','https://golzi.app','https://www.golzi.app'],
+  config: {
+    screens: {
+      Main: {
+        screens: {
+          Liga: 'liga/:inviteCode',
+        },
+      },
+    },
+  },
 };
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {

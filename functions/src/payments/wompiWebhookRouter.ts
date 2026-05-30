@@ -36,18 +36,23 @@ export const wompiWebhookRouter = onRequest(
         res.status(401).send('Unauthorized');
         return;
       }
-      const transaction = event.data?.transaction;
+
       const properties = event.signature?.properties || [];
       const checksumData = properties.map((prop: string) => {
         const keys = prop.split('.');
-        let value = event;
+        let value: any = event.data;
         for (const key of keys) value = value?.[key];
         return value;
-      }).join('') + wompiEventsKey.value();
+      }).join('') + event.timestamp + wompiEventsKey.value();
+
       const expectedSignature = crypto
         .createHash('sha256')
         .update(checksumData)
         .digest('hex');
+
+      console.log('Expected:', expectedSignature);
+      console.log('Received:', signature);
+
       if (signature !== expectedSignature) {
         console.error('Invalid signature');
         res.status(401).send('Invalid signature');
@@ -62,7 +67,6 @@ export const wompiWebhookRouter = onRequest(
           const status = transaction.status;
           const transactionId = transaction.id;
 
-          // Solo procesar referencias de GOLZI
           if (reference?.startsWith('GOLZI_')) {
             const prefDoc = await admin.firestore()
               .collection('paymentPreferences')
@@ -99,7 +103,7 @@ export const wompiWebhookRouter = onRequest(
 
     } catch (error: any) {
       console.error('Router error:', error.message);
-      res.status(200).send('OK'); // Siempre 200 para Wompi
+      res.status(200).send('OK');
     }
   }
 );

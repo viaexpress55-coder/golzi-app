@@ -85,9 +85,11 @@ export const wompiWebhookRouter = onRequest(
               });
 
               if (status === 'APPROVED') {
+                const planExpiry = new Date('2027-01-19T00:00:00.000Z');
                 await admin.firestore().collection('users').doc(userId).update({
                   plan: planId,
                   planActivatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                  planExpiry: planExpiry,
                   planProvider: 'wompi',
                   transactionId,
                 });

@@ -328,15 +328,7 @@ export default function RegisterScreen() {
           <View style={s.divLine} />
         </View>
 
-        {/* Social */}
-        <View style={s.socialRow}>
-          <TouchableOpacity style={s.socialBtn}>
-            <Text style={s.socialTxt}>G  Google</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={s.socialBtn}>
-            <Text style={s.socialTxt}>🍎  Apple</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Social login — próximamente */}
 
         <TouchableOpacity onPress={() => navigation.navigate('Login')} style={s.loginBtn}>
           <Text style={s.loginTxt}>{t('login_have_account')}</Text>

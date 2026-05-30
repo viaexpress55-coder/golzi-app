@@ -14,10 +14,25 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.golzi.app"
+      "bundleIdentifier": "com.golzi.app",
+      "associatedDomains": ["applinks:golzi.app"]
     },
     "android": {
       "googleServicesFile": "./google-services.json",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "golzi.app",
+              "pathPrefix": "/liga"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#020408"

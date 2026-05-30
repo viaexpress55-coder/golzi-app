@@ -43,13 +43,24 @@ export const submitPrediction = onCall(
     }
 
     const userData = userDoc.data()!;
+    
+    // Verificar acceso: plan pagado O miembro de una liga privada
     if (userData.plan === 'free') {
-      throw new HttpsError('permission-denied', 'Necesitas un plan de pago para predecir');
-    }
-
-    const planExpiry = userData.planExpiry?.toDate();
-    if (!planExpiry || planExpiry < new Date()) {
-      throw new HttpsError('permission-denied', 'Tu plan ha expirado');
+      // Verificar si está en alguna liga
+      const leagueSnap = await db.collection('leagues')
+        .where('memberIds', 'array-contains', userId)
+        .limit(1)
+        .get();
+      
+      if (leagueSnap.empty) {
+        throw new HttpsError('permission-denied', 'Necesitas un plan de pago o unirte a una liga privada para predecir');
+      }
+    } else {
+      // Tiene plan — verificar que no haya expirado
+      const planExpiry = userData.planExpiry?.toDate();
+      if (!planExpiry || planExpiry < new Date()) {
+        throw new HttpsError('permission-denied', 'Tu plan ha expirado');
+      }
     }
 
     // ── REGLA DEL PRIMER PITAZO — verificar en servidor ──

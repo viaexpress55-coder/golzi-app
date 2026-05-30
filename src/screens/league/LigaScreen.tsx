@@ -170,9 +170,17 @@ export default function LigaScreen() {
     }
   }
 
+  const BANNED_WORDS = ['puta', 'mierda', 'hijueputa', 'malparido', 'pendejo', 'coño', 'fuck', 'shit', 'bitch', 'asshole', 'bastard', 'perra', 'verga', 'culero', 'cabron'];
+
   async function sendChatMsg() {
     if (!chatMsg.trim() || !selectedLeague || !user) return;
     const txt = chatMsg.trim();
+    const lower = txt.toLowerCase();
+    const hasBanned = BANNED_WORDS.some(w => lower.includes(w));
+    if (hasBanned) {
+      Alert.alert('⚠️ Mensaje no permitido', 'Por favor mantén un lenguaje respetuoso.');
+      return;
+    }
     setChatMsg('');
     try {
       await addDoc(collection(db, 'leagues', selectedLeague.id, 'messages'), {

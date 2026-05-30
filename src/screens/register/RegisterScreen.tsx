@@ -29,7 +29,7 @@ const COUNTRIES = [
   { flag:'🇻🇪', name:'Venezuela', code:'VE' },
   { flag:'🇵🇪', name:'Peru',      code:'PE' },
   { flag:'🇨🇱', name:'Chile',     code:'CL' },
-  { flag:'🌍',  name:'Otro',      code:'OT' },
+  { flag:'🌍',  name:'+ Países',  code:'OT' },
 ];
 
 const ALL_COUNTRIES = [

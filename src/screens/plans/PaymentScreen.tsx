@@ -91,7 +91,7 @@ const userId = user.uid;
       if (b2bPlans.includes(planId)) {
         const wompiResult = await createWompiPaymentSession(planId, userId, email);
         if (wompiResult.success && wompiResult.publicKey) {
-          const wompiUrl = `https://checkout.wompi.co/p/?public-key=${wompiResult.publicKey}&currency=${wompiResult.currency}&amount-in-cents=${wompiResult.amountCents}&reference=${wompiResult.reference}&signature:integrity=${wompiResult.signature}&redirect-url=${encodeURIComponent('https://golzi.app')}`;
+          const wompiUrl = `https://checkout.wompi.co/p/?public-key=${wompiResult.publicKey}&currency=${wompiResult.currency}&amount-in-cents=${wompiResult.amountCents}&reference=${wompiResult.reference}&signature%3Aintegrity=${wompiResult.signature}&redirect-url=${encodeURIComponent('https://golzi.app')}`;
           if (typeof window !== 'undefined') { window.location.href = wompiUrl; }
           else { await Linking.openURL(wompiUrl); }
         } else {
@@ -118,7 +118,7 @@ const userId = user.uid;
       // Plan B: Wompi fallback
       const wompiResult = await createWompiPaymentSession(planId, userId, email);
       if (wompiResult.success && wompiResult.publicKey) {
-        const wompiUrl = `https://checkout.wompi.co/p/?public-key=${wompiResult.publicKey}&currency=${wompiResult.currency}&amount-in-cents=${wompiResult.amountCents}&reference=${wompiResult.reference}&signature:integrity=${wompiResult.signature}&redirect-url=${encodeURIComponent('https://golzi.app')}`;
+        const wompiUrl = `https://checkout.wompi.co/p/?public-key=${wompiResult.publicKey}&currency=${wompiResult.currency}&amount-in-cents=${wompiResult.amountCents}&reference=${wompiResult.reference}&signature%3Aintegrity=${wompiResult.signature}&redirect-url=${encodeURIComponent('https://golzi.app')}`;
         if (typeof window !== 'undefined') {
           window.location.href = wompiUrl;
         } else {

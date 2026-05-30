@@ -56,6 +56,7 @@ export const createWompiPayment = onCall(
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
+      console.log('Returning publicKey:', 'pub_prod_0AcAYIM169cWh7oHnlileBnsubQafOfs');
       return {
         success: true,
         reference,
@@ -63,7 +64,6 @@ export const createWompiPayment = onCall(
         currency,
         signature,
         expirationTime,
-        // TODO: cambiar a pub_prod_... antes del lanzamiento en Wompi producción
         publicKey: 'pub_prod_0AcAYIM169cWh7oHnlileBnsubQafOfs',
         redirectUrl: 'https://golzi.app/payment/success',
       };

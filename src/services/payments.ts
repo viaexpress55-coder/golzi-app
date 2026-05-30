@@ -18,6 +18,7 @@ export async function createPaymentPreference(planId: string) {
     const createPreference = httpsCallable(functions, 'createPaymentPreference');
     const result = await createPreference({ planId: planId.toUpperCase() });
     const data = result.data as any;
+    console.log('Wompi data received:', JSON.stringify(data));
     return { success: true, preferenceId: data.preferenceId, initPoint: data.initPoint };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -29,6 +30,7 @@ export async function createWompiPaymentSession(planId: string, userId: string, 
     const createWompi = httpsCallable(functions, 'createWompiPayment');
     const result = await createWompi({ planId: planId.toUpperCase(), userId, userEmail });
     const data = result.data as any;
+    console.log('Wompi data received:', JSON.stringify(data));
     return {
       success: true,
       reference: data.reference,

@@ -36,9 +36,17 @@ export const wompiWebhookRouter = onRequest(
         res.status(401).send('Unauthorized');
         return;
       }
+      const transaction = event.data?.transaction;
+      const properties = event.signature?.properties || [];
+      const checksumData = properties.map((prop: string) => {
+        const keys = prop.split('.');
+        let value = event;
+        for (const key of keys) value = value?.[key];
+        return value;
+      }).join('') + wompiEventsKey.value();
       const expectedSignature = crypto
-        .createHmac('sha256', wompiEventsKey.value())
-        .update(JSON.stringify(event))
+        .createHash('sha256')
+        .update(checksumData)
         .digest('hex');
       if (signature !== expectedSignature) {
         console.error('Invalid signature');

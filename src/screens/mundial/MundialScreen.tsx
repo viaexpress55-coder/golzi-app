@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '../../services/firebase';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
@@ -97,6 +99,21 @@ export default function MundialScreen() {
   const { t } = useTranslation();
   const [tab, setTab] = useState(0);
   const [selGroup, setSelGroup] = useState<string|null>(null);
+  const [matches, setMatches] = useState<any[]>([]);
+  const [loadingMatches, setLoadingMatches] = useState(false);
+
+  useEffect(() => {
+    async function loadMatches() {
+      setLoadingMatches(true);
+      try {
+        const q = query(collection(db, 'matches'), orderBy('kickoffTime', 'asc'));
+        const snap = await getDocs(q);
+        setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      } catch(e) { console.error(e); }
+      finally { setLoadingMatches(false); }
+    }
+    loadMatches();
+  }, []);
 
   const TABS = [t('mundial_groups'), t('mundial_fixture'), t('mundial_teams')];
 
@@ -216,17 +233,65 @@ export default function MundialScreen() {
 
         {/* FIXTURE */}
         {tab === 1 && (
-          <LinearGradient colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']} style={s.comingSoon}>
-            <Image
-              source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }}
-              style={s.comingSoonLogo} resizeMode="contain"
-            />
-            <Text style={s.comingSoonTxt}>FIXTURE COMPLETO</Text>
-            <Text style={s.comingSoonSub}>104 partidos · 16 ciudades sede</Text>
-            <View style={s.comingSoonBadge}>
-              <Text style={s.comingSoonBadgeTxt}>⚡ Disponible el 11 jun 2026</Text>
-            </View>
-          </LinearGradient>
+          <View>
+            {loadingMatches ? (
+              <ActivityIndicator color="#FFD700" style={{ marginTop: 40 }} />
+            ) : (
+              (() => {
+                const grouped: Record<string, any[]> = {};
+                matches.forEach(m => {
+                  const key = m.group || m.round || 'Otros';
+                  if (!grouped[key]) grouped[key] = [];
+                  grouped[key].push(m);
+                });
+                return Object.entries(grouped).map(([group, groupMatches]) => (
+                  <View key={group} style={{ marginBottom: 16 }}>
+                    <View style={s.divider}>
+                      <View style={s.dividerLine} />
+                      <Text style={s.dividerTxt}>{group}</Text>
+                      <View style={s.dividerLine} />
+                    </View>
+                    {groupMatches.map((m, i) => {
+                      const kickoff = m.kickoffTime ? new Date(m.kickoffTime.seconds * 1000) : null;
+                      const dateStr = kickoff ? kickoff.toLocaleDateString('es', { day:'numeric', month:'short' }) : '';
+                      const timeStr = kickoff ? kickoff.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' }) : '';
+                      const isFinished = m.status === 'FINISHED' || m.status === 'finished';
+                      const isLive = m.status === 'IN_PLAY' || m.status === 'live';
+                      return (
+                        <LinearGradient
+                          key={i}
+                          colors={isLive ? ['rgba(255,51,85,0.1)','rgba(255,51,85,0.03)'] : isFinished ? ['rgba(0,255,135,0.06)','rgba(0,255,135,0.01)'] : ['rgba(255,255,255,0.03)','rgba(255,255,255,0.01)']}
+                          style={s.fixtureCard}
+                        >
+                          <View style={{ flex:1, alignItems:'center' }}>
+                            <Text style={s.fixtureFlag}>{m.homeFlag || '🌍'}</Text>
+                            <Text style={s.fixtureName}>{(m.homeTeam||'').slice(0,3).toUpperCase()}</Text>
+                          </View>
+                          <View style={s.fixtureCenter}>
+                            {isLive ? (
+                              <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:'#FF3355' }}>EN VIVO</Text>
+                            ) : isFinished ? (
+                              <Text style={s.fixtureScore}>{m.homeScore} - {m.awayScore}</Text>
+                            ) : (
+                              <>
+                                <Text style={s.fixtureDate}>{dateStr}</Text>
+                                <Text style={s.fixtureTime}>{timeStr}</Text>
+                              </>
+                            )}
+                            <Text style={s.fixtureStadium} numberOfLines={1}>{m.stadium || m.city || ''}</Text>
+                          </View>
+                          <View style={{ flex:1, alignItems:'center' }}>
+                            <Text style={s.fixtureFlag}>{m.awayFlag || '🌍'}</Text>
+                            <Text style={s.fixtureName}>{(m.awayTeam||'').slice(0,3).toUpperCase()}</Text>
+                          </View>
+                        </LinearGradient>
+                      );
+                    })}
+                  </View>
+                ));
+              })()
+            )}
+          </View>
         )}
 
         {/* EQUIPOS */}
@@ -305,6 +370,17 @@ const s = StyleSheet.create({
   comingSoonBadge:{ backgroundColor:'rgba(255,215,0,0.1)', borderRadius:20, borderWidth:1, borderColor:'rgba(255,215,0,0.3)', paddingHorizontal:16, paddingVertical:6 },
   comingSoonBadgeTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.gold, letterSpacing:1 },
 
+  divider:{ flexDirection:'row', alignItems:'center', marginVertical:8, gap:10 },
+  dividerLine:{ flex:1, height:1, backgroundColor:'rgba(255,215,0,0.15)' },
+  dividerTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:3 },
+  fixtureCard:{ flexDirection:'row', alignItems:'center', borderRadius:12, borderWidth:1, borderColor:'rgba(255,215,0,0.15)', padding:10, marginBottom:6 },
+  fixtureFlag:{ fontSize:24, marginBottom:4 },
+  fixtureName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.text },
+  fixtureCenter:{ flex:1, alignItems:'center', gap:2 },
+  fixtureDate:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.gold },
+  fixtureTime:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted },
+  fixtureScore:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.green },
+  fixtureStadium:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted, textAlign:'center' },
   teamsGrid:{ flexDirection:'row', flexWrap:'wrap', gap:8 },
   teamCard:{ borderRadius:12, borderWidth:1, borderColor:'rgba(255,215,0,0.3)', padding:12, alignItems:'center', width:'31%', shadowColor:'#FFD700', shadowOffset:{width:0,height:3}, shadowOpacity:0.2, shadowRadius:6, elevation:4 },
   teamCardFlag:{ fontSize:28, marginBottom:6 },

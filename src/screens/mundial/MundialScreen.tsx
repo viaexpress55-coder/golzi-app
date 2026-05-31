@@ -7,6 +7,20 @@ import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { useTranslation } from 'react-i18next';
 
+function getFlagCode(flag: string): string {
+  const codes: Record<string, string> = {
+    '🇲🇽':'mx','🇿🇦':'za','🇰🇷':'kr','🇨🇿':'cz','🇨🇦':'ca','🇧🇦':'ba',
+    '🇶🇦':'qa','🇨🇭':'ch','🇧🇷':'br','🇲🇦':'ma','🇭🇹':'ht','🇺🇸':'us',
+    '🇵🇾':'py','🇦🇺':'au','🇹🇷':'tr','🇩🇪':'de','🇨🇼':'cw','🇨🇮':'ci',
+    '🇪🇨':'ec','🇳🇱':'nl','🇯🇵':'jp','🇹🇳':'tn','🇸🇪':'se','🇧🇪':'be',
+    '🇪🇬':'eg','🇮🇷':'ir','🇳🇿':'nz','🇪🇸':'es','🇨🇻':'cv','🇸🇦':'sa',
+    '🇺🇾':'uy','🇫🇷':'fr','🇸🇳':'sn','🇳🇴':'no','🇮🇶':'iq','🇦🇷':'ar',
+    '🇩🇿':'dz','🇦🇹':'at','🇯🇴':'jo','🇵🇹':'pt','🇨🇩':'cd','🇺🇿':'uz',
+    '🇨🇴':'co','🇭🇷':'hr','🇬🇭':'gh','🇵🇦':'pa','🏴󠁧󠁢󠁳󠁣󠁴󠁿':'gb-sct','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'gb-eng','🌍':'un',
+  };
+  return codes[flag] || 'un';
+}
+
 const C = {
   bg:'#020408', dark:'#05080F', surface:'#0A0F1A', surface2:'#0F1520',
   gold:'#FFD700', gold2:'#FFA500', goldBorder:'rgba(255,215,0,0.25)',
@@ -186,7 +200,7 @@ export default function MundialScreen() {
               <View style={s.groupPreview}>
                 {g.teams.map((team,i) => (
                   <View key={i} style={s.previewTeam}>
-                    <Text style={s.previewFlag}>{team.flag}</Text>
+                    <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(team.flag)}.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
                     <Text style={s.previewName}>{team.name}</Text>
                   </View>
                 ))}
@@ -264,7 +278,7 @@ export default function MundialScreen() {
                           style={s.fixtureCard}
                         >
                           <View style={{ flex:1, alignItems:'center' }}>
-                            <Text style={s.fixtureFlag}>{m.homeFlag || '🌍'}</Text>
+                            <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(m.homeFlag || '🌍')}.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                             <Text style={s.fixtureName}>{(m.homeTeam||'').slice(0,3).toUpperCase()}</Text>
                           </View>
                           <View style={s.fixtureCenter}>
@@ -281,7 +295,7 @@ export default function MundialScreen() {
                             <Text style={s.fixtureStadium} numberOfLines={1}>{m.stadium || m.city || ''}</Text>
                           </View>
                           <View style={{ flex:1, alignItems:'center' }}>
-                            <Text style={s.fixtureFlag}>{m.awayFlag || '🌍'}</Text>
+                            <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(m.awayFlag || '🌍')}.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                             <Text style={s.fixtureName}>{(m.awayTeam||'').slice(0,3).toUpperCase()}</Text>
                           </View>
                         </LinearGradient>
@@ -296,17 +310,61 @@ export default function MundialScreen() {
 
         {/* EQUIPOS */}
         {tab === 2 && (
-          <View style={s.teamsGrid}>
-            {GROUPS.flatMap(g => g.teams).map((team,i) => (
-              <LinearGradient
-                key={i}
-                colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']}
-                style={s.teamCard}
-              >
-                <Text style={s.teamCardFlag}>{team.flag}</Text>
-                <Text style={s.teamCardName}>{team.name}</Text>
-              </LinearGradient>
-            ))}
+          <View>
+            {selGroup === null ? (
+              <View style={s.teamsGrid}>
+                {GROUPS.flatMap(g => g.teams).map((team,i) => (
+                  <TouchableOpacity key={i} onPress={() => setSelGroup(team.name)} activeOpacity={0.8}>
+                    <LinearGradient colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']} style={s.teamCard}>
+                      <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(team.flag)}.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
+                      <Text style={s.teamCardName}>{team.name}</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <View style={{ paddingHorizontal:12 }}>
+                <TouchableOpacity onPress={() => setSelGroup(null)} style={{ flexDirection:'row', alignItems:'center', gap:8, marginBottom:16, marginTop:4 }}>
+                  <Text style={{ fontSize:18 }}>←</Text>
+                  <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:C.gold }}>
+                    {GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag} {selGroup}
+                  </Text>
+                </TouchableOpacity>
+                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:12 }}>PARTIDOS</Text>
+                {matches
+                  .filter(m => m.homeTeam === selGroup || m.awayTeam === selGroup)
+                  .map((m, i) => {
+                    const kickoff = m.kickoffTime ? new Date(m.kickoffTime.seconds * 1000) : null;
+                    const dateStr = kickoff ? kickoff.toLocaleDateString('es', { day:'numeric', month:'short' }) : '';
+                    const timeStr = kickoff ? kickoff.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' }) : '';
+                    const isHome = m.homeTeam === selGroup;
+                    const rival = isHome ? m.awayTeam : m.homeTeam;
+                    const rivalFlag = isHome ? m.awayFlag : m.homeFlag;
+                    return (
+                      <LinearGradient key={i} colors={['rgba(255,215,0,0.06)','rgba(255,215,0,0.01)']} style={[s.fixtureCard, { marginBottom:8 }]}>
+                        <View style={{ flex:1, alignItems:'center' }}>
+                          <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(isHome ? (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍') : (rivalFlag || '🌍'))}.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                          <Text style={s.fixtureName}>{(isHome ? selGroup : rival || '').slice(0,3).toUpperCase()}</Text>
+                        </View>
+                        <View style={s.fixtureCenter}>
+                          <Text style={s.fixtureDate}>{dateStr}</Text>
+                          <Text style={s.fixtureTime}>{timeStr}</Text>
+                          <Text style={s.fixtureStadium} numberOfLines={1}>{m.stadium || m.city || ''}</Text>
+                        </View>
+                        <View style={{ flex:1, alignItems:'center' }}>
+                          <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(isHome ? (rivalFlag || '🌍') : (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍'))}.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                          <Text style={s.fixtureName}>{(isHome ? rival : selGroup || '').slice(0,3).toUpperCase()}</Text>
+                        </View>
+                      </LinearGradient>
+                    );
+                  })}
+                {matches.filter(m => m.homeTeam === selGroup || m.awayTeam === selGroup).length === 0 && (
+                  <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:C.muted, textAlign:'center', marginTop:20 }}>
+                    Sin partidos encontrados
+                  </Text>
+                )}
+              </View>
+            )}
           </View>
         )}
 
@@ -382,7 +440,7 @@ const s = StyleSheet.create({
   fixtureScore:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.green },
   fixtureStadium:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted, textAlign:'center' },
   teamsGrid:{ flexDirection:'row', flexWrap:'wrap', gap:8 },
-  teamCard:{ borderRadius:12, borderWidth:1, borderColor:'rgba(255,215,0,0.3)', padding:12, alignItems:'center', width:'31%', shadowColor:'#FFD700', shadowOffset:{width:0,height:3}, shadowOpacity:0.2, shadowRadius:6, elevation:4 },
+  teamCard:{ borderRadius:12, borderWidth:1, borderColor:'rgba(255,215,0,0.3)', padding:12, alignItems:'center', width:100, shadowColor:'#FFD700', shadowOffset:{width:0,height:3}, shadowOpacity:0.2, shadowRadius:6, elevation:4 },
   teamCardFlag:{ fontSize:28, marginBottom:6 },
   teamCardName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:9, color:C.text, textAlign:'center' },
 });

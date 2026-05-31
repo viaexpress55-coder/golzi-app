@@ -249,26 +249,13 @@ export default function LiveScreen() {
   const today    = liveMatches.filter(m => m.status==='SCHEDULED' || m.status==='TIMED');
   const finished = liveMatches.filter(m => m.status==='FINISHED').slice(-3);
   const isEmpty  = liveMatches.length === 0;
-  const [now, setNow] = useState(new Date());
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
-  function getCountdown(kickoffTime: any): string {
-    if (!kickoffTime) return '';
-    const kickoff = new Date(kickoffTime?.seconds ? kickoffTime.seconds * 1000 : kickoffTime);
-    const diff = kickoff.getTime() - now.getTime();
-    if (diff <= 0) return 'COMENZANDO';
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    if (h > 24) {
-      const d = Math.floor(h / 24);
-      return `${d}d ${h % 24}h`;
-    }
-    return h > 0 ? `${h}h ${m}m` : `${m}m ${s}s`;
-  }
+  const UPCOMING = [
+    { home:'🇲🇽', homeCode:'MEX', away:'🇿🇦', awayCode:'RSA', time:'11 Jun · 14:00', stadium:'Estadio Azteca' },
+    { home:'🇫🇷', homeCode:'FRA', away:'🇩🇪', awayCode:'GER', time:'11 Jun · 17:00', stadium:'AT&T Stadium' },
+    { home:'🇧🇷', homeCode:'BRA', away:'🇦🇷', awayCode:'ARG', time:'11 Jun · 20:00', stadium:'MetLife Stadium' },
+    { home:'🇪🇸', homeCode:'ESP', away:'🇵🇹', awayCode:'POR', time:'12 Jun · 15:00', stadium:'Rose Bowl' },
+  ];
 
   return (
     <View style={s.root}>
@@ -319,7 +306,7 @@ export default function LiveScreen() {
                 </View>
                 <View style={s.miniCenter}>
                   <Text style={s.miniVs}>VS</Text>
-                  <Text style={[s.miniTime, { color:'#FFD700' }]}>{getCountdown(m.kickoffTime)}</Text>
+                  <Text style={s.miniTime}>{m.utcDate ? new Date(m.utcDate).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}</Text>
                 </View>
                 <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
                   <Text style={s.miniFlag}>{m.awayFlag || '🌍'}</Text>

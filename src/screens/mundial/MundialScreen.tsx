@@ -192,7 +192,7 @@ export default function MundialScreen() {
                   <LinearGradient colors={[color, `${color}99`]} style={s.groupLetterBox}>
                     <Text style={s.groupLetter}>{g.name}</Text>
                   </LinearGradient>
-                  <Text style={[s.groupName, { color }]}>GRUPO {g.name}</Text>
+                  <Text style={[s.groupName, { color }]}>{t('mundial_group')} {g.name}</Text>
                 </View>
                 <Text style={[s.groupArrow, { color }]}>{isOpen ? '▲' : '▼'}</Text>
               </TouchableOpacity>
@@ -209,13 +209,13 @@ export default function MundialScreen() {
               {isOpen && (
                 <View style={s.table}>
                   <View style={s.tableHeader}>
-                    <Text style={[s.th, { flex:2, textAlign:'left' }]}>EQUIPO</Text>
+                    <Text style={[s.th, { flex:2, textAlign:'left' }]}>{t('mundial_equipo')}</Text>
                     <Text style={s.th}>PJ</Text>
-                    <Text style={s.th}>G</Text>
-                    <Text style={s.th}>E</Text>
-                    <Text style={s.th}>P</Text>
-                    <Text style={s.th}>GD</Text>
-                    <Text style={[s.th, { color }]}>PTS</Text>
+                    <Text style={s.th}>{t('mundial_g')}</Text>
+                    <Text style={s.th}>{t('mundial_e')}</Text>
+                    <Text style={s.th}>{t('mundial_p')}</Text>
+                    <Text style={s.th}>{t('mundial_gd')}</Text>
+                    <Text style={[s.th, { color }]}>{t('mundial_pts')}</Text>
                   </View>
                   {g.teams.map((team,i) => (
                     <View key={i} style={[
@@ -237,7 +237,7 @@ export default function MundialScreen() {
                   ))}
                   <View style={s.classifyLegend}>
                     <View style={s.classifyDot} />
-                    <Text style={s.classifyTxt}>Clasifica a octavos de final</Text>
+                    <Text style={s.classifyTxt}>{t('mundial_classifies')}</Text>
                   </View>
                 </View>
               )}
@@ -330,7 +330,7 @@ export default function MundialScreen() {
                     {GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag} {selGroup}
                   </Text>
                 </TouchableOpacity>
-                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:12 }}>PARTIDOS</Text>
+                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:12 }}>{t('mundial_matches')}</Text>
                 {matches
                   .filter(m => m.homeTeam === selGroup || m.awayTeam === selGroup)
                   .map((m, i) => {

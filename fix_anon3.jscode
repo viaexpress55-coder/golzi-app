@@ -1,0 +1,28 @@
+const fs = require('fs');
+let liga = fs.readFileSync('src/screens/league/LigaScreen.tsx', 'utf8');
+
+// Encontrar handleJoin por índice
+const joinIdx = liga.indexOf('async function handleJoin()');
+const joinEnd = liga.indexOf('async function toggleInvite', joinIdx);
+const joinBlock = liga.substring(joinIdx, joinEnd);
+
+console.log('Primeras 200 chars de handleJoin:');
+console.log(joinBlock.substring(0, 200));
+
+// Encontrar el segundo if (el de !user) dentro de handleJoin
+const userCheckIdx = joinBlock.indexOf('if (!user)');
+console.log('\nif (!user) encontrado en posición:', userCheckIdx);
+console.log('Contexto:', joinBlock.substring(userCheckIdx, userCheckIdx + 80));
+
+// Insertar después del if (!user) {...}
+const userCheckEnd = joinBlock.indexOf('return; }', userCheckIdx) + 'return; }'.length;
+console.log('\nFin del check:', joinBlock.substring(userCheckEnd - 10, userCheckEnd + 50));
+
+const newJoinBlock = joinBlock.substring(0, userCheckEnd) + 
+  '\n    if (!user.email) { setJoinError(\'Debes crear una cuenta para unirte a una liga\'); return; }' +
+  joinBlock.substring(userCheckEnd);
+
+liga = liga.substring(0, joinIdx) + newJoinBlock + liga.substring(joinEnd);
+
+fs.writeFileSync('src/screens/league/LigaScreen.tsx', liga);
+console.log('\nOK');

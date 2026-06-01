@@ -66,6 +66,14 @@ export default function SplashScreen() {
     const timer = setInterval(() => setCD(getCD()), 1000);
 
     const savedLang = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('golzi_lang') : null;
+    // Detectar deep link de liga en URL web
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      const match = path.match(/\/liga\/([A-Z0-9-]+)/i);
+      if (match) {
+        localStorage.setItem('golzi_pending_invite', match[1]);
+      }
+    }
     if (savedLang) {
       i18n.changeLanguage(savedLang);
       const found = LANGS.find(l => l.i18n === savedLang);

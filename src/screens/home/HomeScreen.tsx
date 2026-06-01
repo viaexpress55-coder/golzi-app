@@ -32,14 +32,14 @@ const C = {
 };
 
 const RETOS_GRUPOS = [
-  { id:'first_goal', label:'¿Quién marca primero?',  type:'team', pts:5, icon:'⚽' },
-  { id:'over_goals', label:'¿Más de 2.5 goles?',    type:'yn',   pts:3,  icon:'🎯' },
-  { id:'red_card',   label:'¿Habrá tarjeta roja?',  type:'yn',   pts:3,  icon:'🟥' },
-  { id:'ht_result',  label:'¿Resultado al descanso?',type:'1x2',  pts:4,  icon:'⏱' },
+  { id:'first_goal', label:'reto_first_goal',  type:'team', pts:5, icon:'⚽' },
+  { id:'over_goals', label:'reto_over_goals',    type:'yn',   pts:3,  icon:'🎯' },
+  { id:'red_card',   label:'reto_red_card',  type:'yn',   pts:3,  icon:'🟥' },
+  { id:'ht_result',  label:'reto_ht_result',type:'1x2',  pts:4,  icon:'⏱' },
 ];
 const RETOS_ELIMINATORIA = [
   ...RETOS_GRUPOS,
-  { id:'penalty', label:'¿Habrá penalti?', type:'yn', pts:4, icon:'🎽' },
+  { id:'penalty', label:'reto_penalty', type:'yn', pts:4, icon:'🎽' },
 ];
 
 function getRetosForMatch(phase?: string) {
@@ -83,9 +83,10 @@ function AnimatedBorder({ children, style }: { children: React.ReactNode; style?
 }
 
 function RetoCard({ reto, match, userPlan, answer, onAnswer, saved, navigation }: any) {
+  const { t } = useTranslation();
   const isPaid = userPlan !== 'free';
   const options = reto.type === 'yn'
-    ? [{ val:'yes', label:'SÍ' }, { val:'no', label:'NO' }]
+    ? [{ val:'yes', label:t('home_si') }, { val:'no', label:t('home_no') }]
     : reto.type === '1x2'
     ? [{ val:'1', label:'LOCAL' }, { val:'x', label:'EMPATE' }, { val:'2', label:'VISITA' }]
     : [
@@ -98,7 +99,7 @@ function RetoCard({ reto, match, userPlan, answer, onAnswer, saved, navigation }
     <View style={rs.retoCard}>
       <View style={rs.retoHeader}>
         <Text style={rs.retoIcon}>{reto.icon}</Text>
-        <Text style={rs.retoLabel}>{reto.label}</Text>
+        <Text style={rs.retoLabel}>{t(reto.label)}</Text>
         <View style={rs.retoPtsBadge}><Text style={rs.retoPtsTxt}>+{reto.pts}</Text></View>
       </View>
       {!isPaid ? (
@@ -683,7 +684,7 @@ export default function HomeScreen() {
                     </View>
                     <View style={s.analysisCenter}>
                       <Text style={s.analysisDraw}>{getMatchStats(m.homeTeam).draw}%</Text>
-                      <Text style={s.analysisPctLbl}>EMPATE</Text>
+                      <Text style={s.analysisPctLbl}>{t('reto_empate')}</Text>
                     </View>
                     <View style={s.analysisSide}>
                       <Text style={s.analysisTeam}>{(m.awayTeam||'').slice(0,3).toUpperCase()}</Text>
@@ -749,7 +750,7 @@ export default function HomeScreen() {
                     <LinearGradient colors={['rgba(168,85,247,0.12)','rgba(168,85,247,0.04)']} start={{x:0,y:0}} end={{x:1,y:0}} style={s.retosToggleInner}>
                       <Text style={s.retosToggleIcon}>⚡</Text>
                       <View style={s.retosToggleLeft}>
-                        <Text style={s.retosToggleTitle}>RETOS RÁPIDOS</Text>
+                        <Text style={s.retosToggleTitle}>{t('home_retos_rapidos')}</Text>
                         <Text style={s.retosToggleSub}>{retos.length} retos · hasta +{retos.reduce((a,r) => a + r.pts, 0)} pts extra</Text>
                       </View>
                       {answeredCount > 0 && !savedRetos && (
@@ -765,7 +766,7 @@ export default function HomeScreen() {
                   {retosVisible && (
                     <View style={s.retosContent}>
                       {retos.map(reto => (
-                        <RetoCard key={reto.id} reto={reto} match={m} userPlan={userPlan} navigation={navigation}
+                        <RetoCard key={reto.id} reto={{...reto, label: t(reto.label)}} match={m} userPlan={userPlan} navigation={navigation}
                           answer={matchAnswers[reto.id] ?? null}
                           onAnswer={(retoId: string, val: string) => handleRetoAnswer(m.id, retoId, val)}
                           saved={savedRetos}

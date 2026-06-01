@@ -117,11 +117,11 @@ export default function RegisterScreen() {
   }
 
   async function handleContinue() {
-    if (username.trim().length < 3) { setError('Mínimo 3 caracteres para el usuario'); shake(); return; }
-    if (!email.includes('@')) { setError('Email inválido'); shake(); return; }
-    if (password.length < 6) { setError('Mínimo 6 caracteres para la contraseña'); shake(); return; }
-    if (password !== confirmPassword) { setError('Las contraseñas no coinciden'); shake(); return; }
-    if (country === -1) { setError('Debes seleccionar tu país de origen'); shake(); return; }
+    if (username.trim().length < 3) { setError(t('reg_min_username')); shake(); return; }
+    if (!email.includes('@')) { setError(t('reg_invalid_email')); shake(); return; }
+    if (password.length < 6) { setError(t('reg_min_password')); shake(); return; }
+    if (password !== confirmPassword) { setError(t('reg_password_match')); shake(); return; }
+    if (country === -1) { setError(t('reg_select_country')); shake(); return; }
 
     try {
       setLoading(true); setError('');

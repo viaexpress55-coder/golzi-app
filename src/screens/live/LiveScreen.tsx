@@ -90,7 +90,7 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
       ) : (
         <View style={[s.scoreTopLine, { backgroundColor: C.gold }]} />
       )}
-      <Text style={s.scoreVenue}>{match.venue || match.stadium || 'ESTADIO'} · MUNDIAL 2026</Text>
+      <Text style={s.scoreVenue}>{match.venue || match.stadium || t('live_estadio')} · MUNDIAL 2026</Text>
       {isLive && <LiveBadge minute={match.minute} label={t('live_badge')} />}
       {isFinished && (
         <View style={s.finishedBadge}>
@@ -122,7 +122,7 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
                 <View style={s.minDot} />
                 <Text style={s.minTxt}>{match.minute || '0'}'</Text>
                 <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted }}>
-                  {(match.minute || 0) <= 45 ? 'PRIMER TIEMPO' : 'SEGUNDO TIEMPO'}
+                  {(match.minute || 0) <= 45 ? t('live_first_half') : t('live_second_half')}
                 </Text>
               </View>
               {/* Barra progreso */}
@@ -178,11 +178,11 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
         <View style={s.statsBox}>
           <Text style={s.statsTitle}>📊 ESTADÍSTICAS EN VIVO</Text>
           {[
-            { label:'POSESIÓN', home:`${match.stats.home.possession}%`, away:`${match.stats.away.possession}%`, homeVal:match.stats.home.possession, awayVal:match.stats.away.possession },
-            { label:'TIROS AL ARCO', home:match.stats.home.shots, away:match.stats.away.shots, homeVal:match.stats.home.shots, awayVal:match.stats.away.shots },
-            { label:'FALTAS', home:match.stats.home.fouls, away:match.stats.away.fouls, homeVal:match.stats.home.fouls, awayVal:match.stats.away.fouls },
-            { label:'TARJETAS', home:match.stats.home.yellowCards, away:match.stats.away.yellowCards, homeVal:match.stats.home.yellowCards, awayVal:match.stats.away.yellowCards },
-            { label:'TIROS DE ESQUINA', home:match.stats.home.corners, away:match.stats.away.corners, homeVal:match.stats.home.corners, awayVal:match.stats.away.corners },
+            { label:t('live_possession'), home:`${match.stats.home.possession}%`, away:`${match.stats.away.possession}%`, homeVal:match.stats.home.possession, awayVal:match.stats.away.possession },
+            { label:t('live_shots'), home:match.stats.home.shots, away:match.stats.away.shots, homeVal:match.stats.home.shots, awayVal:match.stats.away.shots },
+            { label:t('live_fouls'), home:match.stats.home.fouls, away:match.stats.away.fouls, homeVal:match.stats.home.fouls, awayVal:match.stats.away.fouls },
+            { label:t('live_cards'), home:match.stats.home.yellowCards, away:match.stats.away.yellowCards, homeVal:match.stats.home.yellowCards, awayVal:match.stats.away.yellowCards },
+            { label:t('live_corners'), home:match.stats.home.corners, away:match.stats.away.corners, homeVal:match.stats.home.corners, awayVal:match.stats.away.corners },
           ].map((stat, i) => {
             const total = (stat.homeVal || 0) + (stat.awayVal || 0) || 1;
             const homePct = ((stat.homeVal || 0) / total) * 100;

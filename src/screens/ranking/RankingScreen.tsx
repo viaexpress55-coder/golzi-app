@@ -165,7 +165,7 @@ const pw = StyleSheet.create({
 export default function RankingScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
-  const TABS = [t('ranking_global'), t('ranking_league'), t('ranking_country'), '🌍 PAÍSES'];
+  const TABS = [t('ranking_global'), t('ranking_league'), t('ranking_country'), t('ranking_paises')];
   const [tab, setTab]           = useState(0);
   const [userPlan, setUserPlan] = useState<string>('free');
   const [userData, setUserData] = useState<any>(null);

@@ -41,14 +41,15 @@
       "versionCode": 9
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "name": "GOLZI — Mundial 2026",
-      "shortName": "GOLZI",
-      "description": "Predice los partidos del Mundial 2026 y compite con tus amigos",
-      "themeColor": "#FFD700",
-      "backgroundColor": "#020408",
-      "lang": "es"
-    },
+  "favicon": "./assets/favicon.png",
+  "name": "GOLZI — Mundial 2026",
+  "shortName": "GOLZI",
+  "description": "Predice los partidos del Mundial 2026 y compite con tus amigos",
+  "themeColor": "#FFD700",
+  "backgroundColor": "#020408",
+  "lang": "es",
+  "baseUrl": "/"
+},
     "plugins": [
       "@react-native-google-signin/google-signin",
       "expo-font",

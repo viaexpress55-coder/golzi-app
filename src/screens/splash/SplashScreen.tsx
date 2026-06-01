@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { getAuth } from 'firebase/auth';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { useAppFonts } from '../../hooks/useFontsLoaded';
@@ -66,12 +67,22 @@ export default function SplashScreen() {
     const timer = setInterval(() => setCD(getCD()), 1000);
 
     const savedLang = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('golzi_lang') : null;
-    // Detectar deep link de liga en URL web
-    if (typeof window !== 'undefined') {
+    // Detectar deep link de liga — desde URL directa o desde redirect SPA
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      // Intentar desde URL actual
       const path = window.location.pathname;
-      const match = path.match(/\/liga\/([A-Z0-9-]+)/i);
-      if (match) {
-        localStorage.setItem('golzi_pending_invite', match[1]);
+      const matchUrl = path.match(/\/liga\/([A-Z0-9-]+)/i);
+      if (matchUrl) {
+        localStorage.setItem('golzi_pending_invite', matchUrl[1]);
+      }
+      // Intentar desde redirect path guardado
+      const redirectPath = localStorage.getItem('golzi_redirect_path');
+      if (redirectPath) {
+        localStorage.removeItem('golzi_redirect_path');
+        const matchRedirect = redirectPath.match(/\/liga\/([A-Z0-9-]+)/i);
+        if (matchRedirect) {
+          localStorage.setItem('golzi_pending_invite', matchRedirect[1]);
+        }
       }
     }
     if (savedLang) {
@@ -92,6 +103,27 @@ export default function SplashScreen() {
     ).start();
 
     Animated.timing(fadeAnim, { toValue:1, duration:800, useNativeDriver:false }).start();
+
+    // Auto-redirect si hay pending_invite y usuario ya tiene sesión
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const pending = localStorage.getItem('golzi_pending_invite');
+      if (pending) {
+        const auth = getAuth();
+        // Esperar a que Firebase Auth restaure la sesión
+        const unsubAuth = auth.onAuthStateChanged((currentUser) => {
+          unsubAuth();
+          if (currentUser) {
+            const inviteCode = localStorage.getItem('golzi_pending_invite');
+            setTimeout(() => {
+              navigation.navigate('Main', {
+                screen: 'Liga',
+                params: { inviteCode }
+              } as any);
+            }, 500);
+          }
+        });
+      }
+    }
 
     Animated.parallel([
       Animated.timing(stadiumFade,  { toValue:1, duration:2000, useNativeDriver:false }),

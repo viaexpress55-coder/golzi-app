@@ -75,6 +75,16 @@ export default function LigaScreen() {
       if (u) {
         const snap = await getDoc(doc(db, 'users', u.uid));
         if (snap.exists()) setUserData(snap.data());
+        if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+          const pending = localStorage.getItem('golzi_pending_invite');
+          if (pending) {
+            localStorage.removeItem('golzi_pending_invite');
+            setTimeout(() => {
+              setJoinCode(pending);
+              setTab(2);
+            }, 1500);
+          }
+        }
       }
     });
     return () => unsub();

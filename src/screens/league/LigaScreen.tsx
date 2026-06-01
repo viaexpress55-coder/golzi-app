@@ -167,11 +167,18 @@ export default function LigaScreen() {
   // ─── Cargar tabla de predicciones ────────────────────────────────────────────
   async function loadTabla() {
     if (!selectedLeague || !members.length) return;
-    if (tablaLoaded === selectedLeague.id) return; // ya cargado para esta liga
+    if (tablaLoaded === selectedLeague.id) return;
 
     setTablaLoading(true);
     try {
-      // 1. Partidos finalizados
+      // Obtener predicciones para stats de exactas/resultados
+      const memberIds = members.map(m => m.id);
+      const chunks: string[][] = [];
+      for (let i = 0; i < memberIds.length; i += 30) {
+        chunks.push(memberIds.slice(i, i + 30));
+      }
+
+      // Partidos finalizados
       const matchesSnap = await getDocs(
         query(collection(db, 'matches'), where('status', 'in', ['FINISHED', 'finished']))
       );
@@ -179,16 +186,6 @@ export default function LigaScreen() {
       matchesSnap.docs.forEach(d => {
         finishedMatches[d.id] = { id: d.id, ...d.data() };
       });
-      const finishedIds = Object.keys(finishedMatches);
-
-      // 2. Predicciones de todos los miembros
-      const memberIds = members.map(m => m.id);
-
-      // Firestore "in" acepta máx 30 items; dividimos si hay más
-      const chunks: string[][] = [];
-      for (let i = 0; i < memberIds.length; i += 30) {
-        chunks.push(memberIds.slice(i, i + 30));
-      }
 
       const allPredictions: any[] = [];
       for (const chunk of chunks) {
@@ -198,15 +195,15 @@ export default function LigaScreen() {
         predSnap.docs.forEach(d => allPredictions.push({ id: d.id, ...d.data() }));
       }
 
-      // 3. Calcular stats por miembro
-      const statsMap: Record<string, { exact: number; winner: number; draw: number; miss: number; pts: number; total: number }> = {};
+      // Calcular exactas y resultados por miembro
+      const statsMap: Record<string, { exact: number; winner: number; draw: number; miss: number; total: number }> = {};
       memberIds.forEach(uid => {
-        statsMap[uid] = { exact: 0, winner: 0, draw: 0, miss: 0, pts: 0, total: 0 };
+        statsMap[uid] = { exact: 0, winner: 0, draw: 0, miss: 0, total: 0 };
       });
 
       allPredictions.forEach(pred => {
         const match = finishedMatches[pred.matchId];
-        if (!match || pred.homeScore === undefined || pred.awayScore === undefined) return;
+        if (!match || pred.homeScore === undefined) return;
         if (match.homeScore === null || match.homeScore === undefined) return;
         if (!statsMap[pred.userId]) return;
 
@@ -215,14 +212,16 @@ export default function LigaScreen() {
           { homeScore: match.homeScore, awayScore: match.awayScore }
         );
         statsMap[pred.userId][result.type]++;
-        statsMap[pred.userId].pts += result.pts;
         statsMap[pred.userId].total++;
       });
 
-      // 4. Combinar con info de miembro y ordenar por puntos
+      // Usar totalPoints real del usuario (predicciones + retos)
       const tabla = members.map(m => ({
         ...m,
-        tablaStats: statsMap[m.id] ?? { exact: 0, winner: 0, draw: 0, miss: 0, pts: 0, total: 0 },
+        tablaStats: {
+          ...statsMap[m.id],
+          pts: m.totalPoints || 0, // totalPoints ya incluye predicciones + retos
+        },
       })).sort((a, b) => b.tablaStats.pts - a.tablaStats.pts);
 
       setTablaData(tabla);
@@ -496,29 +495,54 @@ export default function LigaScreen() {
 
       {/* MODAL SCANNER */}
       <Modal visible={scannerVisible} transparent={false} animationType="slide" onRequestClose={() => setScannerVisible(false)}>
-        <View style={{ flex:1, backgroundColor:'#020408' }}>
+        <View style={{ flex:1, backgroundColor:'#020408', justifyContent:'center', alignItems:'center' }}>
+          
+          {/* Botón cerrar */}
           <View style={{ position:'absolute', top:52, left:16, zIndex:10 }}>
             <TouchableOpacity onPress={() => setScannerVisible(false)} style={{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:12, padding:12, borderWidth:1, borderColor:'rgba(255,215,0,0.3)' }}>
               <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#FFD700', letterSpacing:1 }}>✕ CERRAR</Text>
             </TouchableOpacity>
           </View>
-          <View style={{ flex:1, justifyContent:'center', alignItems:'center', gap:20 }}>
-            <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:'#FFD700', letterSpacing:3, marginTop:80 }}>ESCANEAR QR GOLZI</Text>
-            <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:'#6B7A99', textAlign:'center', paddingHorizontal:32 }}>Apunta la camara al codigo QR de la liga</Text>
-            {permission?.granted ? (
-              <CameraView
-                style={{ width:280, height:280, borderRadius:16, overflow:'hidden', borderWidth:2, borderColor:'rgba(255,215,0,0.4)' }}
-                facing="back"
-                barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
-                onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-              />
-            ) : (
-              <TouchableOpacity onPress={requestPermission} style={{ backgroundColor:'rgba(255,215,0,0.1)', borderRadius:12, padding:16, borderWidth:1, borderColor:'rgba(255,215,0,0.3)' }}>
-                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#FFD700', letterSpacing:1 }}>PERMITIR CAMARA</Text>
+
+          <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:'#FFD700', letterSpacing:3, marginBottom:8 }}>ESCANEAR QR GOLZI</Text>
+
+          {typeof window !== 'undefined' ? (
+            /* WEB — scanner no disponible, usar código manual */
+            <View style={{ alignItems:'center', gap:16, paddingHorizontal:32 }}>
+              <View style={{ width:200, height:200, borderRadius:16, borderWidth:2, borderColor:'rgba(255,215,0,0.4)', backgroundColor:'rgba(255,215,0,0.05)', justifyContent:'center', alignItems:'center' }}>
+                <Text style={{ fontSize:60 }}>📷</Text>
+                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:'rgba(255,215,0,0.6)', letterSpacing:1, marginTop:8, textAlign:'center' }}>SCANNER EN APP NATIVA</Text>
+              </View>
+              <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:'#6B7A99', textAlign:'center' }}>En la web ingresa el codigo manualmente o descarga la app GOLZI para escanear QR</Text>
+              <TouchableOpacity onPress={() => setScannerVisible(false)} style={{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:12, paddingVertical:12, paddingHorizontal:24, borderWidth:1, borderColor:'rgba(255,215,0,0.3)' }}>
+                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#FFD700', letterSpacing:1 }}>INGRESAR CODIGO MANUAL</Text>
               </TouchableOpacity>
-            )}
-            {scanned && <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#00FF87', letterSpacing:1 }}>✅ QR ESCANEADO</Text>}
-          </View>
+            </View>
+          ) : (
+            /* APP NATIVA — scanner real */
+            <View style={{ alignItems:'center', gap:16 }}>
+              <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:'#6B7A99', textAlign:'center', paddingHorizontal:32 }}>Apunta la camara al codigo QR de la liga</Text>
+              {permission?.granted ? (
+                <View style={{ width:280, height:280, borderRadius:16, overflow:'hidden', borderWidth:2, borderColor:'rgba(255,215,0,0.4)' }}>
+                  <CameraView
+                    style={{ width:280, height:280 }}
+                    facing="back"
+                    barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+                    onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+                  />
+                  {/* Marco de escaneo */}
+                  <View style={{ position:'absolute', top:0, left:0, right:0, bottom:0, justifyContent:'center', alignItems:'center' }}>
+                    <View style={{ width:180, height:180, borderWidth:2, borderColor:'#FFD700', borderRadius:8 }} />
+                  </View>
+                </View>
+              ) : (
+                <TouchableOpacity onPress={requestPermission} style={{ backgroundColor:'rgba(255,215,0,0.1)', borderRadius:12, padding:16, borderWidth:1, borderColor:'rgba(255,215,0,0.3)' }}>
+                  <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#FFD700', letterSpacing:1 }}>PERMITIR CAMARA</Text>
+                </TouchableOpacity>
+              )}
+              {scanned && <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#00FF87', letterSpacing:1 }}>✅ QR ESCANEADO</Text>}
+            </View>
+          )}
         </View>
       </Modal>
 

@@ -116,6 +116,7 @@ export default function ProfileScreen() {
   const [userId, setUserId]         = useState<string | null>(null);
   const [userData, setUserData]     = useState<any>(null);
   const [history, setHistory]       = useState<any[]>([]);
+  const [challenges, setChallenges] = useState<any[]>([]);
   const [loadingUser, setLoadingUser] = useState(true);
   const [rankPosition, setRankPosition] = useState<number | null>(null);
 
@@ -146,14 +147,27 @@ export default function ProfileScreen() {
     return unsub;
   }, [userId]);
 
+  // ── Cargar quick_challenges ──
+  useEffect(() => {
+    if (!userId) return;
+    const q = query(
+      collection(db, 'quick_challenges'),
+      where('userId', '==', userId),
+      orderBy('savedAt', 'desc')
+    );
+    const unsub = onSnapshot(q, snap => {
+      setChallenges(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return unsub;
+  }, [userId]);
+
   // ── Cargar historial de predicciones ──
   useEffect(() => {
     if (!userId) return;
     const q = query(
       collection(db, 'predictions'),
       where('userId', '==', userId),
-      orderBy('createdAt', 'desc'),
-      limit(20)
+      orderBy('createdAt', 'desc')
     );
     const unsub = onSnapshot(q, snap => {
       setHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -269,6 +283,7 @@ export default function ProfileScreen() {
         <View style={s.statsRow}>
           {[
             { val: String(totalPredictions), lbl: t('profile_predictions'), c: C.gold  },
+            { val: String(challenges.length), lbl: 'RETOS', c: C.cyan },
             { val: String(exactPredictions), lbl: t('profile_exact'),        c: C.green },
             { val: String(totalPoints),      lbl: t('profile_points'),       c: C.gold  },
             { val: String(currentStreak),    lbl: t('profile_streak'),       c: C.gold2 },

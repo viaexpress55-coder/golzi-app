@@ -32,14 +32,14 @@ const C = {
 };
 
 const RETOS_GRUPOS = [
-  { id:'first_goal', label:'¿Quién marca primero?',  type:'team', pts:15, icon:'⚽' },
-  { id:'over_goals', label:'¿Más de 2.5 goles?',    type:'yn',   pts:8,  icon:'🎯' },
-  { id:'red_card',   label:'¿Habrá tarjeta roja?',  type:'yn',   pts:8,  icon:'🟥' },
-  { id:'ht_result',  label:'¿Resultado al descanso?',type:'1x2',  pts:12, icon:'⏱' },
+  { id:'first_goal', label:'¿Quién marca primero?',  type:'team', pts:5, icon:'⚽' },
+  { id:'over_goals', label:'¿Más de 2.5 goles?',    type:'yn',   pts:3,  icon:'🎯' },
+  { id:'red_card',   label:'¿Habrá tarjeta roja?',  type:'yn',   pts:3,  icon:'🟥' },
+  { id:'ht_result',  label:'¿Resultado al descanso?',type:'1x2',  pts:4,  icon:'⏱' },
 ];
 const RETOS_ELIMINATORIA = [
   ...RETOS_GRUPOS,
-  { id:'penalty', label:'¿Habrá penalti?', type:'yn', pts:10, icon:'🎽' },
+  { id:'penalty', label:'¿Habrá penalti?', type:'yn', pts:4, icon:'🎽' },
 ];
 
 function getRetosForMatch(phase?: string) {

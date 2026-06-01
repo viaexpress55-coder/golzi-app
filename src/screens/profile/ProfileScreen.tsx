@@ -283,7 +283,7 @@ export default function ProfileScreen() {
         <View style={s.statsRow}>
           {[
             { val: String(totalPredictions), lbl: t('profile_predictions'), c: C.gold  },
-            { val: String(challenges.length), lbl: 'RETOS', c: C.cyan },
+            { val: String(challenges.length), lbl: t('profile_challenges'), c: C.cyan },
             { val: String(exactPredictions), lbl: t('profile_exact'),        c: C.green },
             { val: String(totalPoints),      lbl: t('profile_points'),       c: C.gold  },
             { val: String(currentStreak),    lbl: t('profile_streak'),       c: C.gold2 },
@@ -428,7 +428,7 @@ export default function ProfileScreen() {
                       Tu pred: <Text style={{ color:C.muted2 }}>{h.homeScore} - {h.awayScore}</Text>
                       {isPending
                         ? <Text style={{ color:C.muted }}> · Pendiente</Text>
-                        : <Text style={{ color: isExact ? C.green : isWinner ? C.gold : C.red }}> · {h.pointsEarned > 0 ? `+${h.pointsEarned} pts` : 'Sin puntos'}</Text>
+                        : <Text style={{ color: isExact ? C.green : isWinner ? C.gold : C.red }}> · {h.pointsEarned > 0 ? `+${h.pointsEarned} pts` : t('profile_no_points')}</Text>
                       }
                     </Text>
                   </View>

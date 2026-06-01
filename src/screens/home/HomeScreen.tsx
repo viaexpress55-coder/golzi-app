@@ -396,9 +396,9 @@ export default function HomeScreen() {
     const match = matches.find(m => m.id === id);
     const user = getAuth().currentUser;
     if (!user?.email) {
-      Alert.alert('Cuenta requerida', 'Debes crear una cuenta para predecir. Es gratis!', [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Crear cuenta', onPress: () => navigation.navigate('Register') },
+      Alert.alert(t('home_account_required'), t('home_need_account_predict'), [
+        { text: t('home_cancel'), style: 'cancel' },
+        { text: t('home_create_account'), onPress: () => navigation.navigate('Register') },
       ]);
       return;
     }

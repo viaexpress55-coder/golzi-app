@@ -155,17 +155,17 @@ export default function OnboardingScreen() {
           style={s.btn}
         >
           <Text style={s.btnTxt}>
-            {current < STEPS.length - 1 ? `SIGUIENTE  →` : `¡EMPEZAR!  ⚡`}
+            {current < STEPS.length - 1 ? t('onboard_next') : t('onboard_start')}
           </Text>
         </LinearGradient>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Login')} style={s.loginBtn}>
-        <Text style={s.loginTxt}>Ya tengo cuenta →</Text>
+        <Text style={s.loginTxt}>{t('onboard_have_account')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Main')} style={s.guestBtn}>
-        <Text style={s.guestTxt}>Explorar sin cuenta →</Text>
+        <Text style={s.guestTxt}>{t('onboard_guest')}</Text>
       </TouchableOpacity>
 
       <View style={s.bottomLine} />

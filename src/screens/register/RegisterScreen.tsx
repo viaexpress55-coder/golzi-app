@@ -11,6 +11,8 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { registerWithEmail } from '../../services/auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../services/firebase';
 import { useTranslation } from 'react-i18next';
 
 const C = {
@@ -317,8 +319,7 @@ export default function RegisterScreen() {
           const credential = EmailAuthProvider.credential(email, password);
           await linkWithCredential(currentUser, credential);
           const { updateProfile } = require('firebase/auth');
-          const { doc, updateDoc, serverTimestamp } = require('firebase/firestore');
-          const { db } = require('../../services/firebase');
+          
           await updateProfile(currentUser, { displayName: username });
           const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Bogota';
           await updateDoc(doc(db, 'users', currentUser.uid), {

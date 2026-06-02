@@ -6,6 +6,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import i18n from '../locales/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth } from 'firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 const LANGUAGES = [
   { code: 'es', name: 'Español', flag: '🇪🇸', countries: 'Colombia, México, Argentina...' },
@@ -38,9 +41,9 @@ export default function LanguageSelector() {
     try {
       await AsyncStorage.setItem('golzi_language', code);
       // Sincronizar con Firestore
-      const { getAuth } = require('firebase/auth');
-      const { doc, updateDoc } = require('firebase/firestore');
-      const { db } = require('../services/firebase');
+      
+      
+      
       const user = getAuth().currentUser;
       if (user) {
         await updateDoc(doc(db, 'users', user.uid), { language: code });

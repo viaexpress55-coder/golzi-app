@@ -4,10 +4,11 @@ import * as Localization from 'expo-localization';
 
 const deviceLanguage = Localization.getLocales()[0]?.languageCode || 'es';
 const deviceCountry = Localization.getLocales()[0]?.regionCode || 'CO';
+
+const SUPPORTED_LANGUAGES = ['es', 'en', 'pt', 'fr', 'de', 'it', 'ru', 'ar', 'zh', 'ja', 'ko', 'hi'];
 const LATAM_COUNTRIES = ['CO','MX','AR','BR','CL','VE','PE','EC','UY','PY','BO','CR','PA','GT','HN','SV','NI','DO','CU','PR'];
 const defaultLanguage = LATAM_COUNTRIES.includes(deviceCountry) ? 'es' : (SUPPORTED_LANGUAGES.includes(deviceLanguage) ? deviceLanguage : 'es');
 
-const SUPPORTED_LANGUAGES = ['es', 'en', 'pt', 'fr', 'de', 'it', 'ru', 'ar', 'zh', 'ja', 'ko', 'hi'];
 
 export const COUNTRY_FLAGS: Record<string, string> = {
   CO: '🇨🇴', MX: '🇲🇽', AR: '🇦🇷', BR: '🇧🇷', CL: '🇨🇱',

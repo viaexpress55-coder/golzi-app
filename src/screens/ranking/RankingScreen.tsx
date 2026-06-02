@@ -190,19 +190,17 @@ export default function RankingScreen() {
   }, []);
 
   useEffect(() => {
-    const user = getAuth().currentUser;
-    if (!user) return;
     getDocs(query(collection(db, 'users'), orderBy('totalPoints', 'desc'), limit(500)))
       .then(snap => {
         const users = snap.docs.map(d => ({
           id: d.id,
-          username: d.data().username || 'Golzaire',
+          username: d.data().username || ('User' + d.id.slice(0,4)),
           country: d.data().country || '🌍',
           pts: d.data().totalPoints || 0,
           exact: 0,
           plan: d.data().plan || 'free',
           streak: d.data().currentStreak || 0,
-          isMe: d.id === user.uid,
+          isMe: d.id === (getAuth().currentUser?.uid || ''),
         }));
         setGlobalData(users);
         setLoadingRanking(false);
@@ -218,12 +216,13 @@ export default function RankingScreen() {
   }, []);
 
   if (!fontsLoaded) return <View style={s.root} />;
+  if (loadingRanking) return <View style={s.root}><LinearGradient colors={['#020408','#05080F']} style={{flex:1,alignItems:'center',justifyContent:'center'}}><ActivityIndicator color={'#FFD700'} size="large" /></LinearGradient></View>;
 
   const isPaid = userPlan !== 'free';
   const myCountry = userData?.country ?? '';
 
   // ── Datos según tab ───────────────────────────────────────────────────────
-  const globalSorted = (globalData.length > 0 ? globalData : MOCK_GLOBAL).sort((a,b) => b.pts - a.pts);
+  const globalSorted = globalData.length > 0 ? [...globalData].sort((a,b) => b.pts - a.pts) : [];
 
   // Tab 0 — Global
   const globalTop3   = globalSorted.slice(0,3);
@@ -242,7 +241,7 @@ export default function RankingScreen() {
   const countryRest   = countrySorted.slice(3);
 
   // Tab 3 — Ranking de países
-  const countryRanking = calcCountryRanking(MOCK_GLOBAL);
+  const countryRanking = calcCountryRanking(globalData.length > 0 ? globalData : []);
 
   // Me
   const me     = globalSorted.find(p => p.isMe);
@@ -279,7 +278,7 @@ export default function RankingScreen() {
           </View>
         </View>
         <View style={s.playerCount}>
-          <Text style={s.playerCountTxt}>{globalData.length || MOCK_GLOBAL.length}</Text>
+          <Text style={s.playerCountTxt}>{globalData.length}</Text>
           <Text style={s.playerCountLbl}>GOLZAIRES</Text>
         </View>
       </LinearGradient>
@@ -463,7 +462,7 @@ export default function RankingScreen() {
             )}
 
             <View style={s.footer}>
-              <Text style={s.footerTxt}>⚡ {t('ranking_updated')} · {globalData.length || MOCK_GLOBAL.length} {t('ranking_participants')}</Text>
+              <Text style={s.footerTxt}>⚡ {t('ranking_updated')} · {globalData.length} {t('ranking_participants')}</Text>
             </View>
           </>
         )}

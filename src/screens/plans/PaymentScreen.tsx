@@ -75,6 +75,12 @@ const userId = user.uid;
 
       // Android — Google Play Billing
       if (Platform.OS === 'android') {
+        // PREMIUM — solo por WhatsApp
+        if (planId === 'golziplus') {
+          await Linking.openURL('https://wa.me/573054325588?text=Hola%2C%20me%20interesa%20el%20plan%20GOLZI%20PREMIUM');
+          setLoading(false);
+          return;
+        }
         const productId = PRODUCT_IDS[planId as keyof typeof PRODUCT_IDS];
         if (productId) {
           try {
@@ -82,7 +88,13 @@ const userId = user.uid;
             await purchaseProduct(productId);
             return;
           } catch (iapError) {
-            console.log('IAP no disponible, usando Wompi...', iapError);
+            console.log('IAP error:', iapError);
+            const errMsg = (iapError as any)?.message || '';
+            if (!errMsg.includes('cancel')) {
+              setError('Error con Google Play. Verifica tu cuenta e intenta de nuevo.');
+            }
+            setLoading(false);
+            return;
           }
         }
       }

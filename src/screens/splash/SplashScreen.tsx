@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAuth } from 'firebase/auth';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
@@ -66,7 +67,7 @@ export default function SplashScreen() {
  useEffect(() => {
     const timer = setInterval(() => setCD(getCD()), 1000);
 
-    const savedLang = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('golzi_lang') : null;
+    const savedLang = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('golzi_language') : null;
     // Detectar deep link de liga — desde URL directa o desde redirect SPA
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       // Intentar desde URL actual
@@ -139,6 +140,8 @@ export default function SplashScreen() {
 
   function changeLang(lang: typeof LANGS[0]) {
     i18n.changeLanguage(lang.i18n);
+      AsyncStorage.setItem('golzi_language', lang.i18n).catch(() => {});
+      if (typeof localStorage !== 'undefined') localStorage.setItem('golzi_language', lang.i18n);
     setSelectedLang(lang.code);
     if (typeof window !== 'undefined') {
       if (typeof localStorage !== 'undefined') localStorage.setItem('golzi_lang', lang.i18n);

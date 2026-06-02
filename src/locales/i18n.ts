@@ -4,6 +4,8 @@ import * as Localization from 'expo-localization';
 
 const deviceLanguage = Localization.getLocales()[0]?.languageCode || 'es';
 const deviceCountry = Localization.getLocales()[0]?.regionCode || 'CO';
+const LATAM_COUNTRIES = ['CO','MX','AR','BR','CL','VE','PE','EC','UY','PY','BO','CR','PA','GT','HN','SV','NI','DO','CU','PR'];
+const defaultLanguage = LATAM_COUNTRIES.includes(deviceCountry) ? 'es' : (SUPPORTED_LANGUAGES.includes(deviceLanguage) ? deviceLanguage : 'es');
 
 const SUPPORTED_LANGUAGES = ['es', 'en', 'pt', 'fr', 'de', 'it', 'ru', 'ar', 'zh', 'ja', 'ko', 'hi'];
 
@@ -34,6 +36,8 @@ import('@react-native-async-storage/async-storage').then(({ default: AsyncStorag
 const resources = {
   es: {
     translation: {
+      reg_username_taken: 'Este nombre de usuario ya esta en uso',
+      home_join_league: 'UNETE A UNA LIGA',
       profile_racha: 'RACHA',
       profile_tu_nivel: 'TU NIVEL',
       profile_cerrar: 'Cerrar sesion',
@@ -171,6 +175,8 @@ const resources = {
   },
   en: {
     translation: {
+      reg_username_taken: 'This username is already taken',
+      home_join_league: 'JOIN A LEAGUE',
       profile_challenges: 'CHALLENGES',
       profile_racha: 'STREAK',
       profile_tu_nivel: 'YOUR LEVEL',
@@ -336,6 +342,8 @@ const resources = {
   },
   pt: {
     translation: {
+      reg_username_taken: 'Este nome de usuario ja esta em uso',
+      home_join_league: 'ENTRE EM UMA LIGA',
       profile_challenges: 'DESAFIOS',
       profile_racha: 'SEQUENCIA',
       profile_tu_nivel: 'SEU NIVEL',
@@ -501,6 +509,8 @@ const resources = {
   },
   fr: {
     translation: {
+      reg_username_taken: 'Ce nom utilisateur est deja pris',
+      home_join_league: 'REJOINS UNE LIGUE',
       profile_challenges: 'DEFIS',
       profile_racha: 'SERIE',
       profile_tu_nivel: 'VOTRE NIVEAU',
@@ -666,6 +676,8 @@ const resources = {
   },
   de: {
     translation: {
+      reg_username_taken: 'Dieser Benutzername ist bereits vergeben',
+      home_join_league: 'TRITT EINER LIGA BEI',
       profile_challenges: 'HERAUSFORDERUNGEN',
       profile_racha: 'SERIE',
       profile_tu_nivel: 'IHR LEVEL',
@@ -831,6 +843,8 @@ const resources = {
   },
   it: {
     translation: {
+      reg_username_taken: 'Questo nome utente e gia in uso',
+      home_join_league: 'UNISCITI A UNA LEGA',
       profile_challenges: 'SFIDE',
       profile_racha: 'SERIE',
       profile_tu_nivel: 'IL TUO LIVELLO',
@@ -996,6 +1010,8 @@ const resources = {
   },
   ru: {
     translation: {
+      reg_username_taken: 'Это имя пользователя уже занято',
+      home_join_league: 'ВСТУПИ В ЛИГУ',
       profile_challenges: 'ЗАДАНИЯ',
       profile_racha: 'СЕРИЯ',
       profile_tu_nivel: 'ВАШ УРОВЕНЬ',
@@ -1161,6 +1177,8 @@ const resources = {
   },
   ar: {
     translation: {
+      reg_username_taken: 'اسم المستخدم مستخدم بالفعل',
+      home_join_league: 'انضم لدوري',
       profile_challenges: 'التحديات',
       profile_racha: 'سلسلة',
       profile_tu_nivel: 'مستواك',
@@ -1326,6 +1344,8 @@ const resources = {
   },
   zh: {
     translation: {
+      reg_username_taken: '该用户名已被使用',
+      home_join_league: '加入联赛',
       profile_challenges: '挑战',
       profile_racha: '连胜',
       profile_tu_nivel: '您的等级',
@@ -1491,6 +1511,8 @@ const resources = {
   },
   ja: {
     translation: {
+      reg_username_taken: 'このユーザー名はすでに使用されています',
+      home_join_league: 'リーグに参加',
       profile_challenges: 'チャレンジ',
       profile_racha: '連勝',
       profile_tu_nivel: 'あなたのレベル',
@@ -1656,6 +1678,8 @@ const resources = {
   },
   ko: {
     translation: {
+      reg_username_taken: '이미 사용 중인 사용자 이름입니다',
+      home_join_league: '리그 참가',
       profile_challenges: '챌린지',
       profile_racha: '연승',
       profile_tu_nivel: '내 레벨',
@@ -1821,6 +1845,8 @@ const resources = {
   },
   hi: {
     translation: {
+      reg_username_taken: 'यह उपयोगकर्ता नाम पहले से उपयोग में है',
+      home_join_league: 'लीग जॉइन करें',
       profile_challenges: 'चुनौतियाँ',
       profile_racha: 'स्ट्रीक',
       profile_tu_nivel: 'आपका स्तर',
@@ -1990,7 +2016,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: selectedLanguage,
+    lng: selectedLanguage || defaultLanguage,
     fallbackLng: 'es',
     interpolation: { escapeValue: false },
   });

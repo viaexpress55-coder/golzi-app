@@ -107,7 +107,7 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
           <LinearGradient colors={[C.purple+'22', C.purple+'08']} style={rs.paywallInner}>
             <Text style={rs.paywallLock}>🔒</Text>
             <Text style={rs.paywallTxt}>GOLZAIR+ para participar</Text>
-            <View style={rs.paywallBtn}><Text style={rs.paywallBtnTxt}>DESBLOQUEAR — $1.99</Text></View>
+            <View style={rs.paywallBtn}><Text style={rs.paywallBtnTxt}>{t('home_join_league')}</Text></View>
           </LinearGradient>
         </TouchableOpacity>
       ) : saved && answer ? (

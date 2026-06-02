@@ -314,7 +314,7 @@ export default function ProfileScreen() {
 
             {/* NIVELES */}
             <View style={s.infoCard}>
-              <Text style={s.cardTitle}>NIVELES XP</Text>
+              <Text style={s.cardTitle}>{t('profile_levels')}</Text>
               {LEVELS.map((lv, i) => {
                 const isActive = getLevel(totalPoints).name === lv.name;
                 return (
@@ -322,7 +322,7 @@ export default function ProfileScreen() {
                     <Text style={s.lvIcon}>{lv.icon}</Text>
                     <View style={s.lvInfo}>
                       <Text style={[s.lvName, { color: isActive ? lv.color : C.muted }]}>
-                        {lv.name}{isActive ? ' ← TU NIVEL' : ''}
+                        {lv.name}{isActive ? ' ← ' + t('profile_tu_nivel') : ''}
                       </Text>
                       <Text style={s.lvRange}>{lv.min} – {lv.name === 'GOLZAIR ELITE' ? '∞' : lv.max} pts</Text>
                     </View>
@@ -335,16 +335,16 @@ export default function ProfileScreen() {
             {/* RACHA */}
             {(currentStreak > 0 || maxStreak > 0) && (
               <View style={s.infoCard}>
-                <Text style={s.cardTitle}>RACHA</Text>
+                <Text style={s.cardTitle}>{t('profile_racha')}</Text>
                 <View style={s.streakRow}>
                   <View style={s.streakBox}>
                     <Text style={s.streakNum}>🔥 {currentStreak}</Text>
-                    <Text style={s.streakLbl}>RACHA ACTUAL</Text>
+                    <Text style={s.streakLbl}>{t('profile_streak_current')}</Text>
                   </View>
                   <View style={s.streakDivider} />
                   <View style={s.streakBox}>
                     <Text style={s.streakNum}>⭐ {maxStreak}</Text>
-                    <Text style={s.streakLbl}>MEJOR RACHA</Text>
+                    <Text style={s.streakLbl}>{t('profile_streak_best')}</Text>
                   </View>
                 </View>
               </View>
@@ -400,7 +400,7 @@ export default function ProfileScreen() {
             {history.length === 0 && (
               <View style={s.emptyState}>
                 <Text style={s.emptyIcon}>⚽</Text>
-                <Text style={s.emptyTxt}>Aun no tienes predicciones</Text>
+                <Text style={s.emptyTxt}>{t('profile_no_predictions')}</Text>
               </View>
             )}
             {history.map((h, i) => {

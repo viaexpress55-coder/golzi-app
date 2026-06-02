@@ -24,7 +24,7 @@ const C = {
   purple:'#A855F7',
 };
 
-const FREE_RANK_LIMIT = 20;
+const FREE_RANK_LIMIT = 5;
 
 // ── Datos mock para liga (mientras no hay liga real conectada) ─────────────────
 const MOCK_LEAGUE = [
@@ -99,7 +99,7 @@ function PodiumCard({ player, rank }: { player: any; rank: number }) {
         <LinearGradient colors={[C.gold,C.gold2]} style={s.proBadge}><Text style={s.proBadgeTxt}>PRO</Text></LinearGradient>
       )}
       <Text style={s.podiumFlag}>{player.country}</Text>
-      <Text style={s.podiumName} numberOfLines={1}>{player.username}</Text>
+      <Text style={s.podiumName} numberOfLines={1}>{player.username?.includes('@') ? player.username.split('@')[0] : player.username}</Text>
       <Text style={[s.podiumPts,{ color:medalColor }]}>{player.pts}</Text>
       <Text style={s.podiumPtsLbl}>PTS</Text>
       <LinearGradient colors={[medalColor,`${medalColor}66`]} style={[s.podiumBase,{ height:podiumH }]}>
@@ -132,13 +132,13 @@ function PaywallBanner({ hiddenCount, onUnlock }: { hiddenCount:number; onUnlock
         </View>
         <Text style={pw.lockIcon}>🔒</Text>
         <Text style={pw.title}>{hiddenCount} GOLZAIRES OCULTOS</Text>
-        <Text style={pw.sub}>Desbloquea el ranking completo con{'\n'}<Text style={{ color:C.purple, fontWeight:'800' }}>GOLZAIR — $1.99</Text></Text>
+        <Text style={pw.sub}>Unete a una liga para ver el ranking completo</Text>
         <TouchableOpacity style={pw.btn} onPress={onUnlock} activeOpacity={0.85}>
           <LinearGradient colors={[C.purple,'#7C3AED']} start={{x:0,y:0}} end={{x:1,y:0}} style={pw.btnInner}>
-            <Text style={pw.btnTxt}>⚡ VER RANKING COMPLETO — $1.99</Text>
+            <Text style={pw.btnTxt}>⚡ VER RANKING — UNETE A UNA LIGA</Text>
           </LinearGradient>
         </TouchableOpacity>
-        <Text style={pw.hint}>También desbloquea Retos Rápidos y más funciones premium</Text>
+        <Text style={pw.hint}>Los miembros de liga ven el ranking completo</Text>
       </LinearGradient>
     </Animated.View>
   );
@@ -167,6 +167,8 @@ export default function RankingScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const TABS = [t('ranking_global'), t('ranking_league'), t('ranking_country'), t('ranking_paises')];
   const [tab, setTab]           = useState(0);
+  const [globalData, setGlobalData] = useState<any[]>([]);
+  const [loadingRanking, setLoadingRanking] = useState(true);
   const [userPlan, setUserPlan] = useState<string>('free');
   const [userData, setUserData] = useState<any>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -188,6 +190,27 @@ export default function RankingScreen() {
   }, []);
 
   useEffect(() => {
+    const user = getAuth().currentUser;
+    if (!user) return;
+    getDocs(query(collection(db, 'users'), orderBy('totalPoints', 'desc'), limit(500)))
+      .then(snap => {
+        const users = snap.docs.map(d => ({
+          id: d.id,
+          username: d.data().username || 'Golzaire',
+          country: d.data().country || '🌍',
+          pts: d.data().totalPoints || 0,
+          exact: 0,
+          plan: d.data().plan || 'free',
+          streak: d.data().currentStreak || 0,
+          isMe: d.id === user.uid,
+        }));
+        setGlobalData(users);
+        setLoadingRanking(false);
+      })
+      .catch(() => setLoadingRanking(false));
+  }, []);
+
+  useEffect(() => {
     Animated.loop(Animated.sequence([
       Animated.timing(pulseAnim,{ toValue:1.03, duration:1200, useNativeDriver:true }),
       Animated.timing(pulseAnim,{ toValue:1,    duration:1200, useNativeDriver:true }),
@@ -200,7 +223,7 @@ export default function RankingScreen() {
   const myCountry = userData?.country ?? '';
 
   // ── Datos según tab ───────────────────────────────────────────────────────
-  const globalSorted = [...MOCK_GLOBAL].sort((a,b) => b.pts - a.pts);
+  const globalSorted = (globalData.length > 0 ? globalData : MOCK_GLOBAL).sort((a,b) => b.pts - a.pts);
 
   // Tab 0 — Global
   const globalTop3   = globalSorted.slice(0,3);
@@ -256,7 +279,7 @@ export default function RankingScreen() {
           </View>
         </View>
         <View style={s.playerCount}>
-          <Text style={s.playerCountTxt}>{MOCK_GLOBAL.length}</Text>
+          <Text style={s.playerCountTxt}>{globalData.length || MOCK_GLOBAL.length}</Text>
           <Text style={s.playerCountLbl}>GOLZAIRES</Text>
         </View>
       </LinearGradient>
@@ -403,7 +426,7 @@ export default function RankingScreen() {
                   </LinearGradient>
                   <View style={s.playerInfo}>
                     <View style={s.playerNameRow}>
-                      <Text style={[s.playerName, isMe && { color:C.gold }]}>{player.username}</Text>
+                      <Text style={[s.playerName, isMe && { color:C.gold }]}>{player.username?.includes('@') ? player.username.split('@')[0] : player.username}</Text>
                       {isMe && <View style={s.youBadge}><Text style={s.youBadgeTxt}>TÚ</Text></View>}
                       {player.plan === 'PRO' && <LinearGradient colors={[C.gold,C.gold2]} style={s.proBadgeSmall}><Text style={s.proBadgeSmallTxt}>PRO</Text></LinearGradient>}
                     </View>
@@ -440,7 +463,7 @@ export default function RankingScreen() {
             )}
 
             <View style={s.footer}>
-              <Text style={s.footerTxt}>⚡ {t('ranking_updated')} · {MOCK_GLOBAL.length} {t('ranking_participants')}</Text>
+              <Text style={s.footerTxt}>⚡ {t('ranking_updated')} · {globalData.length || MOCK_GLOBAL.length} {t('ranking_participants')}</Text>
             </View>
           </>
         )}

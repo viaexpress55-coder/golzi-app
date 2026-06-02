@@ -82,9 +82,9 @@ function AnimatedBorder({ children, style }: { children: React.ReactNode; style?
   );
 }
 
-function RetoCard({ reto, match, userPlan, answer, onAnswer, saved, navigation }: any) {
+function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, navigation }: any) {
   const { t } = useTranslation();
-  const isPaid = userPlan !== 'free';
+  const isPaid = userPlan !== 'free' || isInLeague;
   const options = reto.type === 'yn'
     ? [{ val:'yes', label:t('home_si') }, { val:'no', label:t('home_no') }]
     : reto.type === '1x2'
@@ -236,6 +236,7 @@ export default function HomeScreen() {
   const [showRetos, setShowRetos]       = useState<Record<string,boolean>>({});
   const [retoAnswers, setRetoAnswers]   = useState<Record<string,Record<string,string>>>({});
   const [retosSaved, setRetosSaved]     = useState<Record<string,boolean>>({});
+  const [isInLeague, setIsInLeague]     = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmMatch, setConfirmMatch]         = useState<any>(null);
 
@@ -264,6 +265,8 @@ export default function HomeScreen() {
       if (snap.exists()) {
         const planValue = snap.data()?.plan ?? 'free';
         console.log('Plan cargado:', planValue, 'UID:', user.uid, 'time:', Date.now());
+        getDocs(query(collection(db, 'leagues'), where('memberIds', 'array-contains', user.uid)))
+          .then(snap => setIsInLeague(!snap.empty)).catch(() => setIsInLeague(false));
         setUserPlan(planValue.toLowerCase());
         setUserData(snap.data());
         try {
@@ -599,7 +602,7 @@ export default function HomeScreen() {
           {[
             { val:matches.length, lbl:t('home_matches') },
             { val:104, lbl:t('home_total') },
-            { val:35, lbl:t('home_days') },
+            { val:Math.max(0, Math.ceil((new Date('2026-07-19').getTime() - Date.now()) / 86400000)), lbl:t('home_days') },
           ].map((st,i) => (
             <React.Fragment key={i}>
               {i > 0 && <View style={s.statDivider} />}
@@ -766,7 +769,7 @@ export default function HomeScreen() {
                   {retosVisible && (
                     <View style={s.retosContent}>
                       {retos.map(reto => (
-                        <RetoCard key={reto.id} reto={{...reto, label: t(reto.label)}} match={m} userPlan={userPlan} navigation={navigation}
+                        <RetoCard key={reto.id} reto={{...reto, label: t(reto.label)}} match={m} userPlan={userPlan} isInLeague={isInLeague} navigation={navigation}
                           answer={matchAnswers[reto.id] ?? null}
                           onAnswer={(retoId: string, val: string) => handleRetoAnswer(m.id, retoId, val)}
                           saved={savedRetos}
@@ -808,11 +811,11 @@ export default function HomeScreen() {
           </View>
           <View style={[s.ptsRow, { marginTop:8 }]}>
             <LinearGradient colors={['rgba(168,85,247,0.1)','rgba(168,85,247,0.03)']} style={[s.ptsCard, { borderColor:'rgba(168,85,247,0.2)' }]}>
-              <Text style={[s.ptsVal, { color:C.purple }]}>+53</Text>
-              <Text style={s.ptsLbl}>RETOS MAX</Text>
+              <Text style={[s.ptsVal, { color:C.purple }]}>+15</Text>
+              <Text style={s.ptsLbl}>{t('home_retos_rapidos')}</Text>
             </LinearGradient>
             <LinearGradient colors={['rgba(168,85,247,0.1)','rgba(168,85,247,0.03)']} style={[s.ptsCard, { flex:2, borderColor:'rgba(168,85,247,0.2)' }]}>
-              <Text style={[s.ptsLbl, { color:'#C084FC', fontSize:9 }]}>⚡ Retos Rápidos solo para GOLZAIR+</Text>
+              <Text style={[s.ptsLbl, { color:'#C084FC', fontSize:9 }]}>⚡ {t('home_retos_rapidos')} · para miembros de liga</Text>
             </LinearGradient>
           </View>
         </LinearGradient>

@@ -204,19 +204,18 @@ const userId = user.uid;
 
         {/* Promo banner */}
         <View style={s.promoBanner}>
-          <Text style={s.promoTxt}>🎯 Precio promo · Válido hasta el 10 de junio de 2026</Text>
+          <Text style={s.promoTxt}>🔥 Oferta de lanzamiento · Primeras 500 ligas</Text>
         </View>
 
         {/* Métodos de pago */}
         <View style={s.paymentSection}>
-          <Text style={s.paymentTitle}>MÉTODO DE PAGO</Text>
-          <View style={s.methodsRow}>
+          {Platform.OS !== 'android' && <Text style={s.paymentTitle}>MÉTODO DE PAGO</Text>}
+          {Platform.OS !== 'android' && <View style={s.methodsRow}>
             <View style={s.methodPill}><Text style={s.methodTxt}>💳 Tarjeta</Text></View>
             <View style={s.methodPill}><Text style={s.methodTxt}>🏦 PSE</Text></View>
             <View style={s.methodPill}><Text style={s.methodTxt}>📱 Nequi</Text></View>
             <View style={s.methodPill}><Text style={s.methodTxt}>💵 Efecty</Text></View>
-          </View>
-
+          </View>}
           <TouchableOpacity style={s.buyBtn} onPress={handleBuy} disabled={loading} activeOpacity={0.85}>
             <LinearGradient colors={[C.gold, C.gold2]} start={{ x:0, y:0 }} end={{ x:1, y:0 }} style={s.buyBtnInner}>
               {loading ? (
@@ -234,8 +233,9 @@ const userId = user.uid;
         <View style={s.securityBox}>
           <Text style={s.securityTitle}>🔒 PAGO 100% SEGURO</Text>
           <Text style={s.securityTxt}>
-            Procesado por Mercado Pago o Wompi. GOLZI no almacena datos de tarjeta.
-            Los puntos no tienen valor monetario. Sin apuestas. 100% legal.
+            {Platform.OS === 'android' 
+              ? 'Pago seguro procesado por Google Play. Los puntos no tienen valor monetario. Sin apuestas. 100% legal.' 
+              : 'Procesado por Mercado Pago o Wompi. GOLZI no almacena datos de tarjeta. Los puntos no tienen valor monetario. Sin apuestas. 100% legal.'}
           </Text>
         </View>
 

@@ -463,18 +463,17 @@ export default function RegisterScreen() {
 
         {/* País */}
         <Text style={s.label}>{t('register_country')}</Text>
-        <View style={s.countryNote}>
-          <Text style={s.countryNoteTxt}>
-            🌍 Elige tu país de origen. No tiene que participar en el Mundial — define tu ranking global y el emoji de tu bandera en el perfil. Es obligatorio para completar el registro.
-          </Text>
-        </View>
+        
 
+        <View style={{backgroundColor:'rgba(255,215,0,0.08)',borderRadius:10,padding:10,marginBottom:10,borderWidth:1,borderColor:'rgba(255,215,0,0.3)'}}>
+          <Text style={{fontFamily:'BarlowCondensed_400Regular',fontSize:11,color:'#FFD700',textAlign:'center'}}>⚠️ Obligatorio · Elige tu país. Define tu ranking global y bandera en tu perfil.</Text>
+        </View>
         <View style={s.countryGrid}>
-          {COUNTRIES.map((c, i) => (
+          {COUNTRIES.map((item, i) => (
             <Pressable key={i}
               style={[s.countryBtn, country === i && s.countryBtnOn]}
               onPress={() => {
-                if (c.code === 'OT') {
+                if (item.code === 'OT') {
                   setShowCountryModal(true);
                 } else {
                   setCountry(i);
@@ -485,11 +484,9 @@ export default function RegisterScreen() {
                 colors={country === i ? ['rgba(255,215,0,0.15)','rgba(255,215,0,0.05)'] : ['rgba(255,255,255,0.03)','rgba(255,255,255,0.01)']}
                 style={s.countryBtnGrad}
               >
-                <Text style={s.countryFlag}>
-                  {i === 8 && country === 8 && selectedCountry ? selectedCountry.flag : c.flag}
-                </Text>
+                <Image source={{uri:`https://flagcdn.com/w40/${(i===8&&country===8&&selectedCountry?selectedCountry.code:item.code).toLowerCase()}.png`}} style={{width:28,height:20,borderRadius:2}} resizeMode="cover"/>
                 <Text style={[s.countryName, country === i && s.countryNameOn]}>
-                  {i === 8 && country === 8 && selectedCountry ? selectedCountry.name : c.name}
+                  {i === 8 && country === 8 && selectedCountry ? selectedCountry.name : item.name}
                 </Text>
               </LinearGradient>
             </Pressable>

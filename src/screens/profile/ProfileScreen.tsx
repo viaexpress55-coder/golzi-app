@@ -97,14 +97,16 @@ const xp = StyleSheet.create({
 });
 
 // ─── BADGES MOCK (se conectan a Firestore en siguiente iteración) ──────────────
-const BADGES = [
-  { icon:'🎯', name:'Primer Exacto',  desc:'Primera prediccion exacta',  earned:true  },
-  { icon:'🔥', name:'Racha x3',       desc:'3 correctas seguidas',        earned:true  },
-  { icon:'⚡', name:'Goleador',       desc:'10 predicciones exactas',     earned:false },
-  { icon:'🏆', name:'Campeon',        desc:'Gana una liga privada',       earned:false },
-  { icon:'🌍', name:'Mundial',        desc:'Predice todos los partidos',  earned:false },
-  { icon:'👑', name:'GOLZI Elite',    desc:'Top 10 global',               earned:false },
-];
+function getBadges(exactPredictions: number, maxStreak: number, totalPredictions: number, rankPosition: number | null) {
+  return [
+    { icon:'🎯', name:'Primer Exacto',  desc:'Primera prediccion exacta',  earned: exactPredictions >= 1 },
+    { icon:'🔥', name:'Racha x3',       desc:'3 correctas seguidas',        earned: maxStreak >= 3 },
+    { icon:'⚡', name:'Goleador',       desc:'10 predicciones exactas',     earned: exactPredictions >= 10 },
+    { icon:'🏆', name:'Campeon',        desc:'Gana una liga privada',       earned: false },
+    { icon:'🌍', name:'Mundial',        desc:'Predice todos los partidos',  earned: totalPredictions >= 104 },
+    { icon:'👑', name:'GOLZI Elite',    desc:'Top 10 global',               earned: rankPosition !== null && rankPosition <= 10 },
+  ];
+}
 
 // ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 export default function ProfileScreen() {
@@ -449,7 +451,7 @@ export default function ProfileScreen() {
         {/* TAB 2 — BADGES */}
         {tab === 2 && (
           <View style={s.badgesGrid}>
-            {BADGES.map((b,i) => (
+            {getBadges(exactPredictions, maxStreak, totalPredictions, rankPosition).map((b,i) => (
               <LinearGradient
                 key={i}
                 colors={b.earned

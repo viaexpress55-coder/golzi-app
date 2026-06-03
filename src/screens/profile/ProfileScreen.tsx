@@ -9,6 +9,7 @@ import { RootStackParams } from '../../navigation/AppNavigator';
 import { logout, onAuthChange } from '../../services/auth';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useTranslation } from 'react-i18next';
+import { COUNTRY_FLAGS } from '../../locales/i18n';
 import { sendLocalNotification, GOLZI_NOTIFICATIONS } from '../../services/notifications';
 import { doc, onSnapshot, collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '../../services/firebase';
@@ -355,7 +356,7 @@ export default function ProfileScreen() {
               <Text style={s.cardTitle}>{t('profile_info')}</Text>
               {[
                 { lbl: t('profile_user'),   val: `@${username.toLowerCase()}` },
-                { lbl: t('profile_country'),val: country },
+                { lbl: t('profile_country'), val: (COUNTRY_FLAGS[country] || '') + ' ' + country },
                 { lbl: t('profile_plan'),   val: plan.toUpperCase(), gold: true },
                 { lbl: t('profile_member'), val: memberSince },
               ].map((row,i,arr) => (
@@ -378,15 +379,7 @@ export default function ProfileScreen() {
               </LinearGradient>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={s.notifBtn}
-              onPress={() => sendLocalNotification(
-                GOLZI_NOTIFICATIONS.predictionCorrect(10).title,
-                GOLZI_NOTIFICATIONS.predictionCorrect(10).body
-              )}
-            >
-              <Text style={s.notifTxt}>🔔 {t('profile_test_notif')}</Text>
-            </TouchableOpacity>
+            
 
             <TouchableOpacity style={s.logoutBtn} onPress={handleLogout}>
               <Text style={s.logoutTxt}>🚪 {t('profile_logout')}</Text>

@@ -139,7 +139,7 @@ const resources = {
       profile_country: 'Pais', profile_plan: 'Plan',
       profile_member: 'Miembro desde', profile_league: 'Liga activa',
       profile_language: 'IDIOMA', profile_change_language: 'Cambiar idioma',
-      profile_upgrade: 'MEJORAR A LIGA — $4.99/torneo',
+      profile_upgrade: 'CREA TU LIGA — DESDE $9.99',
       profile_upgrade_sub: 'Crea tus propias ligas privadas',
       profile_logout: 'Cerrar sesion', profile_test_notif: 'PROBAR NOTIFICACION', profile_tab: 'PERFIL',
       history_tab: 'HISTORIAL', badges_tab: 'BADGES',

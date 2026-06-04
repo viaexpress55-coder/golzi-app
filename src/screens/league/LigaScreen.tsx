@@ -713,7 +713,7 @@ export default function LigaScreen() {
                             <View style={s.youBadge}><Text style={s.youTxt}>TÚ</Text></View>
                           )}
                         </View>
-                        <Text style={s.memberFlag}>{m.country || '🌍'}</Text>
+                        <Image source={{uri:`https://flagcdn.com/w20/${(m.country||'un').toLowerCase()}.png`}} style={{width:20,height:14,borderRadius:2}} resizeMode="cover"/>
                       </View>
                       <View style={s.memberPtsBox}>
                         <Text style={[s.memberPts, m.id === user?.uid && { color:C.gold }]}>{m.totalPoints || 0}</Text>

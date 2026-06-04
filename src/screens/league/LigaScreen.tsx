@@ -254,9 +254,9 @@ export default function LigaScreen() {
   }
 
   async function handleCreate() {
-    if (!ligaName.trim()) { setCreateError(t('league_enter_name')); return; }
-    if (!user) { setCreateError(t('league_login_required')); return; }
-    if (!user.email) { setCreateError(t('league_need_account_create')); return; }
+    if (!ligaName.trim()) { setCreateError('Ingresa el nombre de la liga'); return; }
+    if (!user) { setCreateError('Debes iniciar sesión'); return; }
+    if (!user.email) { setCreateError('Necesitas una cuenta para crear liga'); return; }
     try {
       setCreating(true);
       setCreateError('');
@@ -264,7 +264,7 @@ export default function LigaScreen() {
       const freshPlan = (userSnap.data()?.plan || 'free').toUpperCase();
       // Validar plan
       if (freshPlan === 'FREE' || !userSnap.data()?.plan) {
-        setCreateError(t('league_need_plan'));
+        setCreateError('Necesitas un plan para crear liga');
         setCreating(false);
         return;
       }
@@ -318,7 +318,7 @@ export default function LigaScreen() {
       setTab(0);
       Alert.alert(t('league_created'), 'Codigo: ' + code);
     } catch (e) {
-      setCreateError(t('league_create_error'));
+      setCreateError('Error al crear la liga');
     } finally {
       setCreating(false);
     }
@@ -326,7 +326,7 @@ export default function LigaScreen() {
   async function handleJoin() {
     if (!joinCode.trim()) { setJoinError('Ingresa el código'); return; }
     if (!user) { setJoinError('Debes iniciar sesión'); return; }
-    if (!user.email) { setJoinError(t('league_need_account_join')); return; }
+    if (!user.email) { setJoinError('Necesitas una cuenta para unirte'); return; }
     try {
       setJoining(true);
       setJoinError('');
@@ -336,11 +336,11 @@ export default function LigaScreen() {
       const leagueDoc = snap.docs[0];
       const leagueData = leagueDoc.data();
       if (leagueData.memberIds?.includes(user.uid)) {
-        setJoinError(t('league_already_member'));
+        setJoinError('Ya eres miembro de esta liga');
         return;
       }
       if ((leagueData.memberIds?.length || 0) >= (leagueData.maxMembers || 5)) {
-        setJoinError(t('league_full'));
+        setJoinError('La liga está llena');
         return;
       }
       await updateDoc(leagueDoc.ref, {
@@ -355,7 +355,7 @@ export default function LigaScreen() {
       setTab(0);
       Alert.alert('¡Te uniste!', `Bienvenido a ${leagueData.name}`);
     } catch (e: any) {
-      setJoinError(t('league_join_error'));
+      setJoinError('Error al unirse a la liga');
     } finally {
       setJoining(false);
     }
@@ -424,7 +424,7 @@ export default function LigaScreen() {
       });
       setSelectedLeague({ ...selectedLeague, inviteOpen: newState });
     } catch (e) {
-      Alert.alert('Error', t('league_invite_error') || 'Error');
+      Alert.alert('Error', 'Error al cambiar invitaciones' || 'Error');
     } finally {
       setTogglingInvite(false);
     }
@@ -634,6 +634,7 @@ export default function LigaScreen() {
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.leagueSelector}>
                     {myLeagues.map((l,i) => (
                       <TouchableOpacity key={i} style={[s.leagueChip, selectedLeague?.id === l.id && s.leagueChipOn]} onPress={() => setSelectedLeague(l)}>
+                        <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color: l.ownerId === user?.uid ? '#FFD700' : '#6B7A99', marginTop:1 }}>{l.ownerId === user?.uid ? '\u{1F451} CREADOR' : '\u{1F39F} INVITADO'} \u00B7 {l.memberIds?.length || 0} miembros</Text>
                         <Text style={[s.leagueChipTxt, selectedLeague?.id === l.id && s.leagueChipTxtOn]}>{l.name}</Text>
                       </TouchableOpacity>
                     ))}
@@ -730,7 +731,7 @@ export default function LigaScreen() {
                         style={[s.shareBtnInner, {borderColor: selectedLeague.inviteOpen ? 'rgba(0,255,135,0.4)' : 'rgba(255,51,85,0.4)'}]}
                       >
                         <Text style={[s.shareBtnTxt, {color: selectedLeague.inviteOpen ? '#00FF87' : '#FF3355'}]}>
-                          {togglingInvite ? '...' : selectedLeague.inviteOpen ? t('league_invite_open') : t('league_invite_closed')}
+                          {togglingInvite ? '...' : selectedLeague.inviteOpen ? '✅ INVITACIONES ABIERTAS' : '🔒 INVITACIONES CERRADAS'}
                         </Text>
                       </LinearGradient>
                     </TouchableOpacity>
@@ -920,7 +921,7 @@ export default function LigaScreen() {
               )}
               <LinearGradient colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']} style={s.featCard}>
                 <Text style={s.featTitle}>⚡ PLAN {(userData?.plan || 'LIGA').toUpperCase()}</Text>
-                {['Hasta ' + getMaxMembersByPlan(userData?.plan || 'liga') + ' jugadores',t('league_ranking_realtime'),t('league_chat')].map((f,i) => (
+                {['Hasta ' + getMaxMembersByPlan(userData?.plan || 'liga') + ' jugadores','Ranking en tiempo real','Chat de liga'].map((f,i) => (
                   <View key={i} style={s.featRow}>
                     <Text style={s.featCheck}>✓</Text>
                     <Text style={s.featTxt}>{f}</Text>

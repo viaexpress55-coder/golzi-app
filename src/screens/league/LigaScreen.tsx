@@ -772,6 +772,30 @@ export default function LigaScreen() {
               </View>
             ) : (
               <>
+                {myLeagues.length > 1 && (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}
+                    style={{ paddingHorizontal:12, marginBottom:2, marginTop:4, maxHeight:52 }}
+                    contentContainerStyle={{ gap:8, flexDirection:'row' }}>
+                    {myLeagues.map((l, idx) => (
+                      <TouchableOpacity key={l.id}
+                        onPress={() => setSelectedLeague(l)}
+                        style={{
+                          paddingHorizontal:10, paddingVertical:5, borderRadius:10,
+                          borderWidth:1,
+                          backgroundColor: selectedLeague?.id === l.id ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
+                          borderColor: selectedLeague?.id === l.id ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.08)',
+                        }}>
+                        <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:12,
+                          color: selectedLeague?.id === l.id ? '#FFD700' : '#6B7A99', letterSpacing:0.5 }}>
+                          {l.name}
+                        </Text>
+                        <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:'#6B7A99', marginTop:1 }}>
+                          {l.ownerId === user?.uid ? '\u{1F451} CREADOR' : '\u{1F39F} INVITADO'} \u00B7 {l.memberIds?.length || 0}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )}
                 <ScrollView ref={chatScrollRef} style={s.chatMessages} contentContainerStyle={{ padding:12, gap:8 }} showsVerticalScrollIndicator={false}>
                   {chatMsgs.length === 0 && (
                     <View style={{ alignItems:'center', justifyContent:'center', paddingVertical:60, gap:10 }}>
@@ -785,6 +809,7 @@ export default function LigaScreen() {
                       {m.userId !== user?.uid && (
                         <View style={s.chatAvatar}>
                           <Text style={s.chatAvatarTxt}>{(m.user||'U').slice(0,1)}</Text>
+                          {(() => { const mb = members.find(mb => mb.id === m.userId); const c = (mb?.country||'').toLowerCase(); return c && c.length === 2 ? <Image source={{uri:`https://flagcdn.com/w20/${c}.png`}} style={{width:14,height:10,borderRadius:1,position:'absolute',bottom:0,right:0}} resizeMode="cover"/> : null; })()}
                         </View>
                       )}
                       <View style={[s.chatBubble, m.userId === user?.uid && s.chatBubbleMe]}>

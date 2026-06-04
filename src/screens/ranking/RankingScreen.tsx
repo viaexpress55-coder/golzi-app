@@ -76,6 +76,19 @@ function calcCountryRanking(players: any[]) {
     .sort((a, b) => b.avg - a.avg);
 }
 
+function normalizeCountry(country: string): string {
+  if (!country || country.length > 3) {
+    const nameToCode: Record<string,string> = {
+      'Venezuela':'VE','Colombia':'CO','Mexico':'MX','México':'MX',
+      'Argentina':'AR','Brasil':'BR','Chile':'CL','Peru':'PE','Perú':'PE',
+      'Ecuador':'EC','Uruguay':'UY','USA':'US','Spain':'ES','España':'ES',
+      'France':'FR','Germany':'DE','Italy':'IT','Portugal':'PT',
+    };
+    return nameToCode[country] || 'XX';
+  }
+  return country.toUpperCase();
+}
+
 // ── PodiumCard ────────────────────────────────────────────────────────────────
 function PodiumCard({ player, rank }: { player: any; rank: number }) {
   const scaleAnim = useRef(new Animated.Value(0)).current;
@@ -238,19 +251,7 @@ export default function RankingScreen() {
 
   const isPaid = userPlan !== 'free';
   const myCountry = userData?.country ?? '';
-  const normalizeCountry = (country: string): string => {
-    if (!country || country.length > 3) {
-      // Es nombre completo, buscar código
-      const nameToCode: Record<string,string> = {
-        'Venezuela':'VE','Colombia':'CO','Mexico':'MX','México':'MX',
-        'Argentina':'AR','Brasil':'BR','Chile':'CL','Peru':'PE','Perú':'PE',
-        'Ecuador':'EC','Uruguay':'UY','USA':'US','Spain':'ES','España':'ES',
-        'France':'FR','Germany':'DE','Italy':'IT','Portugal':'PT',
-      };
-      return nameToCode[country] || 'XX';
-    }
-    return country.toUpperCase();
-  };
+
   const getCountryName = (code: string) => {
     const names: Record<string,string> = {
     AF:'Afghanistan',AL:'Albania',DZ:'Algeria',AD:'Andorra',AO:'Angola',
@@ -270,7 +271,7 @@ export default function RankingScreen() {
     GY:'Guyana',HT:'Haití',HN:'Honduras',HU:'Hungría',IS:'Islandia',
     IN:'India',ID:'Indonesia',IR:'Irán',IQ:'Iraq',IE:'Irlanda',
     IL:'Israel',IT:'Italia',JM:'Jamaica',JP:'Japón',JO:'Jordania',
-    KZ:'Kazajistán',KE:'Kenia',KI:'Kiribati',KW:'Kuwait',KG:'Kirguistán',
+    KZ:'Kazajistán',KE:'Kenia',KI:'Kiribati',KP:'Corea del Norte',KR:'Corea del Sur',KW:'Kuwait',KG:'Kirguistán',
     LA:'Laos',LV:'Letonia',LB:'Líbano',LS:'Lesoto',LR:'Liberia',
     LY:'Libia',LI:'Liechtenstein',LT:'Lituania',LU:'Luxemburgo',MG:'Madagascar',
     MW:'Malaui',MY:'Malasia',MV:'Maldivas',ML:'Malí',MT:'Malta',
@@ -505,7 +506,7 @@ export default function RankingScreen() {
                       {player.plan === 'PRO' && <LinearGradient colors={[C.gold,C.gold2]} style={s.proBadgeSmall}><Text style={s.proBadgeSmallTxt}>PRO</Text></LinearGradient>}
                     </View>
                     <View style={s.playerSubRow}>
-                      <Text style={s.playerFlag}><Image source={{uri:`https://flagcdn.com/w20/${normalizeCountry(player.country).toLowerCase()}.png`}} style={{width:20,height:14,borderRadius:2}} resizeMode="cover"/></Text>
+                      <Image source={{uri:`https://flagcdn.com/w20/${normalizeCountry(player.country).toLowerCase()}.png`}} style={{width:20,height:14,borderRadius:2}} resizeMode="cover"/>
                       <Text style={s.playerExact}>{player.exact} {t('profile_exact')}</Text>
                       {player.streak > 0 && <Text style={s.playerStreak}>🔥 {player.streak}</Text>}
                     </View>

@@ -182,6 +182,8 @@ export default function RankingScreen() {
   const [tab, setTab]           = useState(0);
   const [globalData, setGlobalData] = useState<any[]>([]);
   const [leagueData, setLeagueData] = useState<any[]>([]);
+  const [allLeagues, setAllLeagues] = useState<any[]>([]);
+  const [selectedLeagueIdx, setSelectedLeagueIdx] = useState(0);
   const [loadingRanking, setLoadingRanking] = useState(true);
   const [userPlan, setUserPlan] = useState<string>('free');
   const [userData, setUserData] = useState<any>(null);
@@ -206,19 +208,34 @@ export default function RankingScreen() {
   useEffect(() => {
     getDocs(query(collection(db, 'leagues'), where('memberIds', 'array-contains', getAuth().currentUser?.uid || '')))
       .then(async leagueSnap => {
+        console.log('🏆 Ligas encontradas:', leagueSnap.size);
         if (!leagueSnap.empty) {
-          const league = leagueSnap.docs[0].data();
-          const memberIds: string[] = league.memberIds || [];
-          const memberSnaps = await Promise.all(memberIds.map((uid: string) => 
-            getDocs(query(collection(db, 'users'), where('userId', '==', uid)))
-          ));
-          const members = memberSnaps.flatMap(snap => snap.docs.map(d => ({
-            id: d.id, username: d.data().username || 'Golzaire',
-            country: d.data().country || 'CO', pts: d.data().totalPoints || 0,
-            exact: 0, plan: d.data().plan || 'free',
-            streak: d.data().currentStreak || 0, isMe: d.id === (getAuth().currentUser?.uid || ''),
-          })));
-          setLeagueData(members);
+          const currentUid = getAuth().currentUser?.uid || '';
+          const leaguesInfo: any[] = [];
+          for (const leagueDoc of leagueSnap.docs) {
+            const league = leagueDoc.data();
+            const memberIds: string[] = league.memberIds || [];
+            const memberSnaps = await Promise.all(memberIds.map((uid: string) =>
+              getDoc(doc(db, 'users', uid))
+            ));
+            const members = memberSnaps
+              .filter(snap => snap.exists())
+              .map(snap => ({
+                id: snap.id, username: snap.data()?.username || 'Golzaire',
+                country: snap.data()?.country || 'CO', pts: snap.data()?.totalPoints || 0,
+                exact: 0, plan: snap.data()?.plan || 'free',
+                streak: snap.data()?.currentStreak || 0, isMe: snap.id === currentUid,
+              }));
+            leaguesInfo.push({
+              id: leagueDoc.id,
+              name: league.name || 'Mi Liga',
+              isOwner: league.ownerId === currentUid,
+              memberCount: memberIds.length,
+              members,
+            });
+          }
+          setAllLeagues(leaguesInfo);
+          setLeagueData(leaguesInfo[0]?.members || []);
         }
       }).catch(() => {});
     getDocs(query(collection(db, 'users'), orderBy('totalPoints', 'desc'), limit(500)))
@@ -455,13 +472,39 @@ export default function RankingScreen() {
               </View>
             )}
 
-            {/* Label tab Liga */}
+            {/* Label tab Liga + selector */}
             {tab === 1 && (
-              <View style={[s.divider, { marginTop:8 }]}>
-                <View style={s.dividerLine} />
-                <Text style={s.dividerTxt}>🏆 LOS GOLZAIRES</Text>
-                <View style={s.dividerLine} />
-              </View>
+              <>
+                {allLeagues.length > 1 && (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}
+                    style={{ paddingHorizontal:12, marginTop:8, marginBottom:4 }}
+                    contentContainerStyle={{ gap:8, flexDirection:'row' }}>
+                    {allLeagues.map((lg, idx) => (
+                      <TouchableOpacity key={lg.id}
+                        onPress={() => { setSelectedLeagueIdx(idx); setLeagueData(lg.members); }}
+                        style={{
+                          paddingHorizontal:14, paddingVertical:8, borderRadius:12,
+                          borderWidth:1,
+                          backgroundColor: selectedLeagueIdx === idx ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
+                          borderColor: selectedLeagueIdx === idx ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.08)',
+                        }}>
+                        <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:12,
+                          color: selectedLeagueIdx === idx ? '#FFD700' : '#6B7A99', letterSpacing:0.5 }}>
+                          {lg.name}
+                        </Text>
+                        <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:'#6B7A99', marginTop:1 }}>
+                          {lg.isOwner ? '👑 CREADOR' : '🎟 INVITADO'} · {lg.memberCount} miembros
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )}
+                <View style={[s.divider, { marginTop:8 }]}>
+                  <View style={s.dividerLine} />
+                  <Text style={s.dividerTxt}>🏆 {allLeagues[selectedLeagueIdx]?.name || 'MI LIGA'}</Text>
+                  <View style={s.dividerLine} />
+                </View>
+              </>
             )}
 
             {/* Label tab País */}
@@ -522,6 +565,19 @@ export default function RankingScreen() {
             {/* PAYWALL — solo en tab Global */}
             {tab === 0 && !isPaid && globalHidden.length > 0 && (
               <PaywallBanner hiddenCount={globalHidden.length} onUnlock={() => navigation.navigate('Plans')} />
+            )}
+
+            {/* Empty state tab liga */}
+            {tab === 1 && allLeagues.length === 0 && (
+              <View style={{ alignItems:'center', paddingVertical:40, gap:10 }}>
+                <Text style={{ fontSize:40 }}>🏆</Text>
+                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#6B7A99' }}>
+                  No estás en ninguna liga
+                </Text>
+                <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#6B7A99', textAlign:'center' }}>
+                  Únete o crea una liga para ver el ranking
+                </Text>
+              </View>
             )}
 
             {/* Empty state para tab país */}

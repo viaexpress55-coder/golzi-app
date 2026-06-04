@@ -281,7 +281,7 @@ export default function RankingScreen() {
   const countryRest   = countrySorted.slice(3);
 
   // Tab 3 — Ranking de países
-  const countryRanking = calcCountryRanking(globalData.length > 0 ? globalData : []);
+  const countryRanking = calcCountryRanking((globalData.length > 0 ? globalData : []).filter(p => p.country && p.country.length === 2));
 
   // Me
   const me     = globalSorted.find(p => p.isMe);

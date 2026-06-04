@@ -1,0 +1,19 @@
+const fs = require('fs');
+let ranking = fs.readFileSync('src/screens/ranking/RankingScreen.tsx', 'utf8');
+
+const loopIdx = ranking.indexOf('for (const p of players)');
+const loopEnd = ranking.indexOf('}', ranking.indexOf('exact ?? 0', loopIdx)) + 1;
+
+console.log('Loop:', ranking.substring(loopIdx, loopEnd));
+
+const newLoop = `for (const p of players) {
+    const countryKey = normalizeCountry(p.country);
+    if (!map[countryKey]) map[countryKey] = { country: countryKey, total: 0, count: 0, exact: 0 };
+    map[countryKey].total += p.pts;
+    map[countryKey].count += 1;
+    map[countryKey].exact += p.exact ?? 0;
+  }`;
+
+ranking = ranking.slice(0, loopIdx) + newLoop + ranking.slice(loopEnd);
+fs.writeFileSync('src/screens/ranking/RankingScreen.tsx', ranking);
+console.log('OK:', ranking.includes('countryKey'));

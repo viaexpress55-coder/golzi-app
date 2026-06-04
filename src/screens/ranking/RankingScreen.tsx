@@ -168,6 +168,7 @@ export default function RankingScreen() {
   const TABS = [t('ranking_global'), t('ranking_league'), t('ranking_country'), t('ranking_paises')];
   const [tab, setTab]           = useState(0);
   const [globalData, setGlobalData] = useState<any[]>([]);
+  const [leagueData, setLeagueData] = useState<any[]>([]);
   const [loadingRanking, setLoadingRanking] = useState(true);
   const [userPlan, setUserPlan] = useState<string>('free');
   const [userData, setUserData] = useState<any>(null);
@@ -190,6 +191,23 @@ export default function RankingScreen() {
   }, []);
 
   useEffect(() => {
+    getDocs(query(collection(db, 'leagues'), where('memberIds', 'array-contains', getAuth().currentUser?.uid || '')))
+      .then(async leagueSnap => {
+        if (!leagueSnap.empty) {
+          const league = leagueSnap.docs[0].data();
+          const memberIds: string[] = league.memberIds || [];
+          const memberSnaps = await Promise.all(memberIds.map((uid: string) => 
+            getDocs(query(collection(db, 'users'), where('userId', '==', uid)))
+          ));
+          const members = memberSnaps.flatMap(snap => snap.docs.map(d => ({
+            id: d.id, username: d.data().username || 'Golzaire',
+            country: d.data().country || 'CO', pts: d.data().totalPoints || 0,
+            exact: 0, plan: d.data().plan || 'free',
+            streak: d.data().currentStreak || 0, isMe: d.id === (getAuth().currentUser?.uid || ''),
+          })));
+          setLeagueData(members);
+        }
+      }).catch(() => {});
     getDocs(query(collection(db, 'users'), orderBy('totalPoints', 'desc'), limit(500)))
       .then(snap => {
         const users = snap.docs.map(d => ({
@@ -220,6 +238,28 @@ export default function RankingScreen() {
 
   const isPaid = userPlan !== 'free';
   const myCountry = userData?.country ?? '';
+  const normalizeCountry = (country: string): string => {
+    if (!country || country.length > 3) {
+      // Es nombre completo, buscar código
+      const nameToCode: Record<string,string> = {
+        'Venezuela':'VE','Colombia':'CO','Mexico':'MX','México':'MX',
+        'Argentina':'AR','Brasil':'BR','Chile':'CL','Peru':'PE','Perú':'PE',
+        'Ecuador':'EC','Uruguay':'UY','USA':'US','Spain':'ES','España':'ES',
+        'France':'FR','Germany':'DE','Italy':'IT','Portugal':'PT',
+      };
+      return nameToCode[country] || 'XX';
+    }
+    return country.toUpperCase();
+  };
+  const getCountryName = (code: string) => {
+    const names: Record<string,string> = {
+      CO:'Colombia',MX:'México',AR:'Argentina',BR:'Brasil',CL:'Chile',
+      VE:'Venezuela',PE:'Perú',EC:'Ecuador',UY:'Uruguay',US:'USA',
+      ES:'España',FR:'Francia',DE:'Alemania',IT:'Italia',GB:'Reino Unido',
+      JP:'Japón',KR:'Corea',CN:'China',IN:'India',NG:'Nigeria',CA:'Canadá',
+    };
+    return names[code] || code;
+  };
 
   // ── Datos según tab ───────────────────────────────────────────────────────
   const globalSorted = globalData.length > 0 ? [...globalData].sort((a,b) => b.pts - a.pts) : [];
@@ -231,7 +271,7 @@ export default function RankingScreen() {
   const globalHidden  = isPaid ? [] : globalRest.slice(FREE_RANK_LIMIT - 3);
 
   // Tab 1 — Liga privada
-  const leagueSorted  = [...MOCK_LEAGUE].sort((a,b) => b.pts - a.pts);
+  const leagueSorted  = [...(leagueData.length > 0 ? leagueData : [])].sort((a,b) => b.pts - a.pts);
   const leagueTop3    = leagueSorted.slice(0,3);
   const leagueRest    = leagueSorted.slice(3);
 
@@ -333,7 +373,7 @@ export default function RankingScreen() {
               const isMyCountry = c.country === myCountry;
               return (
                 <LinearGradient
-                  key={c.country}
+                  key={getCountryName(c.country)}
                   colors={isMyCountry
                     ? ['rgba(255,215,0,0.12)','rgba(255,215,0,0.04)']
                     : isTop3
@@ -343,10 +383,10 @@ export default function RankingScreen() {
                   style={[s.playerRow, isMyCountry && s.playerRowMe]}
                 >
                   <Text style={[s.rankNum, { fontSize:18 }]}>{medals[idx] || idx+1}</Text>
-                  <Text style={{ fontSize:32 }}>{c.country}</Text>
+                  <Image source={{uri:`https://flagcdn.com/w40/${normalizeCountry(c.country).toLowerCase()}.png`}} style={{width:40,height:28,borderRadius:3}} resizeMode="cover"/>
                   <View style={s.playerInfo}>
                     <Text style={[s.playerName, isMyCountry && { color:C.gold }]}>
-                      {c.country} {isMyCountry ? '← TÚ' : ''}
+                      {getCountryName(c.country)} {isMyCountry ? '← TÚ' : ''}
                     </Text>
                     <Text style={s.playerExact}>{c.count} Golzaires · {c.exact} exactas</Text>
                   </View>

@@ -129,6 +129,38 @@ export default function MundialScreen() {
     loadMatches();
   }, []);
 
+
+  // ── Calcular posiciones desde matches ────────────────────────────────────────
+  function calcStandings(groupName: string) {
+    const groupMatches = matches.filter(m =>
+      (m.group === groupName || m.group === 'Grupo ' + groupName) &&
+      m.round === 'group_stage' &&
+      (m.status === 'FINISHED' || m.status === 'finished') &&
+      m.homeScore !== null && m.awayScore !== null
+    );
+    const stats: Record<string, { pj:number; g:number; e:number; p:number; gf:number; gc:number; pts:number; name:string; flag:string }> = {};
+    const g = GROUPS.find(gr => gr.name === groupName || 'Grupo ' + gr.name === groupName);
+    if (g) g.teams.forEach(t => {
+      stats[t.name] = { pj:0, g:0, e:0, p:0, gf:0, gc:0, pts:0, name:t.name, flag:t.flag };
+    });
+    groupMatches.forEach(m => {
+      const h = m.homeTeam; const a = m.awayTeam;
+      const hs = Number(m.homeScore); const as = Number(m.awayScore);
+      if (!stats[h]) stats[h] = { pj:0, g:0, e:0, p:0, gf:0, gc:0, pts:0, name:h, flag:m.homeFlag||'' };
+      if (!stats[a]) stats[a] = { pj:0, g:0, e:0, p:0, gf:0, gc:0, pts:0, name:a, flag:m.awayFlag||'' };
+      stats[h].pj++; stats[a].pj++;
+      stats[h].gf += hs; stats[h].gc += as;
+      stats[a].gf += as; stats[a].gc += hs;
+      if (hs > as) { stats[h].g++; stats[h].pts+=3; stats[a].p++; }
+      else if (hs < as) { stats[a].g++; stats[a].pts+=3; stats[h].p++; }
+      else { stats[h].e++; stats[h].pts++; stats[a].e++; stats[a].pts++; }
+    });
+    return Object.values(stats).sort((a,b) =>
+      b.pts - a.pts || (b.gf-b.gc) - (a.gf-a.gc) || b.gf - a.gf
+    );
+  }
+
+
   const TABS = [t('mundial_groups'), t('mundial_fixture'), t('mundial_teams')];
 
   const [fontsLoaded] = useFonts({
@@ -227,12 +259,12 @@ export default function MundialScreen() {
                         <Image source={{ uri: `https://flagcdn.com/w40/${getFlagCode(team.flag)}.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
                         <Text style={s.tdName}>{team.name}</Text>
                       </View>
-                      <Text style={s.td}>0</Text>
-                      <Text style={s.td}>0</Text>
-                      <Text style={s.td}>0</Text>
-                      <Text style={s.td}>0</Text>
-                      <Text style={s.td}>0</Text>
-                      <Text style={[s.td, { color, fontFamily:'BebasNeue_400Regular', fontSize:14 }]}>0</Text>
+                      <Text style={s.td}>{calcStandings(g.name).find(st=>st.name===team.name)?.pj ?? 0}</Text>
+                      <Text style={s.td}>{calcStandings(g.name).find(st=>st.name===team.name)?.g ?? 0}</Text>
+                      <Text style={s.td}>{calcStandings(g.name).find(st=>st.name===team.name)?.e ?? 0}</Text>
+                      <Text style={s.td}>{calcStandings(g.name).find(st=>st.name===team.name)?.p ?? 0}</Text>
+                      <Text style={s.td}>{(calcStandings(g.name).find(st=>st.name===team.name)?.gf??0)-(calcStandings(g.name).find(st=>st.name===team.name)?.gc??0)}</Text>
+                      <Text style={[s.td, { color, fontFamily:'BebasNeue_400Regular', fontSize:14 }]}>{calcStandings(g.name).find(st=>st.name===team.name)?.pts ?? 0}</Text>
                     </View>
                   ))}
                   <View style={s.classifyLegend}>

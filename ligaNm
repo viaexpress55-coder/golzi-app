@@ -1,0 +1,28 @@
+const fs = require('fs');
+const path = require('path');
+
+const indexPath = path.join(__dirname, 'dist', 'index.html');
+let html = fs.readFileSync(indexPath, 'utf8');
+
+// Inject SPA redirect script
+const spaScript = `<script>
+  (function() {
+    var redirect = sessionStorage.getItem('spa_redirect');
+    if (redirect) {
+      sessionStorage.removeItem('spa_redirect');
+      window.history.replaceState(null, null, redirect);
+    }
+    var pending = localStorage.getItem('pending_invite');
+    if (pending) {
+      console.log('[SPA] pending_invite found:', pending);
+    }
+  })();
+</script>`;
+
+if (!html.includes('spa_redirect')) {
+  html = html.replace('<head>', '<head>' + spaScript);
+  fs.writeFileSync(indexPath, html, 'utf8');
+  console.log('✅ fix_spa.js aplicado a dist/index.html');
+} else {
+  console.log('ℹ️  SPA script ya presente');
+}

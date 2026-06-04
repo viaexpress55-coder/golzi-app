@@ -46,3 +46,4 @@ service-account.json
 serviceAccountKey.json.json 
 
 functions/.env
+firebase-service-account.json 

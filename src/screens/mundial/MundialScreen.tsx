@@ -195,7 +195,7 @@ export default function MundialScreen() {
       {/* TABS */}
       <View style={s.tabRow}>
         {TABS.map((tabName,i) => (
-          <TouchableOpacity key={i} style={[s.tab, tab===i && s.tabOn]} onPress={() => setTab(i)}>
+          <TouchableOpacity key={i} style={[s.tab, tab===i && s.tabOn]} onPress={() => { setTab(i); if (i === 2) setSelGroup(null); }}>
             <Text style={[s.tabTxt, tab===i && s.tabTxtOn]}>{tabName}</Text>
           </TouchableOpacity>
         ))}

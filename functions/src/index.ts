@@ -21,3 +21,4 @@ export { createWompiPayment }      from './payments/createWompiPayment';
  
 export { wompiWebhook }       from './payments/wompiWebhook'; 
 export { wompiWebhookRouter } from './payments/wompiWebhookRouter';
+export { syncMatchResults } from './matches/syncMatchResults';

@@ -98,7 +98,7 @@ function PodiumCard({ player, rank }: { player: any; rank: number }) {
       {player.plan === 'PRO' && (
         <LinearGradient colors={[C.gold,C.gold2]} style={s.proBadge}><Text style={s.proBadgeTxt}>PRO</Text></LinearGradient>
       )}
-      <Text style={s.podiumFlag}>{player.country}</Text>
+      <Image source={{uri:`https://flagcdn.com/w40/${normalizeCountry(player.country).toLowerCase()}.png`}} style={{width:32,height:22,borderRadius:3,marginBottom:4}} resizeMode="cover"/>
       <Text style={s.podiumName} numberOfLines={1}>{player.username?.includes('@') ? player.username.split('@')[0] : player.username}</Text>
       <Text style={[s.podiumPts,{ color:medalColor }]}>{player.pts}</Text>
       <Text style={s.podiumPtsLbl}>PTS</Text>
@@ -505,7 +505,7 @@ export default function RankingScreen() {
                       {player.plan === 'PRO' && <LinearGradient colors={[C.gold,C.gold2]} style={s.proBadgeSmall}><Text style={s.proBadgeSmallTxt}>PRO</Text></LinearGradient>}
                     </View>
                     <View style={s.playerSubRow}>
-                      <Text style={s.playerFlag}>{player.country}</Text>
+                      <Text style={s.playerFlag}><Image source={{uri:`https://flagcdn.com/w20/${normalizeCountry(player.country).toLowerCase()}.png`}} style={{width:20,height:14,borderRadius:2}} resizeMode="cover"/></Text>
                       <Text style={s.playerExact}>{player.exact} {t('profile_exact')}</Text>
                       {player.streak > 0 && <Text style={s.playerStreak}>🔥 {player.streak}</Text>}
                     </View>

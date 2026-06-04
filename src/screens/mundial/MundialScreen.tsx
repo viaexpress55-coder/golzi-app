@@ -224,7 +224,7 @@ export default function MundialScreen() {
                       i === g.teams.length-1 && { borderBottomWidth:0 }
                     ]}>
                       <View style={[s.tdTeam, { flex:2 }]}>
-                        <Text style={s.tdFlag}>{team.flag}</Text>
+                        <Image source={{ uri: `https://flagcdn.com/w40/${getFlagCode(team.flag)}.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
                         <Text style={s.tdName}>{team.name}</Text>
                       </View>
                       <Text style={s.td}>0</Text>

@@ -73,7 +73,7 @@ const B2B_PLANS = [
   {
     id:'golziplus', emoji:'💎', name:'GOLZI PREMIUM', price:'Custom', originalPrice:null,
     users:5000, perUser:'~$0.30', saving:'85%', color:C.purple, popular:false,
-    features:['Todo lo del plan GOLD+','5,000+ participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Precio según volumen y necesidades','Implementación personalizada','Gerente de cuenta dedicado','SLA garantizado','Contrato y facturación empresarial'],
+    features:['Todo lo del plan GOLD+','5,000+ participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Precio según volumen y necesidades','Implementación personalizada','Gerente de cuenta dedicado','Atención prioritaria sin límite de tiempo','Contrato y facturación empresarial'],
     cta:'HABLAR CON VENTAS',
   },
 ];

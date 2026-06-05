@@ -55,25 +55,25 @@ const B2B_PLANS = [
   {
     id:'partner', emoji:'🤝', name:'PARTNER', price:'$349.99', originalPrice:'$449.99',
     users:500, perUser:'$0.70', saving:'22%', color:C.gold, popular:false,
-    features:['Todo lo del plan GOLZAIR+','Hasta 500 participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Dashboard de gestión completo','Estadísticas avanzadas','Ranking en pantallas del local','Sin anuncios · Soporte prioritario'],
+    features:['Todo lo del plan GOLZAIR+','Hasta 500 participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Dashboard de gestión completo','Estadísticas avanzadas','Pantalla TV · golzi.app/tv/tu-liga en tiempo real','Sin anuncios · Soporte prioritario'],
     cta:'CREAR LIGAS',
   },
   {
     id:'business', emoji:'🏢', name:'BUSINESS', price:'$499.99', originalPrice:'$649.99',
     users:1000, perUser:'$0.50', saving:'23%', color:C.cyan, popular:true,
-    features:['Todo lo del plan PARTNER+','Hasta 1,000 participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Branding de empresa en la liga','Soporte dedicado','Torneos internos personalizados','Ranking en múltiples pantallas','Sin anuncios · Soporte prioritario'],
+    features:['Todo lo del plan PARTNER+','Hasta 1,000 participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Branding de empresa en la liga','Soporte dedicado','Torneos internos personalizados','Pantalla TV · Ranking en múltiples pantallas del negocio','Sin anuncios · Soporte prioritario'],
     cta:'CREAR LIGAS',
   },
   {
     id:'gold', emoji:'👑', name:'GOLD', price:'$999.99', originalPrice:'$1,299.99',
     users:2500, perUser:'$0.40', saving:'80%', color:C.gold, popular:false,
-    features:['Todo lo del plan BUSINESS+','Hasta 2,500 participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Branding propio completo','Torneos públicos propios','Soporte prioritario','Acceso prioritario a nuevas funciones','Eventos masivos y activaciones'],
+    features:['Todo lo del plan BUSINESS+','Hasta 2,500 participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Branding propio completo','Torneos públicos propios','Soporte prioritario','Pantalla TV · Ranking + En vivo en tus pantallas','Eventos masivos y activaciones'],
     cta:'HABLAR CON VENTAS',
   },
   {
     id:'golziplus', emoji:'💎', name:'GOLZI PREMIUM', price:'Custom', originalPrice:null,
     users:5000, perUser:'~$0.30', saving:'85%', color:C.purple, popular:false,
-    features:['Todo lo del plan GOLD+','5,000+ participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Precio según volumen y necesidades','Implementación personalizada','Gerente de cuenta dedicado','Atención prioritaria sin límite de tiempo','Contrato y facturación empresarial'],
+    features:['Todo lo del plan GOLD+','5,000+ participantes','Múltiples ligas privadas','QR + Token de invitación','Link de invitación','Canal de difusión · Promociones y anuncios a toda tu comunidad','Precio según volumen y necesidades','Implementación personalizada','Pantalla TV personalizada · Branding completo','Atención prioritaria sin límite de tiempo','Contrato y facturación empresarial'],
     cta:'HABLAR CON VENTAS',
   },
 ];

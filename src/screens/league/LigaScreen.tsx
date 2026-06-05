@@ -10,6 +10,7 @@ import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { useTranslation } from 'react-i18next';
 import { functions, db } from '../../services/firebase';
+import BroadcastChannel from './BroadcastChannel';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
@@ -28,6 +29,7 @@ const C = {
 
 // Planes que tienen acceso a la Tabla de predicciones del grupo
 const TABLA_PLANS = ['MASTER','GOLZAIR','PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
+const BROADCAST_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 
 // Planes que tienen acceso al QR de invitación
 const QR_PLANS = ['GOLZAIR','PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
@@ -432,8 +434,13 @@ export default function LigaScreen() {
 
   // ─── Tabs dinámicos ──────────────────────────────────────────────────────────
   const hasTabla = TABLA_PLANS.includes((selectedLeague?.plan || '').toUpperCase());
-  const TABS = hasTabla
+  const hasBroadcast = BROADCAST_PLANS.includes((selectedLeague?.plan||'').toUpperCase());
+  const TABS = hasTabla && hasBroadcast
+    ? ['MI LIGA', 'CHAT', 'CANAL', 'UNIRSE', 'CREAR', 'TABLA']
+    : hasTabla
     ? ['MI LIGA', 'CHAT', 'UNIRSE', 'CREAR', 'TABLA']
+    : hasBroadcast
+    ? ['MI LIGA', 'CHAT', 'CANAL', 'UNIRSE', 'CREAR']
     : ['MI LIGA', 'CHAT', 'UNIRSE', 'CREAR'];
 
   if (!fontsLoaded) return <View style={s.root} />;
@@ -595,7 +602,7 @@ export default function LigaScreen() {
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
         {/* TAB 0 — MI LIGA */}
-        {tab === 0 && (
+        {tab === TABS.indexOf('MI LIGA') && (
           <View style={s.tabContent}>
             {loading ? (
               <ActivityIndicator color={C.gold} style={{ marginTop: 40 }} />
@@ -761,8 +768,19 @@ export default function LigaScreen() {
           </View>
         )}
 
+        {/* TAB CANAL — Canal de Difusión PARTNER+ */}
+        {tab === TABS.indexOf('CANAL') && TABS.includes('CANAL') && selectedLeague && (
+          <BroadcastChannel
+            ligaId={selectedLeague.id}
+            userPlan={(selectedLeague.plan||'free').toLowerCase()}
+            userId={user?.uid||''}
+            userName={user?.displayName || user?.email?.split('@')[0] || 'Admin'}
+            isAdmin={selectedLeague.ownerId === user?.uid}
+          />
+        )}
+
         {/* TAB 1 — CHAT */}
-        {tab === 1 && (
+        {tab === TABS.indexOf('CHAT') && (
           <View style={s.chatContainer}>
             {!selectedLeague ? (
               <View style={s.emptyBox}>
@@ -839,7 +857,7 @@ export default function LigaScreen() {
         )}
 
         {/* TAB 2 — UNIRSE */}
-        {tab === 2 && (
+        {tab === TABS.indexOf('UNIRSE') && (
           <View style={s.tabContent}>
             <View style={s.formCard}>
               <Text style={s.formEyebrow}>GOLZI · MUNDIAL 2026</Text>
@@ -888,7 +906,7 @@ export default function LigaScreen() {
         )}
 
         {/* TAB 3 — CREAR */}
-        {tab === 3 && (
+        {tab === TABS.indexOf('CREAR') && (
           <View style={s.tabContent}>
             <View style={s.formCard}>
               <Text style={s.formEyebrow}>GOLZI · MUNDIAL 2026</Text>
@@ -968,7 +986,7 @@ export default function LigaScreen() {
         )}
 
         {/* TAB 4 — TABLA DE PREDICCIONES (solo MASTER+) */}
-        {tab === 4 && (
+        {tab === TABS.indexOf('TABLA') && (
           <View style={s.tabContent}>
             {!selectedLeague ? (
               <View style={s.emptyBox}>

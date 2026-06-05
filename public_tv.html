@@ -153,7 +153,15 @@ async function loadLeague() {
       return;
     }
     const liga = snap.docs[0].data();
-    document.getElementById('leagueName').textContent = liga.name || 'GOLZI CUP';
+    document.getElementById('leagueName').textContent = liga.brandName || liga.name || 'GOLZI CUP';
+    if (liga.brandLogo) {
+      const logoEl = document.getElementById('headerLogo');
+      if (logoEl) logoEl.src = liga.brandLogo;
+    }
+    if (liga.brandColor) {
+      document.documentElement.style.setProperty('--brand-color', liga.brandColor);
+      document.getElementById('leagueName').style.color = liga.brandColor;
+    }
     
     // Cargar miembros con puntos
     const membersSnap = await getDocs(collection(db, 'leagues', snap.docs[0].id, 'members'));

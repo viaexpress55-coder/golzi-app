@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { functions, db } from '../../services/firebase';
 import BroadcastChannel from './BroadcastChannel';
 import DashboardScreen from './DashboardScreen';
+import BrandingScreen from './BrandingScreen';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
@@ -32,6 +33,7 @@ const C = {
 const TABLA_PLANS = ['MASTER','GOLZAIR','PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 const BROADCAST_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 const DASHBOARD_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
+const BRANDING_PLANS = ['BUSINESS','GOLD','GOLZI PREMIUM'];
 const TV_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 
 // Planes que tienen acceso al QR de invitación
@@ -138,6 +140,12 @@ export default function LigaScreen() {
     const unsub = onSnapshot(q, snap => {
       const leagues = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setMyLeagues(leagues);
+      // Actualizar selectedLeague en tiempo real (branding, status, etc.)
+      setSelectedLeague((prev: any) => {
+        if (!prev) return leagues[0] || null;
+        const updated = leagues.find((l: any) => l.id === prev.id);
+        return updated || prev;
+      });
       if (leagues.length > 0 && !selectedLeague) setSelectedLeague(leagues[0]);
       setLoading(false);
     });
@@ -454,10 +462,12 @@ export default function LigaScreen() {
   const hasTabla = TABLA_PLANS.includes((selectedLeague?.plan || '').toUpperCase());
   const hasBroadcast = BROADCAST_PLANS.includes((selectedLeague?.plan||'').toUpperCase());
   const hasDashboard = DASHBOARD_PLANS.includes((selectedLeague?.plan||'').toUpperCase()) && selectedLeague?.ownerId === user?.uid;
+  const hasBranding = BRANDING_PLANS.includes((selectedLeague?.plan||'').toUpperCase()) && selectedLeague?.ownerId === user?.uid;
   const TABS = (() => {
     const base = ['MI LIGA', 'CHAT'];
     if (hasBroadcast) base.push('CANAL');
     if (hasDashboard) base.push('DASHBOARD');
+    if (hasBranding) base.push('BRANDING');
     base.push('UNIRSE', 'CREAR');
     if (hasTabla) base.push('TABLA');
     return base;
@@ -724,12 +734,13 @@ export default function LigaScreen() {
                 )}
 
                 {selectedLeague && (
-                  <View style={s.ligaHero}>
-                    <LinearGradient colors={['rgba(255,215,0,0.12)','rgba(255,215,0,0.03)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFill} />
-                    <View style={s.heroTopLine} />
+                  <View style={[s.ligaHero, selectedLeague.brandColor && {borderColor: selectedLeague.brandColor + '60'}]}>
+                    <LinearGradient colors={[selectedLeague.brandColor ? selectedLeague.brandColor + '20' : 'rgba(255,215,0,0.12)', selectedLeague.brandColor ? selectedLeague.brandColor + '05' : 'rgba(255,215,0,0.03)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFill} />
+                    <View style={[s.heroTopLine, {backgroundColor: selectedLeague.brandColor || '#FFD700'}]} />
                     <View style={s.ligaHeroTop}>
                       <View style={{ flex:1 }}>
-                        <Text style={s.ligaName}>{selectedLeague.name}</Text>
+                        {selectedLeague.brandLogo && <Image source={{uri:selectedLeague.brandLogo}} style={{width:28,height:28,borderRadius:14,borderWidth:1.5,borderColor:selectedLeague.brandColor||'#FFD700',marginBottom:4}}/>}
+                        <Text style={s.ligaName}>{selectedLeague.brandName ? selectedLeague.brandName + ' · ' : ''}{selectedLeague.name}</Text>
                         <Text style={s.ligaInfo}>{members.length}/{selectedLeague.maxMembers || 5} jugadores · Plan {selectedLeague.plan}</Text>
                       </View>
                       {/* QR real para GOLZAIR+ / placeholder para el resto */}
@@ -860,6 +871,16 @@ export default function LigaScreen() {
             ligaId={selectedLeague.id}
             ligaName={selectedLeague.name}
             ligaCode={selectedLeague.code}
+            ligaPlan={selectedLeague.plan || 'free'}
+            ownerId={selectedLeague.ownerId}
+            userId={user?.uid || ''}
+          />
+        )}
+
+        {/* TAB BRANDING — Personalización BUSINESS+ */}
+        {tab === TABS.indexOf('BRANDING') && TABS.includes('BRANDING') && selectedLeague && (
+          <BrandingScreen
+            ligaId={selectedLeague.id}
             ligaPlan={selectedLeague.plan || 'free'}
             ownerId={selectedLeague.ownerId}
             userId={user?.uid || ''}

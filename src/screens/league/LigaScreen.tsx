@@ -11,6 +11,7 @@ import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondense
 import { useTranslation } from 'react-i18next';
 import { functions, db } from '../../services/firebase';
 import BroadcastChannel from './BroadcastChannel';
+import DashboardScreen from './DashboardScreen';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
@@ -30,6 +31,7 @@ const C = {
 // Planes que tienen acceso a la Tabla de predicciones del grupo
 const TABLA_PLANS = ['MASTER','GOLZAIR','PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 const BROADCAST_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
+const DASHBOARD_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 const TV_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 
 // Planes que tienen acceso al QR de invitación
@@ -310,6 +312,7 @@ export default function LigaScreen() {
           return getMaxMembersByPlan(freshPlan);
         })(),
         createdAt: serverTimestamp(),
+        status: 'active',
         inviteLink: 'https://golzi.app/liga/' + code,
       });
       await setDoc(doc(db, 'leagues', leagueRef.id, 'members', user.uid), {
@@ -450,13 +453,15 @@ export default function LigaScreen() {
   // ─── Tabs dinámicos ──────────────────────────────────────────────────────────
   const hasTabla = TABLA_PLANS.includes((selectedLeague?.plan || '').toUpperCase());
   const hasBroadcast = BROADCAST_PLANS.includes((selectedLeague?.plan||'').toUpperCase());
-  const TABS = hasTabla && hasBroadcast
-    ? ['MI LIGA', 'CHAT', 'CANAL', 'UNIRSE', 'CREAR', 'TABLA']
-    : hasTabla
-    ? ['MI LIGA', 'CHAT', 'UNIRSE', 'CREAR', 'TABLA']
-    : hasBroadcast
-    ? ['MI LIGA', 'CHAT', 'CANAL', 'UNIRSE', 'CREAR']
-    : ['MI LIGA', 'CHAT', 'UNIRSE', 'CREAR'];
+  const hasDashboard = DASHBOARD_PLANS.includes((selectedLeague?.plan||'').toUpperCase()) && selectedLeague?.ownerId === user?.uid;
+  const TABS = (() => {
+    const base = ['MI LIGA', 'CHAT'];
+    if (hasBroadcast) base.push('CANAL');
+    if (hasDashboard) base.push('DASHBOARD');
+    base.push('UNIRSE', 'CREAR');
+    if (hasTabla) base.push('TABLA');
+    return base;
+  })();
 
   if (!fontsLoaded) return <View style={s.root} />;
 
@@ -616,6 +621,13 @@ export default function LigaScreen() {
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
+        {/* Indicador liga cerrada */}
+        {selectedLeague?.status === 'closed' && (
+          <View style={{backgroundColor:'rgba(255,51,85,0.08)',borderWidth:1,borderColor:'rgba(255,51,85,0.3)',borderRadius:10,margin:12,padding:10,alignItems:'center'}}>
+            <Text style={{color:'#FF3355',fontFamily:'BarlowCondensed_700Bold',fontSize:13,letterSpacing:1}}>🔒 LIGA CERRADA · RANKING FINAL CONGELADO</Text>
+          </View>
+        )}
+
         {/* TAB 0 — MI LIGA */}
         {tab === TABS.indexOf('MI LIGA') && (
           <View style={s.tabContent}>
@@ -652,15 +664,63 @@ export default function LigaScreen() {
               </View>
             ) : (
               <>
-                {myLeagues.length > 1 && (
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.leagueSelector}>
-                    {myLeagues.map((l,i) => (
-                      <TouchableOpacity key={i} style={[s.leagueChip, selectedLeague?.id === l.id && s.leagueChipOn]} onPress={() => setSelectedLeague(l)}>
-                        <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color: l.ownerId === user?.uid ? '#FFD700' : '#6B7A99', marginTop:1 }}>{l.ownerId === user?.uid ? '\u{1F451} CREADOR' : '\u{1F39F} INVITADO'} \u00B7 {l.memberIds?.length || 0} miembros</Text>
-                        <Text style={[s.leagueChipTxt, selectedLeague?.id === l.id && s.leagueChipTxtOn]}>{l.name}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
+                {myLeagues.length >= 1 && (() => {
+                  const misLigas = myLeagues.filter((l:any) => l.ownerId === user?.uid);
+                  const invitado = myLeagues.filter((l:any) => l.ownerId !== user?.uid);
+                  const planColor = (plan: string) => {
+                    const p = (plan||'').toUpperCase();
+                    if (['GOLD','GOLZI PREMIUM'].includes(p)) return '#FFD700';
+                    if (p === 'BUSINESS') return '#00C6FF';
+                    if (p === 'PARTNER') return '#00FF87';
+                    if (p === 'GOLZAIR') return '#A78BFA';
+                    return '#6B7A99';
+                  };
+                  const renderCard = (l:any, i:number) => (
+                    <TouchableOpacity
+                      key={i}
+                      onPress={() => { setSelectedLeague(l); setTab(0); }}
+                      style={{
+                        backgroundColor: selectedLeague?.id === l.id ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.03)',
+                        borderWidth: selectedLeague?.id === l.id ? 1.5 : 1,
+                        borderColor: selectedLeague?.id === l.id ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.07)',
+                        borderRadius: 12, padding: 12, marginBottom: 8,
+                        flexDirection: 'row', alignItems: 'center', gap: 10,
+                      }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <View style={{ backgroundColor: planColor(l.plan) + '20', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: planColor(l.plan) + '40' }}>
+                            <Text style={{ fontFamily: 'BarlowCondensed_700Bold', fontSize: 9, color: planColor(l.plan), letterSpacing: 1 }}>{(l.plan||'FREE').toUpperCase()}</Text>
+                          </View>
+                          {l.status === 'closed' && (
+                            <View style={{ backgroundColor: 'rgba(255,51,85,0.1)', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
+                              <Text style={{ fontFamily: 'BarlowCondensed_700Bold', fontSize: 9, color: '#FF3355' }}>🔒 CERRADA</Text>
+                            </View>
+                          )}
+                        </View>
+                        <Text style={{ fontFamily: 'BarlowCondensed_700Bold', fontSize: 16, color: selectedLeague?.id === l.id ? '#FFD700' : '#fff' }}>{l.name}</Text>
+                        <Text style={{ fontFamily: 'BarlowCondensed_400Regular', fontSize: 11, color: '#6B7A99', marginTop: 2 }}>{l.memberIds?.length || 0} miembros · {l.code}</Text>
+                      </View>
+                      <Text style={{ fontSize: 18, color: selectedLeague?.id === l.id ? '#FFD700' : '#6B7A99' }}>{selectedLeague?.id === l.id ? '▶' : '›'}</Text>
+                    </TouchableOpacity>
+                  );
+                  return (
+                    <View style={{ marginBottom: 12 }}>
+                      {misLigas.length > 0 && (
+                        <View style={{ marginBottom: 10 }}>
+                          <Text style={{ fontFamily: 'BarlowCondensed_700Bold', fontSize: 9, color: '#FFD700', letterSpacing: 3, marginBottom: 8 }}>🏆 MIS LIGAS</Text>
+                          {misLigas.map((l:any, i:number) => renderCard(l, i))}
+                        </View>
+                      )}
+                      {invitado.length > 0 && (
+                        <View>
+                          <Text style={{ fontFamily: 'BarlowCondensed_700Bold', fontSize: 9, color: '#6B7A99', letterSpacing: 3, marginBottom: 8 }}>👥 LIGAS INVITADO</Text>
+                          {invitado.map((l:any, i:number) => renderCard(l, i))}
+                        </View>
+                      )}
+                    </View>
+                  );
+                })()}
                 )}
 
                 {selectedLeague && (
@@ -790,15 +850,36 @@ export default function LigaScreen() {
           </View>
         )}
 
+        {/* TAB DASHBOARD — Gestión PARTNER+ */}
+        {tab === TABS.indexOf('DASHBOARD') && TABS.includes('DASHBOARD') && selectedLeague && (
+          <DashboardScreen
+            ligaId={selectedLeague.id}
+            ligaName={selectedLeague.name}
+            ligaCode={selectedLeague.code}
+            ligaPlan={selectedLeague.plan || 'free'}
+            ownerId={selectedLeague.ownerId}
+            userId={user?.uid || ''}
+          />
+        )}
+
         {/* TAB CANAL — Canal de Difusión PARTNER+ */}
         {tab === TABS.indexOf('CANAL') && TABS.includes('CANAL') && selectedLeague && (
-          <BroadcastChannel
-            ligaId={selectedLeague.id}
-            userPlan={(selectedLeague.plan||'free').toLowerCase()}
-            userId={user?.uid||''}
-            userName={user?.displayName || user?.email?.split('@')[0] || 'Admin'}
-            isAdmin={selectedLeague.ownerId === user?.uid}
-          />
+          <>
+            <View style={{backgroundColor:'rgba(255,215,0,0.06)',borderWidth:1,borderColor:'rgba(255,215,0,0.2)',borderRadius:10,margin:12,marginBottom:4,padding:10,flexDirection:'row',alignItems:'center',gap:8}}>
+              <Text style={{fontSize:16}}>📢</Text>
+              <View style={{flex:1}}>
+                <Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:11,color:'#FFD700',letterSpacing:1}}>CANAL DE DIFUSIÓN · {selectedLeague?.name}</Text>
+                <Text style={{fontFamily:'BarlowCondensed_400Regular',fontSize:10,color:'#6B7A99'}}>{selectedLeague?.code} · Solo el admin publica</Text>
+              </View>
+            </View>
+            <BroadcastChannel
+              ligaId={selectedLeague.id}
+              userPlan={(selectedLeague.plan||'free').toLowerCase()}
+              userId={user?.uid||''}
+              userName={user?.displayName || user?.email?.split('@')[0] || 'Admin'}
+              isAdmin={selectedLeague.ownerId === user?.uid}
+            />
+          </>
         )}
 
         {/* TAB 1 — CHAT */}
@@ -812,29 +893,57 @@ export default function LigaScreen() {
               </View>
             ) : (
               <>
-                {myLeagues.length > 1 && (
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}
-                    style={{ paddingHorizontal:12, marginBottom:2, marginTop:4, maxHeight:52 }}
-                    contentContainerStyle={{ gap:8, flexDirection:'row' }}>
-                    {myLeagues.map((l, idx) => (
-                      <TouchableOpacity key={l.id}
-                        onPress={() => setSelectedLeague(l)}
-                        style={{
-                          paddingHorizontal:10, paddingVertical:5, borderRadius:10,
-                          borderWidth:1,
-                          backgroundColor: selectedLeague?.id === l.id ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
-                          borderColor: selectedLeague?.id === l.id ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.08)',
-                        }}>
-                        <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:12,
-                          color: selectedLeague?.id === l.id ? '#FFD700' : '#6B7A99', letterSpacing:0.5 }}>
-                          {l.name}
-                        </Text>
-                        <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:'#6B7A99', marginTop:1 }}>
-                          {l.ownerId === user?.uid ? '\u{1F451} CREADOR' : '\u{1F39F} INVITADO'} \u00B7 {l.memberIds?.length || 0}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
+                {myLeagues.length >= 1 && (() => {
+                  const misLigas = myLeagues.filter((l:any) => l.ownerId === user?.uid);
+                  const invitado = myLeagues.filter((l:any) => l.ownerId !== user?.uid);
+                  const planColor = (plan: string) => {
+                    const p = (plan||'').toUpperCase();
+                    if (['GOLD','GOLZI PREMIUM'].includes(p)) return '#FFD700';
+                    if (p === 'BUSINESS') return '#00C6FF';
+                    if (p === 'PARTNER') return '#00FF87';
+                    if (p === 'GOLZAIR') return '#A78BFA';
+                    return '#6B7A99';
+                  };
+                  const renderCard = (l:any, i:number) => (
+                    <TouchableOpacity
+                      key={i}
+                      onPress={() => setSelectedLeague(l)}
+                      style={{
+                        backgroundColor: selectedLeague?.id === l.id ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.03)',
+                        borderWidth: selectedLeague?.id === l.id ? 1.5 : 1,
+                        borderColor: selectedLeague?.id === l.id ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.07)',
+                        borderRadius: 10, padding: 10, marginBottom: 6,
+                        flexDirection: 'row', alignItems: 'center', gap: 8,
+                      }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                          <View style={{ backgroundColor: planColor(l.plan) + '20', borderRadius: 4, paddingHorizontal: 5, paddingVertical: 1 }}>
+                            <Text style={{ fontFamily: 'BarlowCondensed_700Bold', fontSize: 8, color: planColor(l.plan), letterSpacing: 1 }}>{(l.plan||'FREE').toUpperCase()}</Text>
+                          </View>
+                        </View>
+                        <Text style={{ fontFamily: 'BarlowCondensed_700Bold', fontSize: 13, color: selectedLeague?.id === l.id ? '#FFD700' : '#fff' }}>{l.name}</Text>
+                      </View>
+                      <Text style={{ fontSize: 14, color: selectedLeague?.id === l.id ? '#FFD700' : '#6B7A99' }}>{selectedLeague?.id === l.id ? '▶' : '›'}</Text>
+                    </TouchableOpacity>
+                  );
+                  return (
+                    <View style={{ marginHorizontal:12, marginBottom: 8 }}>
+                      {misLigas.length > 0 && (
+                        <View style={{ marginBottom: 6 }}>
+                          <Text style={{ fontFamily: 'BarlowCondensed_700Bold', fontSize: 8, color: '#FFD700', letterSpacing: 3, marginBottom: 6 }}>🏆 MIS LIGAS</Text>
+                          {misLigas.map((l:any, i:number) => renderCard(l, i))}
+                        </View>
+                      )}
+                      {invitado.length > 0 && (
+                        <View>
+                          <Text style={{ fontFamily: 'BarlowCondensed_700Bold', fontSize: 8, color: '#6B7A99', letterSpacing: 3, marginBottom: 6 }}>👥 LIGAS INVITADO</Text>
+                          {invitado.map((l:any, i:number) => renderCard(l, i))}
+                        </View>
+                      )}
+                    </View>
+                  );
+                })()}
                 )}
                 <ScrollView ref={chatScrollRef} style={s.chatMessages} contentContainerStyle={{ padding:12, gap:8 }} showsVerticalScrollIndicator={false}>
                   {chatMsgs.length === 0 && (

@@ -30,6 +30,7 @@ const C = {
 // Planes que tienen acceso a la Tabla de predicciones del grupo
 const TABLA_PLANS = ['MASTER','GOLZAIR','PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 const BROADCAST_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
+const TV_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 
 // Planes que tienen acceso al QR de invitación
 const QR_PLANS = ['GOLZAIR','PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
@@ -393,6 +394,20 @@ export default function LigaScreen() {
     } catch(e) {}
   }
 
+  async function copyTvLink() {
+    const tvUrl = `https://golzi.app/tv/${selectedLeague?.code}`;
+    try {
+      if (typeof window !== 'undefined') {
+        window.open(tvUrl, '_blank');
+      }
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(tvUrl);
+      }
+    } catch(e) {
+      Alert.alert('📺 Tu link TV', tvUrl);
+    }
+  }
+
   async function copyCode() {
     if (!selectedLeague) return;
     try {
@@ -750,7 +765,14 @@ export default function LigaScreen() {
                           <Text style={s.shareBtnTxt}>COMPARTIR POR WHATSAPP / REDES</Text>
                         </LinearGradient>
                       </TouchableOpacity>
-                      <TouchableOpacity style={s.shareBtn} onPress={copyCode} activeOpacity={0.85}>
+                      {TV_PLANS.includes((selectedLeague?.plan||'').toUpperCase()) && (
+          <TouchableOpacity style={[s.shareBtn, {borderColor:'rgba(0,198,255,0.4)'}]} onPress={copyTvLink} activeOpacity={0.85}>
+            <LinearGradient colors={['rgba(0,198,255,0.15)','rgba(0,198,255,0.05)']} style={s.shareBtnGrad}>
+              <Text style={[s.shareBtnTxt,{color:'#00C6FF',textAlign:'center',width:'100%'}]}>📺  VER EN TV · golzi.app/tv/{selectedLeague?.code}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity style={s.shareBtn} onPress={copyCode} activeOpacity={0.85}>
                         <LinearGradient colors={['rgba(255,215,0,0.1)','rgba(255,215,0,0.03)']} style={[s.shareBtnInner,{borderColor:'rgba(255,215,0,0.3)'}]}>
                           <Text style={[s.shareBtnTxt,{color:'#FFD700'}]}>COPIAR CODIGO: {selectedLeague?.code}</Text>
                         </LinearGradient>

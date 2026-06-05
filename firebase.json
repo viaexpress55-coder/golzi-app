@@ -33,6 +33,10 @@
     ],
     "rewrites": [
       {
+        "source": "/tv/**",
+        "destination": "/tv.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

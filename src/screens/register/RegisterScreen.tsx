@@ -215,54 +215,71 @@ const COUNTRIES = [
 ];
 
 const ALL_COUNTRIES = [
-  { flag:'🇦🇫', name:'Afghanistan', code:'AF' },
-  { flag:'🇩🇿', name:'Algeria', code:'DZ' },
-  { flag:'🇩🇪', name:'Alemania', code:'DE' },
-  { flag:'🇸🇦', name:'Arabia Saudita', code:'SA' },
-  { flag:'🇦🇺', name:'Australia', code:'AU' },
-  { flag:'🇦🇹', name:'Austria', code:'AT' },
-  { flag:'🇧🇪', name:'Bélgica', code:'BE' },
-  { flag:'🇧🇴', name:'Bolivia', code:'BO' },
-  { flag:'🇨🇦', name:'Canadá', code:'CA' },
-  { flag:'🇨🇳', name:'China', code:'CN' },
-  { flag:'🇰🇷', name:'Corea del Sur', code:'KR' },
-  { flag:'🇨🇷', name:'Costa Rica', code:'CR' },
-  { flag:'🇨🇺', name:'Cuba', code:'CU' },
-  { flag:'🇩🇰', name:'Dinamarca', code:'DK' },
-  { flag:'🇪🇨', name:'Ecuador', code:'EC' },
-  { flag:'🇪🇬', name:'Egipto', code:'EG' },
-  { flag:'🇸🇻', name:'El Salvador', code:'SV' },
-  { flag:'🇦🇪', name:'Emiratos Árabes', code:'AE' },
-  { flag:'🇪🇸', name:'España', code:'ES' },
-  { flag:'🇫🇷', name:'Francia', code:'FR' },
-  { flag:'🇬🇭', name:'Ghana', code:'GH' },
-  { flag:'🇬🇷', name:'Grecia', code:'GR' },
-  { flag:'🇬🇹', name:'Guatemala', code:'GT' },
-  { flag:'🇭🇳', name:'Honduras', code:'HN' },
-  { flag:'🇭🇺', name:'Hungría', code:'HU' },
-  { flag:'🇮🇳', name:'India', code:'IN' },
-  { flag:'🇮🇩', name:'Indonesia', code:'ID' },
-  { flag:'🇮🇶', name:'Iraq', code:'IQ' },
-  { flag:'🇮🇪', name:'Irlanda', code:'IE' },
-  { flag:'🇮🇱', name:'Israel', code:'IL' },
-  { flag:'🇮🇹', name:'Italia', code:'IT' },
-  { flag:'🇯🇵', name:'Japón', code:'JP' },
-  { flag:'🇲🇦', name:'Marruecos', code:'MA' },
-  { flag:'🇳🇱', name:'Países Bajos', code:'NL' },
-  { flag:'🇵🇦', name:'Panamá', code:'PA' },
-  { flag:'🇵🇾', name:'Paraguay', code:'PY' },
-  { flag:'🇵🇱', name:'Polonia', code:'PL' },
-  { flag:'🇵🇹', name:'Portugal', code:'PT' },
-  { flag:'🇵🇷', name:'Puerto Rico', code:'PR' },
-  { flag:'🇬🇧', name:'Reino Unido', code:'GB' },
-  { flag:'🇩🇴', name:'Rep. Dominicana', code:'DO' },
-  { flag:'🇷🇺', name:'Rusia', code:'RU' },
-  { flag:'🇸🇳', name:'Senegal', code:'SN' },
-  { flag:'🇨🇭', name:'Suiza', code:'CH' },
-  { flag:'🇹🇷', name:'Turquía', code:'TR' },
-  { flag:'🇺🇾', name:'Uruguay', code:'UY' },
-  { flag:'🇿🇦', name:'Sudáfrica', code:'ZA' },
-].sort((a, b) => a.name.localeCompare(b.name));
+  {flag:'',name:'Afghanistan',code:'AF'},{flag:'',name:'Albania',code:'AL'},{flag:'',name:'Algeria',code:'DZ'},
+  {flag:'',name:'Andorra',code:'AD'},{flag:'',name:'Angola',code:'AO'},{flag:'',name:'Antigua y Barbuda',code:'AG'},
+  {flag:'',name:'Arabia Saudita',code:'SA'},{flag:'',name:'Argentina',code:'AR'},{flag:'',name:'Armenia',code:'AM'},
+  {flag:'',name:'Australia',code:'AU'},{flag:'',name:'Austria',code:'AT'},{flag:'',name:'Azerbaiyán',code:'AZ'},
+  {flag:'',name:'Bahamas',code:'BS'},{flag:'',name:'Bahréin',code:'BH'},{flag:'',name:'Bangladesh',code:'BD'},
+  {flag:'',name:'Barbados',code:'BB'},{flag:'',name:'Bélgica',code:'BE'},{flag:'',name:'Belice',code:'BZ'},
+  {flag:'',name:'Benín',code:'BJ'},{flag:'',name:'Bielorrusia',code:'BY'},{flag:'',name:'Bolivia',code:'BO'},
+  {flag:'',name:'Bosnia y Herzegovina',code:'BA'},{flag:'',name:'Botsuana',code:'BW'},{flag:'',name:'Brasil',code:'BR'},
+  {flag:'',name:'Brunéi',code:'BN'},{flag:'',name:'Bulgaria',code:'BG'},{flag:'',name:'Burkina Faso',code:'BF'},
+  {flag:'',name:'Burundi',code:'BI'},{flag:'',name:'Bután',code:'BT'},{flag:'',name:'Cabo Verde',code:'CV'},
+  {flag:'',name:'Camboya',code:'KH'},{flag:'',name:'Camerún',code:'CM'},{flag:'',name:'Canadá',code:'CA'},
+  {flag:'',name:'Chad',code:'TD'},{flag:'',name:'Chile',code:'CL'},{flag:'',name:'China',code:'CN'},
+  {flag:'',name:'Chipre',code:'CY'},{flag:'',name:'Colombia',code:'CO'},{flag:'',name:'Comoras',code:'KM'},
+  {flag:'',name:'Congo',code:'CG'},{flag:'',name:'Congo DR',code:'CD'},{flag:'',name:'Corea del Norte',code:'KP'},
+  {flag:'',name:'Corea del Sur',code:'KR'},{flag:'',name:'Costa Rica',code:'CR'},{flag:'',name:'Croacia',code:'HR'},
+  {flag:'',name:'Cuba',code:'CU'},{flag:'',name:'Dinamarca',code:'DK'},{flag:'',name:'Djibouti',code:'DJ'},
+  {flag:'',name:'Ecuador',code:'EC'},{flag:'',name:'Egipto',code:'EG'},{flag:'',name:'El Salvador',code:'SV'},
+  {flag:'',name:'Emiratos Árabes',code:'AE'},{flag:'',name:'Eritrea',code:'ER'},{flag:'',name:'Eslovaquia',code:'SK'},
+  {flag:'',name:'Eslovenia',code:'SI'},{flag:'',name:'España',code:'ES'},{flag:'',name:'Estonia',code:'EE'},
+  {flag:'',name:'Etiopía',code:'ET'},{flag:'',name:'Filipinas',code:'PH'},{flag:'',name:'Finlandia',code:'FI'},
+  {flag:'',name:'Fiyi',code:'FJ'},{flag:'',name:'Francia',code:'FR'},{flag:'',name:'Gabón',code:'GA'},
+  {flag:'',name:'Gambia',code:'GM'},{flag:'',name:'Georgia',code:'GE'},{flag:'',name:'Ghana',code:'GH'},
+  {flag:'',name:'Granada',code:'GD'},{flag:'',name:'Grecia',code:'GR'},{flag:'',name:'Guatemala',code:'GT'},
+  {flag:'',name:'Guinea',code:'GN'},{flag:'',name:'Guinea Ecuatorial',code:'GQ'},{flag:'',name:'Guinea-Bisáu',code:'GW'},
+  {flag:'',name:'Guyana',code:'GY'},{flag:'',name:'Haití',code:'HT'},{flag:'',name:'Honduras',code:'HN'},
+  {flag:'',name:'Hungría',code:'HU'},{flag:'',name:'India',code:'IN'},{flag:'',name:'Indonesia',code:'ID'},
+  {flag:'',name:'Irak',code:'IQ'},{flag:'',name:'Irán',code:'IR'},{flag:'',name:'Irlanda',code:'IE'},
+  {flag:'',name:'Islandia',code:'IS'},{flag:'',name:'Islas Salomón',code:'SB'},{flag:'',name:'Israel',code:'IL'},
+  {flag:'',name:'Italia',code:'IT'},{flag:'',name:'Jamaica',code:'JM'},{flag:'',name:'Japón',code:'JP'},
+  {flag:'',name:'Jordania',code:'JO'},{flag:'',name:'Kazajistán',code:'KZ'},{flag:'',name:'Kenia',code:'KE'},
+  {flag:'',name:'Kirguistán',code:'KG'},{flag:'',name:'Kiribati',code:'KI'},{flag:'',name:'Kuwait',code:'KW'},
+  {flag:'',name:'Laos',code:'LA'},{flag:'',name:'Lesoto',code:'LS'},{flag:'',name:'Letonia',code:'LV'},
+  {flag:'',name:'Líbano',code:'LB'},{flag:'',name:'Liberia',code:'LR'},{flag:'',name:'Libia',code:'LY'},
+  {flag:'',name:'Liechtenstein',code:'LI'},{flag:'',name:'Lituania',code:'LT'},{flag:'',name:'Luxemburgo',code:'LU'},
+  {flag:'',name:'Macedonia del Norte',code:'MK'},{flag:'',name:'Madagascar',code:'MG'},{flag:'',name:'Malaui',code:'MW'},
+  {flag:'',name:'Malasia',code:'MY'},{flag:'',name:'Maldivas',code:'MV'},{flag:'',name:'Malí',code:'ML'},
+  {flag:'',name:'Malta',code:'MT'},{flag:'',name:'Marruecos',code:'MA'},{flag:'',name:'Mauricio',code:'MU'},
+  {flag:'',name:'Mauritania',code:'MR'},{flag:'',name:'México',code:'MX'},{flag:'',name:'Micronesia',code:'FM'},
+  {flag:'',name:'Moldavia',code:'MD'},{flag:'',name:'Mónaco',code:'MC'},{flag:'',name:'Mongolia',code:'MN'},
+  {flag:'',name:'Montenegro',code:'ME'},{flag:'',name:'Mozambique',code:'MZ'},{flag:'',name:'Myanmar',code:'MM'},
+  {flag:'',name:'Namibia',code:'NA'},{flag:'',name:'Nauru',code:'NR'},{flag:'',name:'Nepal',code:'NP'},
+  {flag:'',name:'Nicaragua',code:'NI'},{flag:'',name:'Níger',code:'NE'},{flag:'',name:'Nigeria',code:'NG'},
+  {flag:'',name:'Noruega',code:'NO'},{flag:'',name:'Nueva Zelanda',code:'NZ'},{flag:'',name:'Omán',code:'OM'},
+  {flag:'',name:'Países Bajos',code:'NL'},{flag:'',name:'Pakistán',code:'PK'},{flag:'',name:'Palaos',code:'PW'},
+  {flag:'',name:'Panamá',code:'PA'},{flag:'',name:'Papúa Nueva Guinea',code:'PG'},{flag:'',name:'Paraguay',code:'PY'},
+  {flag:'',name:'Perú',code:'PE'},{flag:'',name:'Polonia',code:'PL'},{flag:'',name:'Portugal',code:'PT'},
+  {flag:'',name:'Qatar',code:'QA'},{flag:'',name:'Reino Unido',code:'GB'},{flag:'',name:'Rep. Centroafricana',code:'CF'},
+  {flag:'',name:'Rep. Checa',code:'CZ'},{flag:'',name:'Rep. Dominicana',code:'DO'},{flag:'',name:'Ruanda',code:'RW'},
+  {flag:'',name:'Rumanía',code:'RO'},{flag:'',name:'Rusia',code:'RU'},{flag:'',name:'Samoa',code:'WS'},
+  {flag:'',name:'San Cristóbal y Nieves',code:'KN'},{flag:'',name:'San Marino',code:'SM'},{flag:'',name:'San Vicente',code:'VC'},
+  {flag:'',name:'Santa Lucía',code:'LC'},{flag:'',name:'Santo Tomé y Príncipe',code:'ST'},{flag:'',name:'Senegal',code:'SN'},
+  {flag:'',name:'Serbia',code:'RS'},{flag:'',name:'Seychelles',code:'SC'},{flag:'',name:'Sierra Leona',code:'SL'},
+  {flag:'',name:'Singapur',code:'SG'},{flag:'',name:'Somalia',code:'SO'},{flag:'',name:'Sri Lanka',code:'LK'},
+  {flag:'',name:'Suazilandia',code:'SZ'},{flag:'',name:'Sudáfrica',code:'ZA'},{flag:'',name:'Sudán',code:'SD'},
+  {flag:'',name:'Sudán del Sur',code:'SS'},{flag:'',name:'Suecia',code:'SE'},{flag:'',name:'Suiza',code:'CH'},
+  {flag:'',name:'Surinam',code:'SR'},{flag:'',name:'Siria',code:'SY'},{flag:'',name:'Tayikistán',code:'TJ'},
+  {flag:'',name:'Tailandia',code:'TH'},{flag:'',name:'Taiwán',code:'TW'},{flag:'',name:'Tanzania',code:'TZ'},
+  {flag:'',name:'Timor Oriental',code:'TL'},{flag:'',name:'Togo',code:'TG'},{flag:'',name:'Tonga',code:'TO'},
+  {flag:'',name:'Trinidad y Tobago',code:'TT'},{flag:'',name:'Túnez',code:'TN'},{flag:'',name:'Turkmenistán',code:'TM'},
+  {flag:'',name:'Turquía',code:'TR'},{flag:'',name:'Ucrania',code:'UA'},{flag:'',name:'Uganda',code:'UG'},
+  {flag:'',name:'Uruguay',code:'UY'},{flag:'',name:'USA',code:'US'},{flag:'',name:'Uzbekistán',code:'UZ'},
+  {flag:'',name:'Vanuatu',code:'VU'},{flag:'',name:'Vaticano',code:'VA'},{flag:'',name:'Venezuela',code:'VE'},
+  {flag:'',name:'Vietnam',code:'VN'},{flag:'',name:'Yemen',code:'YE'},{flag:'',name:'Yibuti',code:'DJ'},
+  {flag:'',name:'Zambia',code:'ZM'},{flag:'',name:'Zimbabue',code:'ZW'},
+]
 
 export default function RegisterScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
@@ -275,6 +292,7 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [country,  setCountry]  = useState(-1); // -1 = ninguno seleccionado
   const [selectedCountry, setSelectedCountry] = useState<{flag:string,name:string,code:string} | null>(null);
+  const [countrySearch, setCountrySearch] = useState('');
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
@@ -303,7 +321,7 @@ export default function RegisterScreen() {
     if (!email.includes('@')) { setError(t('reg_invalid_email')); shake(); return; }
     if (password.length < 6) { setError(t('reg_min_password')); shake(); return; }
     if (password !== confirmPassword) { setError(t('reg_password_match')); shake(); return; }
-    if (country === -1) { setError(t('reg_select_country')); shake(); return; }
+    if (!selectedCountry) { setError(t('reg_select_country')); shake(); return; }
 
     try {
       setLoading(true); setError('');
@@ -311,7 +329,7 @@ export default function RegisterScreen() {
       const usernameSnap = await getDocs(query(collection(db, 'users'), where('username', '==', username.trim())));
       if (!usernameSnap.empty) { setError('Este nombre de usuario ya esta en uso.'); setLoading(false); shake(); return; }
 
-      const countryCode = country === 8 && selectedCountry ? selectedCountry.code : COUNTRIES[country]?.code || 'OT';
+      const countryCode = selectedCountry ? selectedCountry.code : 'OT';
       const { getAuth, EmailAuthProvider, linkWithCredential } = require('firebase/auth');
       const currentUser = getAuth().currentUser;
       if (currentUser && currentUser.isAnonymous) {
@@ -353,13 +371,19 @@ export default function RegisterScreen() {
         <View style={s.modalOverlay}>
           <View style={s.modalContent}>
             <View style={s.modalHeader}>
-              <Text style={s.modalTitle}>ELIGE TU PAÍS</Text>
-              <TouchableOpacity onPress={() => setShowCountryModal(false)}>
+              <TouchableOpacity onPress={() => { setShowCountryModal(false); setCountrySearch(''); }}>
                 <Text style={s.modalClose}>✕</Text>
               </TouchableOpacity>
             </View>
+            <TextInput
+              placeholder="Buscar país..."
+              placeholderTextColor="#6B7A99"
+              value={countrySearch}
+              onChangeText={setCountrySearch}
+              style={{margin:12,padding:10,backgroundColor:'rgba(255,255,255,0.06)',borderRadius:10,borderWidth:1,borderColor:'rgba(255,255,255,0.1)',color:'#fff',fontFamily:'BarlowCondensed_400Regular',fontSize:14}}
+            />
             <FlatList
-              data={ALL_COUNTRIES}
+              data={ALL_COUNTRIES.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase()))}
               keyExtractor={item => item.code}
               renderItem={({ item }) => (
                 <TouchableOpacity
@@ -468,30 +492,28 @@ export default function RegisterScreen() {
         <View style={{backgroundColor:'rgba(255,215,0,0.08)',borderRadius:10,padding:10,marginBottom:10,borderWidth:1,borderColor:'rgba(255,215,0,0.3)'}}>
           <Text style={{fontFamily:'BarlowCondensed_400Regular',fontSize:11,color:'#FFD700',textAlign:'center'}}>⚠️ Obligatorio · Elige tu país. Define tu ranking global y bandera en tu perfil.</Text>
         </View>
-        <View style={s.countryGrid}>
-          {COUNTRIES.map((item, i) => (
-            <Pressable key={i}
-              style={[s.countryBtn, country === i && s.countryBtnOn]}
-              onPress={() => {
-                if (item.code === 'OT') {
-                  setShowCountryModal(true);
-                } else {
-                  setCountry(i);
-                }
-              }}
-            >
-              <LinearGradient
-                colors={country === i ? ['rgba(255,215,0,0.15)','rgba(255,215,0,0.05)'] : ['rgba(255,255,255,0.03)','rgba(255,255,255,0.01)']}
-                style={s.countryBtnGrad}
-              >
-                <Image source={{uri:`https://flagcdn.com/w40/${(i===8&&country===8&&selectedCountry?selectedCountry.code:item.code).toLowerCase()}.png`}} style={{width:28,height:20,borderRadius:2}} resizeMode="cover"/>
-                <Text style={[s.countryName, country === i && s.countryNameOn]}>
-                  {i === 8 && country === 8 && selectedCountry ? selectedCountry.name : item.name}
-                </Text>
-              </LinearGradient>
-            </Pressable>
-          ))}
-        </View>
+        <TouchableOpacity
+          onPress={() => setShowCountryModal(true)}
+          style={{
+            flexDirection:'row', alignItems:'center', gap:12,
+            backgroundColor:'rgba(255,255,255,0.05)', borderWidth:1,
+            borderColor: selectedCountry ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.1)',
+            borderRadius:12, padding:14, marginBottom:20,
+          }}
+        >
+          {selectedCountry ? (
+            <>
+              <Image source={{uri:`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}} style={{width:32,height:22,borderRadius:3}} resizeMode="cover"/>
+              <Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:15,color:'#FFD700',flex:1}}>{selectedCountry.name}</Text>
+            </>
+          ) : (
+            <>
+              <Text style={{fontSize:22}}>🌍</Text>
+              <Text style={{fontFamily:'BarlowCondensed_400Regular',fontSize:14,color:'#6B7A99',flex:1}}>Selecciona tu país...</Text>
+            </>
+          )}
+          <Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:16,color:'#6B7A99'}}>▼</Text>
+        </TouchableOpacity>
 
         {/* Botón */}
         <TouchableOpacity style={s.btnWrap} onPress={handleContinue} activeOpacity={0.85} disabled={loading}>

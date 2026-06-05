@@ -733,7 +733,7 @@ export default function LigaScreen() {
                         <Text style={s.ligaInfo}>{members.length}/{selectedLeague.maxMembers || 5} jugadores · Plan {selectedLeague.plan}</Text>
                       </View>
                       {/* QR real para GOLZAIR+ / placeholder para el resto */}
-                      {QR_PLANS.includes((selectedLeague.plan || '').toUpperCase()) && (user?.uid === selectedLeague.ownerId || selectedLeague.inviteOpen) ? (
+                      {QR_PLANS.includes((selectedLeague.plan || '').toUpperCase()) && (user?.uid === selectedLeague.ownerId || (selectedLeague.inviteOpen && !['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'].includes((selectedLeague?.plan||'').toUpperCase()))) ? (
                         <TouchableOpacity onPress={() => setQrModalVisible(true)} activeOpacity={0.85}>
                           <View style={s.qrBoxReal}>
                             <QRCode
@@ -753,7 +753,7 @@ export default function LigaScreen() {
                         </View>
                       )}
                     </View>
-                    {(user?.uid === selectedLeague.ownerId || selectedLeague.inviteOpen) && (
+                    {(user?.uid === selectedLeague.ownerId || (selectedLeague.inviteOpen && !['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'].includes((selectedLeague?.plan||'').toUpperCase()))) && (
                       <View style={s.codeRow}>
                         <Text style={s.codeLabel}>CODIGO INVITACION</Text>
                         <LinearGradient colors={['rgba(255,215,0,0.15)','rgba(255,215,0,0.08)']} style={s.codePill}>
@@ -818,7 +818,10 @@ export default function LigaScreen() {
                       </LinearGradient>
                     </TouchableOpacity>
                   )}
-                  {selectedLeague && user && (selectedLeague.ownerId === user.uid || selectedLeague.inviteOpen) && (
+                  {selectedLeague && user && (
+                    selectedLeague.ownerId === user.uid || 
+                    (selectedLeague.inviteOpen && !['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'].includes((selectedLeague?.plan||'').toUpperCase()))
+                  ) && (
                     <>
                       <TouchableOpacity style={s.shareBtn} onPress={handleShare} activeOpacity={0.85}>
                         <LinearGradient colors={['rgba(0,255,135,0.12)','rgba(0,255,135,0.04)']} style={s.shareBtnInner}>
@@ -843,6 +846,7 @@ export default function LigaScreen() {
                     <View style={{backgroundColor:'rgba(255,51,85,0.06)',borderRadius:12,borderWidth:1,borderColor:'rgba(255,51,85,0.2)',padding:12,alignItems:'center'}}>
                       <Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:11,color:'#FF3355',letterSpacing:1}}>El administrador ha cerrado las invitaciones</Text>
                     </View>
+                  )}
                   )}
                 </View>
               </>

@@ -14,6 +14,7 @@ import LiveScreen from '../screens/live/LiveScreen';
 import MundialScreen from '../screens/mundial/MundialScreen';
 import LigaScreen from '../screens/league/LigaScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import TorneosPublicosScreen from '../screens/torneos/TorneosPublicosScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import PaymentScreen from '../screens/plans/PaymentScreen';
@@ -99,6 +100,9 @@ function MainTabs() {
       </Tab.Screen>
       <Tab.Screen name="Ranking" options={{ tabBarLabel: t('ranking_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} /> }}>
         {() => <RankingScreen />}
+      </Tab.Screen>
+      <Tab.Screen name="Torneos" options={{ tabBarLabel: 'TORNEOS', tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} /> }}>
+        {() => <TorneosPublicosScreen />}
       </Tab.Screen>
       <Tab.Screen name="Mundial" options={{ tabBarLabel: t('mundial_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🌍" focused={focused} /> }}>
         {() => <MundialScreen />}

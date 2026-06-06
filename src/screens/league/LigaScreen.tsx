@@ -13,6 +13,7 @@ import { functions, db } from '../../services/firebase';
 import BroadcastChannel from './BroadcastChannel';
 import DashboardScreen from './DashboardScreen';
 import BrandingScreen from './BrandingScreen';
+import TournamentScreen from './TournamentScreen';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
@@ -34,6 +35,7 @@ const TABLA_PLANS = ['MASTER','GOLZAIR','PARTNER','BUSINESS','GOLD','GOLZI PREMI
 const BROADCAST_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 const DASHBOARD_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 const BRANDING_PLANS = ['BUSINESS','GOLD','GOLZI PREMIUM'];
+const TOURNAMENT_PLANS = ['BUSINESS','GOLD','GOLZI PREMIUM'];
 const TV_PLANS = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'];
 
 // Planes que tienen acceso al QR de invitación
@@ -463,11 +465,13 @@ export default function LigaScreen() {
   const hasBroadcast = BROADCAST_PLANS.includes((selectedLeague?.plan||'').toUpperCase());
   const hasDashboard = DASHBOARD_PLANS.includes((selectedLeague?.plan||'').toUpperCase()) && selectedLeague?.ownerId === user?.uid;
   const hasBranding = BRANDING_PLANS.includes((selectedLeague?.plan||'').toUpperCase()) && selectedLeague?.ownerId === user?.uid;
+  const hasTournament = TOURNAMENT_PLANS.includes((selectedLeague?.plan||'').toUpperCase());
   const TABS = (() => {
     const base = ['MI LIGA', 'CHAT'];
     if (hasBroadcast) base.push('CANAL');
     if (hasDashboard) base.push('DASHBOARD');
     if (hasBranding) base.push('BRANDING');
+    if (hasTournament) base.push('TORNEOS');
     base.push('UNIRSE', 'CREAR');
     if (hasTabla) base.push('TABLA');
     return base;
@@ -629,7 +633,7 @@ export default function LigaScreen() {
         </TouchableOpacity>
       </Modal>
 
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false} style={{flex:1}}>
 
         {/* Indicador liga cerrada */}
         {selectedLeague?.status === 'closed' && (
@@ -884,6 +888,18 @@ export default function LigaScreen() {
             ligaPlan={selectedLeague.plan || 'free'}
             ownerId={selectedLeague.ownerId}
             userId={user?.uid || ''}
+          />
+        )}
+
+        {/* TAB TORNEOS — Torneos BUSINESS+ */}
+        {tab === TABS.indexOf('TORNEOS') && TABS.includes('TORNEOS') && selectedLeague && (
+          <TournamentScreen
+            ligaId={selectedLeague.id}
+            ligaPlan={selectedLeague.plan || 'free'}
+            ownerId={selectedLeague.ownerId}
+            userId={user?.uid || ''}
+            userName={user?.displayName || user?.email?.split('@')[0] || 'Jugador'}
+            members={members}
           />
         )}
 

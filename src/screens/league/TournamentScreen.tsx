@@ -15,7 +15,7 @@ const C = {
   green:'#00FF87', cyan:'#00C6FF', red:'#FF3355', muted:'#6B7A99', text:'#FFFFFF',
 };
 
-const TOURNAMENT_PLANS = ['BUSINESS','GOLD','GOLZI PREMIUM'];
+const TOURNAMENT_PLANS = ['GOLD','GOLZI PREMIUM'];
 const PUBLIC_TOURNAMENT_PLANS = ['GOLD','GOLZI PREMIUM'];
 
 interface Tournament {
@@ -35,6 +35,7 @@ interface Tournament {
 
 interface Props {
   ligaId: string;
+  ligaName?: string;
   ligaPlan: string;
   ownerId: string;
   userId: string;
@@ -42,7 +43,7 @@ interface Props {
   members: any[];
 }
 
-export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, userName, members }: Props) {
+export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, ligaBrandColor, ligaPlan, ownerId, userId, userName, members }: Props) {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -62,6 +63,7 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
   const [tMaxPart, setTMaxPart] = useState('');
   const [tStart, setTStart] = useState('');
   const [tEnd, setTEnd] = useState('');
+  const [tCategoria, setTCategoria] = useState('');
   const [tPublic, setTPublic] = useState(false);
   const [creating, setCreating] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string,boolean>>({});
@@ -118,6 +120,10 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
         isPublic: tPublic && canPublic,
         ownerId: userId,
         ligaId,
+        tags: tCategoria ? [tCategoria] : [],
+        ligaName: ligaName || '',
+        brandLogo: ligaBrandLogo || null,
+        brandColor: ligaBrandColor || null,
         createdAt: serverTimestamp(),
       });
       // Publicar en torneos públicos si aplica
@@ -137,6 +143,10 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
           maxParticipants: parseInt(tMaxPart) || 100,
           status: new Date(tStart) > new Date() ? 'upcoming' : 'active',
           isPublic: true, ownerId: userId,
+          tags: tCategoria ? [tCategoria] : [],
+          ligaName: ligaName || '',
+          brandLogo: ligaBrandLogo || null,
+          brandColor: ligaBrandColor || null,
           createdAt: serverTimestamp(),
         });
       }
@@ -144,7 +154,7 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
       setTPrize1(''); setTPrize2(''); setTPrize3('');
       setTStart(''); setTEnd('');
       setTCiudad(''); setTPais(''); setTWeb('');
-      setTMaxPart(''); setTPublic(false);
+      setTMaxPart(''); setTCategoria(''); setTPublic(false);
     } catch(e) {
       Alert.alert('Error', 'No se pudo crear el torneo');
       console.error(e);
@@ -237,7 +247,7 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
         {/* Header */}
         <View style={s.header}>
           <Text style={s.headerTitle}>🏆 TORNEOS</Text>
-        <Text style={s.headerSub}>Mundial 2026</Text>
+        <Text style={s.headerSub}>{ligaName || 'Mundial 2026'}</Text>
         {isAdmin && (
           <View style={{backgroundColor:'rgba(255,215,0,0.06)',borderRadius:8,paddingHorizontal:10,paddingVertical:6,borderWidth:1,borderColor:'rgba(255,215,0,0.15)',marginTop:4}}>
             <Text style={{color:'rgba(255,215,0,0.6)',fontSize:9,fontWeight:'700',letterSpacing:1}}>✉️ SOPORTE: golziapp@gmail.com</Text>
@@ -306,16 +316,21 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
             {/* Botón eliminar — solo admin, solo si 1 inscrito */}
             {isAdmin && (t.participants?.length || 0) <= 1 && (
               <TouchableOpacity
-                onPress={() => Alert.alert(
-                  '¿Eliminar torneo?',
-                  'Solo puedes eliminar el torneo si no hay otros inscritos.',
-                  [
-                    { text: 'Cancelar', style: 'cancel' },
-                    { text: 'Eliminar', style: 'destructive', onPress: async () => {
-                      await deleteDoc(doc(db, 'leagues', ligaId, 'tournaments', t.id));
-                    }},
-                  ]
-                )}
+                onPress={async () => {
+                const ok = typeof window !== 'undefined'
+                  ? window.confirm('¿Eliminar torneo? Solo puedes eliminar si no hay otros inscritos.')
+                  : await new Promise(resolve => Alert.alert('¿Eliminar torneo?', 'Solo puedes eliminar si no hay otros inscritos.', [{ text: 'Cancelar', style: 'cancel', onPress: () => resolve(false) }, { text: 'Eliminar', style: 'destructive', onPress: () => resolve(true) }]));
+                if (!ok) return;
+                try {
+                  await deleteDoc(doc(db, 'leagues', ligaId, 'tournaments', t.id));
+                  if (t.isPublic) {
+                    await deleteDoc(doc(db, 'public_tournaments', t.id));
+                  }
+                } catch(e) {
+                  Alert.alert('Error', 'No se pudo eliminar el torneo');
+                  console.error(e);
+                }
+              }}
                 style={{alignSelf:'flex-end', marginRight:14, marginBottom:4, flexDirection:'row', alignItems:'center', gap:4}}
               >
                 <Text style={{color:'rgba(255,51,85,0.6)', fontSize:11, fontFamily:'BarlowCondensed_700Bold', letterSpacing:1}}>🗑️ ELIMINAR</Text>
@@ -378,6 +393,26 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
 
               <Text style={s.inputLabel}>👥 LÍMITE DE INSCRITOS *</Text>
               <TextInput style={[s.input, formErrors.maxPart && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: 100" placeholderTextColor={C.muted} value={tMaxPart} onChangeText={v => {setTMaxPart(v); setFormErrors(p=>({...p,maxPart:false}))}} maxLength={6} keyboardType="numeric"/>
+
+              <Text style={s.inputLabel}>🏷️ CATEGORÍA DEL NEGOCIO</Text>
+              <View style={{ flexDirection:'row', flexWrap:'wrap', gap:8, marginBottom:8 }}>
+                {['Restaurante','Sports Bar','Cervecería','Bar','Hotel','Casino','Empresa','Comunidad','Otro'].map(cat => (
+                  <TouchableOpacity
+                    key={cat}
+                    onPress={() => setTCategoria(tCategoria === cat ? '' : cat)}
+                    style={{
+                      paddingHorizontal:12, paddingVertical:6, borderRadius:16,
+                      backgroundColor: tCategoria === cat ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.05)',
+                      borderWidth:1,
+                      borderColor: tCategoria === cat ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color: tCategoria === cat ? '#FFD700' : '#6B7A99' }}>
+                      {cat}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
 
               {canPublic && (
                 <TouchableOpacity onPress={() => setTPublic(!tPublic)} style={[s.publicToggle, tPublic && {borderColor:C.cyan}]}>

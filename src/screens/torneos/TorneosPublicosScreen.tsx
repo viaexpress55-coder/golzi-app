@@ -164,8 +164,9 @@ export default function TorneosPublicosScreen() {
         {/* Premios */}
         {isReal ? (
           <View style={s.prizeBox}>
-            <Text style={s.prizeTxt}>{t.prize1}</Text>
-            {t.prize2 ? <Text style={[s.prizeTxt, {marginTop:4, color: C.muted}]}>{t.prize2}</Text> : null}
+            {t.prize1 ? <Text style={s.prizeTxt}>🥇 {t.prize1}</Text> : null}
+            {t.prize2 ? <Text style={[s.prizeTxt, {marginTop:4, color:'#C0C0C0'}]}>🥈 {t.prize2}</Text> : null}
+            {t.prize3 ? <Text style={[s.prizeTxt, {marginTop:4, color:'#CD7F32'}]}>🥉 {t.prize3}</Text> : null}
           </View>
         ) : t.prize ? (
           <View style={s.prizeBox}>
@@ -245,11 +246,11 @@ export default function TorneosPublicosScreen() {
           <Text style={s.introBannerSub}>Compite en torneos creados por negocios y organizaciones · Gana premios reales</Text>
         </LinearGradient>
 
-        {/* Torneo SOEMEX REAL primero */}
-        {soemexTorneo && renderTorneoCard({...soemexTorneo, flag:'🇨🇴', ciudad:'Barranquilla', pais:'Colombia', tags:['Empresas','Colombia'], isPublic:true}, true)}
-
-        {/* Torneos públicos reales de clientes — más reciente arriba */}
-        {publicTournaments.filter(t => t.torneoId !== SOEMEX_TORNEO_ID).map(t => renderTorneoCard(t, true))}
+        {/* Torneos reales ordenados — más recientes arriba */}
+        {[
+          ...(soemexTorneo ? [{...soemexTorneo, flag:'🇨🇴', ciudad:'Barranquilla', pais:'Colombia', tags:['Empresas','Colombia'], isPublic:true, _pin: true}] : []),
+          ...publicTournaments.filter(t => t.torneoId !== SOEMEX_TORNEO_ID),
+        ].map(t => renderTorneoCard(t, true))}
 
         {/* Torneos demo siempre al final */}
         {DEMO_TOURNAMENTS.map(t => renderTorneoCard(t, false))}

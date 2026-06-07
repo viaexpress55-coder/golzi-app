@@ -269,7 +269,7 @@ export default function LigaScreen() {
   }
 
   async function handleCreate() {
-    if (!ligaName.trim()) { setCreateError('Ingresa el nombre de la liga'); return; }
+    if (!ligaName.trim()) { setCreateError('⚠️ Debes ingresar un nombre para tu liga antes de continuar'); return; }
     if (!user) { setCreateError('Debes iniciar sesión'); return; }
     if (!user.email) { setCreateError('Necesitas una cuenta para crear liga'); return; }
     try {
@@ -277,10 +277,10 @@ export default function LigaScreen() {
       setCreateError('');
       const userSnap = await getDoc(doc(db, 'users', user.uid));
       const freshPlan = (userSnap.data()?.plan || 'free').toUpperCase();
-      // Validar plan
+      // Validar plan — redirigir a Plans si es FREE
       if (freshPlan === 'FREE' || !userSnap.data()?.plan) {
-        setCreateError('Necesitas un plan para crear liga');
         setCreating(false);
+        navigation.navigate('Plans');
         return;
       }
       // Validar pool de cupos
@@ -461,11 +461,13 @@ export default function LigaScreen() {
   }
 
   // ─── Tabs dinámicos ──────────────────────────────────────────────────────────
-  const hasTabla = TABLA_PLANS.includes((selectedLeague?.plan || '').toUpperCase());
-  const hasBroadcast = BROADCAST_PLANS.includes((selectedLeague?.plan||'').toUpperCase());
-  const hasDashboard = DASHBOARD_PLANS.includes((selectedLeague?.plan||'').toUpperCase()) && selectedLeague?.ownerId === user?.uid;
-  const hasBranding = BRANDING_PLANS.includes((selectedLeague?.plan||'').toUpperCase()) && selectedLeague?.ownerId === user?.uid;
-  const hasTournament = TOURNAMENT_PLANS.includes((selectedLeague?.plan||'').toUpperCase());
+  const isOwner = selectedLeague?.ownerId === user?.uid;
+  const ligaPlan = (selectedLeague?.plan||'').toUpperCase();
+  const hasTabla = TABLA_PLANS.includes(ligaPlan);
+  const hasBroadcast = BROADCAST_PLANS.includes(ligaPlan) && isOwner;
+  const hasDashboard = DASHBOARD_PLANS.includes(ligaPlan) && isOwner;
+  const hasBranding = BRANDING_PLANS.includes(ligaPlan) && isOwner;
+  const hasTournament = TOURNAMENT_PLANS.includes(ligaPlan) && isOwner;
   const TABS = (() => {
     const base = ['MI LIGA', 'CHAT'];
     if (hasBroadcast) base.push('CANAL');
@@ -496,9 +498,9 @@ export default function LigaScreen() {
             <Text style={s.headerSub}>MUNDIAL 2026</Text>
           </View>
         </View>
-        {selectedLeague && (
+        {userData && (
           <LinearGradient colors={[C.gold, C.gold2]} style={s.planBadge}>
-            <Text style={s.planBadgeTxt}>⚡ {selectedLeague.plan}</Text>
+            <Text style={s.planBadgeTxt}>⚡ {(userData as any).plan || 'FREE'}</Text>
           </LinearGradient>
         )}
       </LinearGradient>
@@ -895,6 +897,9 @@ export default function LigaScreen() {
         {tab === TABS.indexOf('TORNEOS') && TABS.includes('TORNEOS') && selectedLeague && (
           <TournamentScreen
             ligaId={selectedLeague.id}
+            ligaName={selectedLeague.name}
+            ligaBrandLogo={selectedLeague.brandLogo}
+            ligaBrandColor={selectedLeague.brandColor}
             ligaPlan={selectedLeague.plan || 'free'}
             ownerId={selectedLeague.ownerId}
             userId={user?.uid || ''}
@@ -1009,20 +1014,33 @@ export default function LigaScreen() {
                     </View>
                   ))}
                 </ScrollView>
-                <View style={s.chatInputRow}>
-                  <TextInput
-                    style={s.chatInput}
-                    placeholder="Escribe un mensaje..."
-                    placeholderTextColor={C.muted}
-                    value={chatMsg}
-                    onChangeText={setChatMsg}
-                    maxLength={200}
-                    onSubmitEditing={sendChatMsg}
-                  />
-                  <TouchableOpacity style={[s.chatSendBtn, !chatMsg && { opacity:0.4 }]} onPress={sendChatMsg}>
-                    <Text style={s.chatSendTxt}>⚡</Text>
-                  </TouchableOpacity>
-                </View>
+                {(() => {
+                  const esEmpresarial = ['PARTNER','BUSINESS','GOLD','GOLZI PREMIUM'].includes((selectedLeague?.plan||'').toUpperCase());
+                  const esMiembroInvitado = selectedLeague?.ownerId !== user?.uid;
+                  if (esEmpresarial && esMiembroInvitado) {
+                    return (
+                      <View style={{padding:12, alignItems:'center', backgroundColor:'rgba(255,215,0,0.04)', borderTopWidth:1, borderTopColor:'rgba(255,215,0,0.1)'}}>
+                        <Text style={{fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#6B7A99', letterSpacing:1}}>📢 Solo el administrador puede publicar en este canal</Text>
+                      </View>
+                    );
+                  }
+                  return (
+                    <View style={s.chatInputRow}>
+                      <TextInput
+                        style={s.chatInput}
+                        placeholder="Escribe un mensaje..."
+                        placeholderTextColor={C.muted}
+                        value={chatMsg}
+                        onChangeText={setChatMsg}
+                        maxLength={200}
+                        onSubmitEditing={sendChatMsg}
+                      />
+                      <TouchableOpacity style={[s.chatSendBtn, !chatMsg && { opacity:0.4 }]} onPress={sendChatMsg}>
+                        <Text style={s.chatSendTxt}>⚡</Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })()}
               </>
             )}
           </View>
@@ -1086,7 +1104,7 @@ export default function LigaScreen() {
               <View style={s.formTitleLine} />
               <Text style={s.formSub}>Tu plan: {(userData?.plan || 'LIGA').toUpperCase()} · hasta {getMaxMembersByPlan(userData?.plan || 'liga')} jugadores</Text>
               <Text style={s.inputLabel}>NOMBRE DE LA LIGA</Text>
-              <View style={s.inputWrap}>
+              <View style={[s.inputWrap, createError && !ligaName.trim() && {borderColor:'#FF3355', borderWidth:1.5}]}>
                 <Text style={s.inputIcon}>🏆</Text>
                 <TextInput
                   style={s.input}
@@ -1132,6 +1150,23 @@ export default function LigaScreen() {
                       </TouchableOpacity>
                     ))}
                   </View>
+                  <View style={{ flexDirection:'row', alignItems:'center', gap:8, marginTop:4 }}>
+                    <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'#6B7A99', letterSpacing:1 }}>O INGRESA:</Text>
+                    <TextInput
+                      style={{ flex:1, backgroundColor:'rgba(255,255,255,0.05)', borderWidth:1, borderColor:'rgba(255,215,0,0.3)', borderRadius:10, paddingHorizontal:12, paddingVertical:8, color:'#FFFFFF', fontFamily:'BarlowCondensed_700Bold', fontSize:14 }}
+                      placeholder="Ej: 50"
+                      placeholderTextColor="#6B7A99"
+                      keyboardType="numeric"
+                      maxLength={5}
+                      value={ligaSize > 0 ? String(ligaSize) : ''}
+                      onChangeText={v => {
+                        const n = parseInt(v);
+                        if (!isNaN(n) && n > 0) setLigaSize(n);
+                        else if (v === '') setLigaSize(0);
+                      }}
+                    />
+                    <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#6B7A99' }}>cupos</Text>
+                  </View>
                 </View>
               )}
               <LinearGradient colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']} style={s.featCard}>
@@ -1144,9 +1179,9 @@ export default function LigaScreen() {
                 ))}
               </LinearGradient>
               <TouchableOpacity
-                style={[s.actionBtn, (!ligaName || creating) && { opacity:0.4 }]}
+                style={[s.actionBtn, creating && { opacity:0.4 }]}
                 onPress={handleCreate}
-                disabled={!ligaName || creating}
+                disabled={creating}
                 activeOpacity={0.85}
               >
                 <LinearGradient colors={[C.gold, C.gold2]} start={{x:0,y:0}} end={{x:1,y:0}} style={s.actionBtnInner}>

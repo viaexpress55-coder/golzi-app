@@ -129,7 +129,9 @@ export const syncMatchResults = onSchedule({
       }
 
       if (snap.empty) {
-        console.log(`No encontrado: ${homeTeam} vs ${awayTeam}`);
+        if (homeTeam || awayTeam) {
+          console.log(`No encontrado: ${homeTeam} vs ${awayTeam}`);
+        }
         continue;
       }
 

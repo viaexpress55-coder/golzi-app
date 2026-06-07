@@ -64,6 +64,7 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
   const [tEnd, setTEnd] = useState('');
   const [tPublic, setTPublic] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string,boolean>>({});
 
   const isAdmin = ownerId === userId;
   const canCreate = TOURNAMENT_PLANS.includes((ligaPlan||'').toUpperCase()) && isAdmin;
@@ -78,8 +79,17 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
   }, [ligaId]);
 
   async function handleCreate() {
-    if (!tName.trim()) { Alert.alert('Error', 'Ingresa el nombre del torneo'); return; }
-    if (!tStart || !tEnd) { Alert.alert('Error', 'Ingresa las fechas del torneo'); return; }
+    const errors: Record<string,boolean> = {};
+    if (!tName.trim()) errors.name = true;
+    if (!tPrize1.trim()) errors.prize1 = true;
+    if (!tStart) errors.start = true;
+    if (!tEnd) errors.end = true;
+    if (!tCiudad.trim()) errors.ciudad = true;
+    if (!tPais.trim()) errors.pais = true;
+    if (!tMaxPart || parseInt(tMaxPart) < 1) errors.maxPart = true;
+    if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }
+    setFormErrors({});
+    if (!tMaxPart || parseInt(tMaxPart) < 1) { Alert.alert('Error', 'Define el límite de inscritos al torneo.'); return; }
     setCreating(true);
     try {
       // Obtener partidos en el rango de fechas
@@ -336,14 +346,14 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
             <ScrollView contentContainerStyle={{padding:20, gap:14}}>
               <Text style={s.modalTitle}>⚡ NUEVO TORNEO</Text>
 
-              <Text style={s.inputLabel}>NOMBRE DEL TORNEO</Text>
-              <TextInput style={s.input} placeholder="Ej: Torneo Cuartos de Final" placeholderTextColor={C.muted} value={tName} onChangeText={setTName} maxLength={40}/>
+              <Text style={s.inputLabel}>NOMBRE DEL TORNEO *</Text>
+              <TextInput style={[s.input, formErrors.name && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: Torneo Cuartos de Final" placeholderTextColor={C.muted} value={tName} onChangeText={v => {setTName(v); setFormErrors(p=>({...p,name:false}))}} maxLength={40}/>
 
               <Text style={s.inputLabel}>DESCRIPCIÓN (opcional)</Text>
               <TextInput style={[s.input,{height:70}]} placeholder="Describe el torneo..." placeholderTextColor={C.muted} value={tDesc} onChangeText={setTDesc} multiline maxLength={150}/>
 
-              <Text style={s.inputLabel}>🥇 PREMIO 1ER LUGAR</Text>
-              <TextInput style={s.input} placeholder="Ej: Cena para 2 + botella de vino" placeholderTextColor={C.muted} value={tPrize1} onChangeText={setTPrize1} maxLength={80}/>
+              <Text style={s.inputLabel}>🥇 PREMIO 1ER LUGAR *</Text>
+              <TextInput style={[s.input, formErrors.prize1 && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: Cena para 2 + botella de vino" placeholderTextColor={C.muted} value={tPrize1} onChangeText={v => {setTPrize1(v); setFormErrors(p=>({...p,prize1:false}))}} maxLength={80}/>
 
               <Text style={s.inputLabel}>🥈 PREMIO 2DO LUGAR (opcional)</Text>
               <TextInput style={s.input} placeholder="Ej: Cupón 30% descuento" placeholderTextColor={C.muted} value={tPrize2} onChangeText={setTPrize2} maxLength={80}/>
@@ -351,23 +361,23 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
               <Text style={s.inputLabel}>🥉 PREMIO 3ER LUGAR (opcional)</Text>
               <TextInput style={s.input} placeholder="Ej: Consumo gratis una noche" placeholderTextColor={C.muted} value={tPrize3} onChangeText={setTPrize3} maxLength={80}/>
 
-              <Text style={s.inputLabel}>📅 FECHA INICIO (YYYY-MM-DD)</Text>
-              <TextInput style={s.input} placeholder="2026-06-11" placeholderTextColor={C.muted} value={tStart} onChangeText={setTStart} maxLength={10}/>
+              <Text style={s.inputLabel}>📅 FECHA INICIO * (YYYY-MM-DD)</Text>
+              <TextInput style={[s.input, formErrors.start && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="2026-06-11" placeholderTextColor={C.muted} value={tStart} onChangeText={v => {setTStart(v); setFormErrors(p=>({...p,start:false}))}} maxLength={10}/>
 
-              <Text style={s.inputLabel}>📅 FECHA FIN (YYYY-MM-DD)</Text>
-              <TextInput style={s.input} placeholder="2026-07-19" placeholderTextColor={C.muted} value={tEnd} onChangeText={setTEnd} maxLength={10}/>
+              <Text style={s.inputLabel}>📅 FECHA FIN * (YYYY-MM-DD)</Text>
+              <TextInput style={[s.input, formErrors.end && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="2026-07-19" placeholderTextColor={C.muted} value={tEnd} onChangeText={v => {setTEnd(v); setFormErrors(p=>({...p,end:false}))}} maxLength={10}/>
 
-              <Text style={s.inputLabel}>📍 CIUDAD</Text>
-              <TextInput style={s.input} placeholder="Ej: Bogotá" placeholderTextColor={C.muted} value={tCiudad} onChangeText={setTCiudad} maxLength={40}/>
+              <Text style={s.inputLabel}>📍 CIUDAD *</Text>
+              <TextInput style={[s.input, formErrors.ciudad && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: Bogotá" placeholderTextColor={C.muted} value={tCiudad} onChangeText={v => {setTCiudad(v); setFormErrors(p=>({...p,ciudad:false}))}} maxLength={40}/>
 
-              <Text style={s.inputLabel}>🌍 PAÍS</Text>
-              <TextInput style={s.input} placeholder="Ej: Colombia" placeholderTextColor={C.muted} value={tPais} onChangeText={setTPais} maxLength={40}/>
+              <Text style={s.inputLabel}>🌍 PAÍS *</Text>
+              <TextInput style={[s.input, formErrors.pais && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: Colombia" placeholderTextColor={C.muted} value={tPais} onChangeText={v => {setTPais(v); setFormErrors(p=>({...p,pais:false}))}} maxLength={40}/>
 
               <Text style={s.inputLabel}>🌐 PÁGINA WEB (opcional)</Text>
               <TextInput style={s.input} placeholder="https://www.tunegocio.com" placeholderTextColor={C.muted} value={tWeb} onChangeText={setTWeb} maxLength={100} autoCapitalize="none"/>
 
-              <Text style={s.inputLabel}>👥 MÁXIMO DE PARTICIPANTES (opcional)</Text>
-              <TextInput style={s.input} placeholder="Máx según tu plan" placeholderTextColor={C.muted} value={tMaxPart} onChangeText={setTMaxPart} maxLength={6} keyboardType="numeric"/>
+              <Text style={s.inputLabel}>👥 LÍMITE DE INSCRITOS *</Text>
+              <TextInput style={[s.input, formErrors.maxPart && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: 100" placeholderTextColor={C.muted} value={tMaxPart} onChangeText={v => {setTMaxPart(v); setFormErrors(p=>({...p,maxPart:false}))}} maxLength={6} keyboardType="numeric"/>
 
               {canPublic && (
                 <TouchableOpacity onPress={() => setTPublic(!tPublic)} style={[s.publicToggle, tPublic && {borderColor:C.cyan}]}>
@@ -380,6 +390,16 @@ export default function TournamentScreen({ ligaId, ligaPlan, ownerId, userId, us
                 </TouchableOpacity>
               )}
 
+              {Object.keys(formErrors).some(k => formErrors[k]) && (
+                <View style={{backgroundColor:'rgba(255,51,85,0.08)',borderRadius:10,padding:10,borderWidth:1,borderColor:'rgba(255,51,85,0.3)'}}>
+                  <Text style={{color:'#FF3355',fontSize:11,fontWeight:'700',textAlign:'center'}}>⚠️ Completa los campos obligatorios marcados con *</Text>
+                </View>
+              )}
+              {Object.values(formErrors).some(v => v) && (
+                <View style={{backgroundColor:'rgba(255,51,85,0.08)',borderRadius:10,padding:10,borderWidth:1,borderColor:'rgba(255,51,85,0.3)'}}>
+                  <Text style={{color:'#FF3355',fontSize:11,fontWeight:'700',textAlign:'center'}}>⚠️ Completa los campos obligatorios (*)</Text>
+                </View>
+              )}
               <TouchableOpacity onPress={handleCreate} disabled={creating} style={s.createBtnModal}>
                 <LinearGradient colors={[C.gold, C.gold2]} style={s.createBtnInner}>
                   <Text style={s.createBtnTxt}>{creating ? '⏳ CREANDO TORNEO...' : '⚡ CREAR TORNEO'}</Text>

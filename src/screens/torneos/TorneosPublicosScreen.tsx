@@ -4,7 +4,7 @@ import {
   StyleSheet, ActivityIndicator, Image, Linking, Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { collection, onSnapshot, query, getDocs, doc, updateDoc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, getDocs, doc, updateDoc, arrayUnion, getDoc, setDoc, orderBy } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { getAuth } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
@@ -39,6 +39,7 @@ const DEMO_TOURNAMENTS = [
 ];
 
 export default function TorneosPublicosScreen() {
+  const [publicTournaments, setPublicTournaments] = useState<any[]>([]);
   const [soemexTorneo, setSoemexTorneo] = useState<any>(null);
   const [soemexInscrito, setSoemexInscrito] = useState(false);
   const [inscribiendo, setInscribiendo] = useState(false);
@@ -57,6 +58,15 @@ export default function TorneosPublicosScreen() {
         if (snap.exists()) setUserCountry(snap.data()?.country || '');
       });
     }
+    // Cargar torneos públicos reales
+    const unsubPublic = onSnapshot(
+      query(collection(db, 'public_tournaments'), orderBy('createdAt', 'desc')),
+      snap => {
+        const data = snap.docs.map(d => ({ id: d.id, ...d.data(), isReal: true }));
+        setPublicTournaments(data);
+      }
+    );
+
     // Cargar torneo SOEMEX real
     const unsub = onSnapshot(
       doc(db, 'leagues', SOEMEX_LIGA_ID, 'tournaments', SOEMEX_TORNEO_ID),
@@ -68,7 +78,7 @@ export default function TorneosPublicosScreen() {
         }
       }
     );
-    return unsub;
+    return () => { unsub(); unsubPublic(); };
   }, []);
 
   const handleInscribirse = async () => {
@@ -238,7 +248,10 @@ export default function TorneosPublicosScreen() {
         {/* Torneo SOEMEX REAL primero */}
         {soemexTorneo && renderTorneoCard({...soemexTorneo, flag:'🇨🇴', ciudad:'Barranquilla', pais:'Colombia', tags:['Empresas','Colombia'], isPublic:true}, true)}
 
-        {/* Torneos demo */}
+        {/* Torneos públicos reales de clientes — más reciente arriba */}
+        {publicTournaments.filter(t => t.torneoId !== SOEMEX_TORNEO_ID).map(t => renderTorneoCard(t, false))}
+
+        {/* Torneos demo siempre al final */}
         {DEMO_TOURNAMENTS.map(t => renderTorneoCard(t, false))}
 
         {/* CTA */}

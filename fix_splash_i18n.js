@@ -1,20 +1,22 @@
 const fs = require('fs');
-let splash = fs.readFileSync('src/screens/splash/SplashScreen.tsx', 'utf8');
+let content = fs.readFileSync('src/locales/i18n.ts', 'utf8');
 
-// Fix splash_info hardcodeado
-splash = splash.replace(
-  `>16 CIUDADES SEDE \xb7 48 EQUIPOS</Text>`,
-  `>{t('splash_info') || '16 CIUDADES SEDE · 48 EQUIPOS'}</Text>`
+// KO
+content = content.replace(
+  `splash_enter: 'GOLZAIR\ub85c \ucc38\uac00'`,
+  `splash_title: '2026 \uc6d4\ub4dc\ucef5', splash_select_lang: '\uc5b8\uc5b4 \uc120\ud0dd', splash_info: '16\uac1c \uac1c\uce58 \ub3c4\uc2dc \u00b7 48\uac1c \ud300', splash_enter: 'GOLZAIR\ub85c \ucc38\uac00'`
 );
 
-// Verificar
-if (splash.includes("splash_info")) {
-  console.log('✅ splash_info actualizado');
+if (content.includes('2026 \uc6d4\ub4dc\ucef5')) {
+  console.log('✅ KO agregado');
 } else {
-  console.log('❌ No encontrado — buscando...');
-  const idx = splash.indexOf('16 CIUDAD');
-  console.log(JSON.stringify(splash.substring(idx-20, idx+60)));
+  console.log('❌ KO falló — buscando marcador exacto...');
+  const idx = content.indexOf('GOLZAIR');
+  const koIdx = content.indexOf('ko: {');
+  const slice = content.substring(koIdx, koIdx + 5000);
+  const enterIdx = slice.indexOf('splash_enter');
+  console.log('Exacto:', JSON.stringify(slice.substring(enterIdx, enterIdx + 50)));
 }
 
-fs.writeFileSync('src/screens/splash/SplashScreen.tsx', splash, 'utf8');
+fs.writeFileSync('src/locales/i18n.ts', content, 'utf8');
 console.log('✅ Script completado.');

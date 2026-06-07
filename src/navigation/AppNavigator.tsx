@@ -92,25 +92,25 @@ function MainTabs() {
         },
       }}
     >
-      <Tab.Screen name="Predictor" options={{ tabBarLabel: t('home_predict'), tabBarIcon: ({ focused }) => <TabIcon emoji="⚽" focused={focused} /> }}>
+      <Tab.Screen name="Predictor" options={{ tabBarLabel: t('home_predict'), tabBarIcon: ({ focused }) => <TabIcon emoji="⚡" focused={focused} /> }}>
         {() => <HomeScreen />}
       </Tab.Screen>
-      <Tab.Screen name="Live" options={{ tabBarLabel: t('live_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="📡" focused={focused} /> }}>
+      <Tab.Screen name="Live" options={{ tabBarLabel: t('live_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🔴" focused={focused} /> }}>
         {() => <LiveScreen />}
       </Tab.Screen>
-      <Tab.Screen name="Ranking" options={{ tabBarLabel: t('ranking_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} /> }}>
+      <Tab.Screen name="Ranking" options={{ tabBarLabel: t('ranking_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="👑" focused={focused} /> }}>
         {() => <RankingScreen />}
       </Tab.Screen>
       <Tab.Screen name="Torneos" options={{ tabBarLabel: 'TORNEOS', tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} /> }}>
         {() => <TorneosPublicosScreen />}
       </Tab.Screen>
-      <Tab.Screen name="Mundial" options={{ tabBarLabel: t('mundial_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🌍" focused={focused} /> }}>
+      <Tab.Screen name="Mundial" options={{ tabBarLabel: t('mundial_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🌐" focused={focused} /> }}>
         {() => <MundialScreen />}
       </Tab.Screen>
-      <Tab.Screen name="Liga" options={{ tabBarLabel: t('liga_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🔗" focused={focused} /> }}>
+      <Tab.Screen name="Liga" options={{ tabBarLabel: t('liga_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🛡️" focused={focused} /> }}>
         {() => <LigaScreen />}
       </Tab.Screen>
-      <Tab.Screen name="Perfil" options={{ tabBarLabel: t('profile_tab'), tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }}>
+      <Tab.Screen name="Perfil" options={{ tabBarLabel: t('profile_tab'), tabBarIcon: ({ focused }) => <TabIcon emoji="⭐" focused={focused} /> }}>
         {() => <ProfileScreen />}
       </Tab.Screen>
     </Tab.Navigator>

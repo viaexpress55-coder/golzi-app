@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   collection, addDoc, onSnapshot, query, orderBy,
-  serverTimestamp, doc, updateDoc, getDocs, where,
+  serverTimestamp, doc, updateDoc, getDocs, where, setDoc, deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 

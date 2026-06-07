@@ -165,7 +165,7 @@ export default function TorneosPublicosScreen() {
         {isReal ? (
           <View style={s.prizeBox}>
             <Text style={s.prizeTxt}>{t.prize1}</Text>
-            <Text style={[s.prizeTxt, {marginTop:4, color: C.muted}]}>{t.prize2}</Text>
+            {t.prize2 ? <Text style={[s.prizeTxt, {marginTop:4, color: C.muted}]}>{t.prize2}</Text> : null}
           </View>
         ) : t.prize ? (
           <View style={s.prizeBox}>
@@ -174,8 +174,8 @@ export default function TorneosPublicosScreen() {
         ) : null}
 
         {/* Website */}
-        {(t.website || isReal) && (
-          <TouchableOpacity onPress={() => Linking.openURL(t.website || 'https://www.soemex.com')} style={s.websiteBtn}>
+        {t.website && (
+          <TouchableOpacity onPress={() => Linking.openURL(t.website)} style={s.websiteBtn}>
             <Text style={s.websiteTxt}>🌐 {t.website || 'www.soemex.com'}</Text>
           </TouchableOpacity>
         )}
@@ -211,7 +211,7 @@ export default function TorneosPublicosScreen() {
             style={[s.joinBtn, {backgroundColor:(t.brandColor||C.gold)+'15', borderColor:(t.brandColor||C.gold)+'40'}]}
           >
             <Text style={[s.joinBtnTxt, {color:t.brandColor||C.gold}]}>
-              {isFull ? '🔴 TORNEO LLENO · Ver planes' : '🔒 TORNEO PRIVADO · Ver planes empresariales'}
+              {isFull ? '🔴 TORNEO LLENO' : isReal ? '⚡ INSCRIBIRME' : '🔒 TORNEO PRIVADO · Ver planes empresariales'}
             </Text>
           </TouchableOpacity>
         )}
@@ -249,7 +249,7 @@ export default function TorneosPublicosScreen() {
         {soemexTorneo && renderTorneoCard({...soemexTorneo, flag:'🇨🇴', ciudad:'Barranquilla', pais:'Colombia', tags:['Empresas','Colombia'], isPublic:true}, true)}
 
         {/* Torneos públicos reales de clientes — más reciente arriba */}
-        {publicTournaments.filter(t => t.torneoId !== SOEMEX_TORNEO_ID).map(t => renderTorneoCard(t, false))}
+        {publicTournaments.filter(t => t.torneoId !== SOEMEX_TORNEO_ID).map(t => renderTorneoCard(t, true))}
 
         {/* Torneos demo siempre al final */}
         {DEMO_TOURNAMENTS.map(t => renderTorneoCard(t, false))}

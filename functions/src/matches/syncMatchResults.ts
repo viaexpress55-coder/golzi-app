@@ -1,14 +1,41 @@
 // functions/src/matches/syncMatchResults.ts
-// Scheduled function: sincroniza resultados de football-data.org → Firestore
-// Se ejecuta cada 5 minutos durante el Mundial
-
 import * as admin from 'firebase-admin';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { defineString } from 'firebase-functions/params';
 
 const db = admin.firestore();
 const FOOTBALL_API_KEY = defineString('FOOTBALL_API_KEY');
-const WC2026_COMPETITION = 'WC'; // football-data.org competition code
+const WC2026_COMPETITION = 'WC';
+
+const NAME_MAP: Record<string, string[]> = {
+  'Mexico': ['México', 'Mexico'],
+  'United States': ['USA', 'United States', 'Estados Unidos'],
+  'South Korea': ['Korea Republic', 'Corea del Sur', 'South Korea'],
+  'Ivory Coast': ["Côte d'Ivoire", 'Costa de Marfil', 'Ivory Coast'],
+  'DR Congo': ['Congo DR', 'RD Congo'],
+  'Türkiye': ['Turkey', 'Turquía', 'Türkiye'],
+  'Bosnia and Herzegovina': ['Bosnia y Herz.', 'Bosnia and Herzegovina'],
+  'Saudi Arabia': ['Arabia Saudita', 'Saudi Arabia'],
+  'Czechia': ['Czech Republic', 'Chequia', 'Czechia'],
+};
+
+function getNameVariants(name: string): string[] {
+  for (const [key, variants] of Object.entries(NAME_MAP)) {
+    if (key === name || variants.includes(name)) return [key, ...variants];
+  }
+  return [name];
+}
+
+function mapStatus(apiStatus: string): string {
+  switch (apiStatus) {
+    case 'FINISHED': return 'finished';
+    case 'IN_PLAY':
+    case 'PAUSED':   return 'live';
+    case 'SCHEDULED':
+    case 'TIMED':    return 'scheduled';
+    default:         return apiStatus.toLowerCase();
+  }
+}
 
 export const syncMatchResults = onSchedule({
   schedule: 'every 5 minutes',
@@ -30,38 +57,53 @@ export const syncMatchResults = onSchedule({
 
     const data: any = await response.json();
     const matches = data.matches || [];
-
     console.log(`Procesando ${matches.length} partidos de la API`);
 
     let updated = 0;
     const batch = db.batch();
 
     for (const match of matches) {
-      // Buscar partido en Firestore por matchId o por equipos + fecha
       const homeTeam = match.homeTeam?.name || '';
       const awayTeam = match.awayTeam?.name || '';
-      const status = match.status; // SCHEDULED, IN_PLAY, FINISHED, etc.
+      const status = match.status;
       const homeScore = match.score?.fullTime?.home ?? null;
       const awayScore = match.score?.fullTime?.away ?? null;
       const kickoff = match.utcDate ? new Date(match.utcDate) : null;
 
-      // Buscar en Firestore por homeTeam + awayTeam
-      const snap = await db.collection('matches')
+      // Buscar con nombre exacto primero
+      let snap = await db.collection('matches')
         .where('homeTeam', '==', homeTeam)
         .where('awayTeam', '==', awayTeam)
         .limit(1)
         .get();
 
+      // Si no encontró, buscar con variantes de nombre
       if (snap.empty) {
-        // Intentar búsqueda por nombres alternativos (abreviados)
+        const homeVariants = getNameVariants(homeTeam);
+        const awayVariants = getNameVariants(awayTeam);
+        for (const hv of homeVariants) {
+          for (const av of awayVariants) {
+            if (hv === homeTeam && av === awayTeam) continue;
+            snap = await db.collection('matches')
+              .where('homeTeam', '==', hv)
+              .where('awayTeam', '==', av)
+              .limit(1)
+              .get();
+            if (!snap.empty) break;
+          }
+          if (!snap.empty) break;
+        }
+      }
+
+      if (snap.empty) {
+        console.log(`No encontrado: ${homeTeam} vs ${awayTeam}`);
         continue;
       }
 
       const matchDoc = snap.docs[0];
       const current = matchDoc.data();
-
-      // Solo actualizar si hay cambios
       const newStatus = mapStatus(status);
+
       if (
         current.status === newStatus &&
         current.homeScore === homeScore &&
@@ -85,14 +127,3 @@ export const syncMatchResults = onSchedule({
     console.error('Error syncMatchResults:', e);
   }
 });
-
-function mapStatus(apiStatus: string): string {
-  switch (apiStatus) {
-    case 'FINISHED': return 'finished';
-    case 'IN_PLAY':
-    case 'PAUSED':   return 'live';
-    case 'SCHEDULED':
-    case 'TIMED':    return 'scheduled';
-    default:         return apiStatus.toLowerCase();
-  }
-}

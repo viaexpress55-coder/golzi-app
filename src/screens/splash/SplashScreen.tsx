@@ -174,7 +174,7 @@ export default function SplashScreen() {
           </Animated.View>
         )}
 
-        <Text style={s.tagline}>MUNDIAL 2026</Text>
+        <Text style={s.tagline}>{t('splash_title') === 'splash_title' ? 'MUNDIAL 2026' : t('splash_title')}</Text>
 
         {/* Fechas */}
         <Text style={s.dateRange}>11 JUN – 19 JUL 2026</Text>
@@ -195,7 +195,7 @@ export default function SplashScreen() {
         </View>
 
         {/* Selector de idioma */}
-        <Text style={s.langTitle}>SELECCIONA TU IDIOMA</Text>
+        <Text style={s.langTitle}>{t('splash_select_lang') === 'splash_select_lang' ? 'SELECCIONA TU IDIOMA' : t('splash_select_lang')}</Text>
         <View style={s.langRow}>
           {LANGS.map(l => {
             const isSelected = selectedLang === l.code;
@@ -218,7 +218,7 @@ export default function SplashScreen() {
           })}
         </View>
 
-        <Text style={s.infoTxt}>16 CIUDADES SEDE · 48 EQUIPOS</Text>
+        <Text style={s.infoTxt}>{t('splash_info') || '16 CIUDADES SEDE · 48 EQUIPOS'}</Text>
 
         <TouchableOpacity
           style={s.btnWrap}

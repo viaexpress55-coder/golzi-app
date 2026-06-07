@@ -34,7 +34,8 @@ const C = {
 const RETOS_GRUPOS = [
   { id:'first_goal', label:'reto_first_goal',  type:'team', pts:5, icon:'⚽' },
   { id:'over_goals', label:'reto_over_goals',    type:'yn',   pts:3,  icon:'🎯' },
-  { id:'red_card',   label:'reto_red_card',  type:'yn',   pts:3,  icon:'🟥' },
+  { id:'yellow_cards', label:'reto_yellow_cards', type:'range', pts:3, icon:'🟨' },
+  // REPLACED: { id:'red_card_OLD', label:'reto_red_card_OLD',  type:'yn',   pts:3,  icon:'🟥' },
   { id:'ht_result',  label:'reto_ht_result',type:'1x2',  pts:4,  icon:'⏱' },
 ];
 const RETOS_ELIMINATORIA = [
@@ -87,6 +88,8 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
   const isPaid = userPlan !== 'free' || isInLeague;
   const options = reto.type === 'yn'
     ? [{ val:'yes', label:t('home_si') }, { val:'no', label:t('home_no') }]
+    : reto.type === 'range'
+    ? [{ val:'0-2', label:'0-2' }, { val:'3-4', label:'3-4' }, { val:'5-6', label:'5-6' }, { val:'7+', label:'7+' }]
     : reto.type === '1x2'
     ? [{ val:'1', label:'LOCAL' }, { val:'x', label:'EMPATE' }, { val:'2', label:'VISITA' }]
     : [

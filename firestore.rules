@@ -1,22 +1,16 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // USUARIOS
     match /users/{userId} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow create: if request.auth != null;
       allow update: if request.auth != null && request.auth.uid == userId;
       allow delete: if false;
     }
-
-    // PARTIDOS — lectura pública, escritura solo backend
     match /matches/{matchId} {
       allow read: if true;
       allow write: if false;
     }
-
-    // PREDICCIONES — definitivas, no editables
     match /predictions/{predId} {
       allow read: if request.auth != null &&
         resource.data.userId == request.auth.uid;
@@ -31,16 +25,13 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if false;
     }
-
-    // LIGAS
     match /leagues/{leagueId} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow create: if request.auth != null;
       allow update: if request.auth != null &&
         (resource.data.ownerId == request.auth.uid ||
          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds']));
       allow delete: if false;
-
       match /messages/{messageId} {
         allow read: if request.auth != null;
         allow create: if request.auth != null &&
@@ -50,9 +41,8 @@ service cloud.firestore {
           resource.data.userId == request.auth.uid;
         allow update: if false;
       }
-
       match /members/{memberId} {
-        allow read: if request.auth != null;
+        allow read: if true;
         allow create: if request.auth != null &&
           memberId == request.auth.uid;
         allow update: if request.auth != null &&
@@ -62,9 +52,8 @@ service cloud.firestore {
           (memberId == request.auth.uid ||
            get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid);
       }
-
       match /broadcasts/{broadcastId} {
-        allow read: if request.auth != null;
+        allow read: if true;
         allow create: if request.auth != null &&
           get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
         allow update: if request.auth != null &&
@@ -72,7 +61,6 @@ service cloud.firestore {
         allow delete: if request.auth != null &&
           get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
       }
-
       match /tournaments/{tournamentId} {
         allow read: if request.auth != null;
         allow create: if request.auth != null &&
@@ -82,30 +70,14 @@ service cloud.firestore {
           get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
       }
     }
-
-    // TORNEOS PÚBLICOS
-    match /public_tournaments/{torneoId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null &&
-        resource.data.ownerId == request.auth.uid;
-      allow delete: if request.auth != null &&
-        resource.data.ownerId == request.auth.uid;
-    }
-
-    // TORNEOS legacy
     match /tournaments/{tournamentId} {
       allow read: if true;
       allow write: if false;
     }
-
-    // LIVE MATCHES
     match /live_matches/{matchId} {
       allow read: if true;
       allow write: if false;
     }
-
-    // QUICK CHALLENGES
     match /quick_challenges/{challengeId} {
       allow read: if request.auth != null &&
         resource.data.userId == request.auth.uid;
@@ -115,19 +87,22 @@ service cloud.firestore {
         resource.data.userId == request.auth.uid;
       allow delete: if false;
     }
-
-    // LEADS
     match /leads/{leadId} {
       allow read: if false;
       allow create: if true;
     }
-
     match /business_leads/{leadId} {
       allow read: if false;
       allow create: if true;
     }
-
-    // BUSINESSES
+    match /public_tournaments/{torneoId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null &&
+        resource.data.ownerId == request.auth.uid;
+      allow delete: if request.auth != null &&
+        resource.data.ownerId == request.auth.uid;
+    }
     match /businesses/{businessId} {
       allow read: if request.auth != null;
       allow write: if false;

@@ -48,3 +48,4 @@ serviceAccountKey.json.json
 functions/.env
 firebase-service-account.json 
 fix_spa.js  
+"fix_*.js"  

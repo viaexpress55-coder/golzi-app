@@ -50,3 +50,4 @@ firebase-service-account.json
 fix_spa.js  
 "fix_*.js"  
 ".env.golzi-2026"  
+"functions/.env*"  

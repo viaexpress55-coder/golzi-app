@@ -91,10 +91,10 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
     : reto.type === 'range'
     ? [{ val:'0-2', label:'0-2' }, { val:'3-4', label:'3-4' }, { val:'5-6', label:'5-6' }, { val:'7+', label:'7+' }]
     : reto.type === '1x2'
-    ? [{ val:'1', label:'LOCAL' }, { val:'x', label:'EMPATE' }, { val:'2', label:'VISITA' }]
+    ? [{ val:'1', label:t('reto_local') }, { val:'x', label:t('reto_empate') }, { val:'2', label:t('reto_visita') }]
     : [
         { val:'home', label:(match.homeTeam||'LOC').slice(0,3).toUpperCase() },
-        { val:'none', label:'NINGUNO' },
+        { val:'none', label:t('reto_ninguno') },
         { val:'away', label:(match.awayTeam||'VIS').slice(0,3).toUpperCase() },
       ];
 
@@ -109,7 +109,7 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
         <TouchableOpacity style={rs.paywall} onPress={() => navigation.navigate('Plans')} activeOpacity={0.85}>
           <LinearGradient colors={[C.purple+'22', C.purple+'08']} style={rs.paywallInner}>
             <Text style={rs.paywallLock}>🔒</Text>
-            <Text style={rs.paywallTxt}>GOLZAIR+ para participar</Text>
+            <Text style={rs.paywallTxt}>{t('home_golzair_plus')}</Text>
             <View style={rs.paywallBtn}><Text style={rs.paywallBtnTxt}>{t('home_join_league')}</Text></View>
           </LinearGradient>
         </TouchableOpacity>
@@ -215,7 +215,7 @@ function LiveBadge() {
   return (
     <View style={s.liveBadge}>
       <Animated.View style={[s.liveDot, { opacity:pulse }]} />
-      <Text style={s.liveTxt}>EN VIVO</Text>
+      <Text style={s.liveTxt}>{t('home_live')}</Text>
     </View>
   );
 }
@@ -546,7 +546,7 @@ export default function HomeScreen() {
                 </LinearGradient>
               </TouchableOpacity>
               <TouchableOpacity style={s.skipBtn} onPress={() => setShareModalVisible(false)}>
-                <Text style={s.skipTxt}>Ahora no</Text>
+                <Text style={s.skipTxt}>{t('home_not_now')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -571,7 +571,7 @@ export default function HomeScreen() {
             )}
             <View style={{ flexDirection:'row', gap:10 }}>
               <TouchableOpacity style={{ flex:1, borderRadius:12, borderWidth:1, borderColor:'rgba(255,255,255,0.1)', paddingVertical:14, alignItems:'center' }} onPress={() => setShowConfirmModal(false)}>
-                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#6B7A99', letterSpacing:1 }}>CANCELAR</Text>
+                <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#6B7A99', letterSpacing:1 }}>{t('home_cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex:2, borderRadius:12, overflow:'hidden' }} onPress={() => { setShowConfirmModal(false); if (confirmMatch) confirm(confirmMatch.id); }}>
                 <LinearGradient colors={['#FFD700','#FFA500']} start={{x:0,y:0}} end={{x:1,y:0}} style={{ paddingVertical:14, alignItems:'center', borderRadius:12 }}>
@@ -588,7 +588,7 @@ export default function HomeScreen() {
         <View style={s.headerLeft}>
           <Image source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }} style={s.headerLogo} resizeMode="contain" />
           <View>
-            <Text style={s.headerTitle}>PREDICTOR</Text>
+            <Text style={s.headerTitle}>{t('home_predictor')}</Text>
             <Text style={s.headerSub}>MUNDIAL 2026</Text>
           </View>
         </View>
@@ -686,7 +686,7 @@ export default function HomeScreen() {
                     <View style={s.analysisSide}>
                       <Text style={s.analysisTeam}>{(m.homeTeam||'').slice(0,3).toUpperCase()}</Text>
                       <Text style={s.analysisPct}>{getMatchStats(m.homeTeam).win}%</Text>
-                      <Text style={s.analysisPctLbl}>VICTORIA</Text>
+                      <Text style={s.analysisPctLbl}>{t('home_victory')}</Text>
                     </View>
                     <View style={s.analysisCenter}>
                       <Text style={s.analysisDraw}>{getMatchStats(m.homeTeam).draw}%</Text>
@@ -695,7 +695,7 @@ export default function HomeScreen() {
                     <View style={s.analysisSide}>
                       <Text style={s.analysisTeam}>{(m.awayTeam||'').slice(0,3).toUpperCase()}</Text>
                       <Text style={s.analysisPct}>{getMatchStats(m.awayTeam).win}%</Text>
-                      <Text style={s.analysisPctLbl}>VICTORIA</Text>
+                      <Text style={s.analysisPctLbl}>{t('home_victory')}</Text>
                     </View>
                   </View>
                   <View style={s.analysisBars}>

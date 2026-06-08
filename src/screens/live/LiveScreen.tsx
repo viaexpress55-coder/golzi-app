@@ -94,7 +94,7 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
       {isLive && <LiveBadge minute={match.minute} label={t('live_badge')} />}
       {isFinished && (
         <View style={s.finishedBadge}>
-          <Text style={s.finishedTxt}>FINAL</Text>
+          <Text style={s.finishedTxt}>{t('live_final')}</Text>
         </View>
       )}
       <View style={s.scoreRow}>
@@ -235,7 +235,7 @@ export default function LiveScreen() {
 
   useEffect(() => {
     startAutoSync();
-    const q = query(collection(db, 'live_matches'));
+    const q = query(collection(db, 'matches'));
     const unsub = onSnapshot(q, snap => {
       setLiveMatches(snap.docs.map(d => ({ id:d.id, ...d.data() })));
       setLoading(false);
@@ -245,17 +245,18 @@ export default function LiveScreen() {
 
   if (!fontsLoaded) return <View style={s.root} />;
 
-  const live     = liveMatches.filter(m => m.status==='IN_PLAY' || m.status==='PAUSED');
-  const today    = liveMatches.filter(m => m.status==='SCHEDULED' || m.status==='TIMED');
-  const finished = liveMatches.filter(m => m.status==='FINISHED').slice(-3);
-  const isEmpty  = liveMatches.length === 0;
+  const live     = liveMatches.filter(m => m.status==='IN_PLAY' || m.status==='PAUSED' || m.status==='live');
+  const now = Date.now();
+  const today = liveMatches.filter(m => {
+    if (m.status !== 'SCHEDULED' && m.status !== 'TIMED' && m.status !== 'scheduled') return false;
+    const kickoff = m.kickoffTime?.seconds ? m.kickoffTime.seconds * 1000 : m.kickoffTime ? new Date(m.kickoffTime).getTime() : 0;
+    const in24h = now + 24 * 3600000;
+    return kickoff > now && kickoff < in24h;
+  }).slice(0, 6);
+  const finished = liveMatches.filter(m => m.status==='FINISHED' || m.status==='finished').slice(-3);
+  const isEmpty  = live.length === 0 && finished.length === 0;
 
-  const UPCOMING = [
-    { home:'🇲🇽', homeCode:'MEX', away:'🇿🇦', awayCode:'RSA', time:'11 Jun · 14:00', stadium:'Estadio Azteca' },
-    { home:'🇫🇷', homeCode:'FRA', away:'🇩🇪', awayCode:'GER', time:'11 Jun · 17:00', stadium:'AT&T Stadium' },
-    { home:'🇧🇷', homeCode:'BRA', away:'🇦🇷', awayCode:'ARG', time:'11 Jun · 20:00', stadium:'MetLife Stadium' },
-    { home:'🇪🇸', homeCode:'ESP', away:'🇵🇹', awayCode:'POR', time:'12 Jun · 15:00', stadium:'Rose Bowl' },
-  ];
+
 
   return (
     <View style={s.root}>
@@ -270,7 +271,7 @@ export default function LiveScreen() {
           />
           <View>
             <Text style={s.headerTitle}>{t('live_title')}</Text>
-            <Text style={s.headerSub}>MUNDIAL 2026</Text>
+            <Text style={s.headerSub}>{t('mundial_title')}</Text>
           </View>
         </View>
         {live.length > 0 && (
@@ -330,7 +331,7 @@ export default function LiveScreen() {
                 </View>
                 <View style={s.miniCenter}>
                   <Text style={s.miniScore}>{m.homeScore} - {m.awayScore}</Text>
-                  <Text style={s.miniFinal}>FINAL</Text>
+                  <Text style={s.miniFinal}>{t('live_final')}</Text>
                 </View>
                 <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
                   <Text style={s.miniFlag}>{m.awayFlag || '🌍'}</Text>
@@ -358,23 +359,7 @@ export default function LiveScreen() {
             <View style={s.sectionHeader}>
               <Text style={s.sectionLabel}>{t('live_upcoming')}</Text>
             </View>
-            {UPCOMING.map((m, i) => (
-              <LinearGradient key={i} colors={['rgba(255,255,255,0.04)','rgba(255,255,255,0.01)']} style={s.miniCard}>
-                <View style={s.miniTeamBox}>
-                  <Text style={s.miniFlag}>{m.home}</Text>
-                  <Text style={s.miniName}>{m.homeCode}</Text>
-                </View>
-                <View style={s.miniCenter}>
-                  <Text style={s.miniVs}>VS</Text>
-                  <Text style={s.miniTime}>{m.time}</Text>
-                  <Text style={s.miniStadium}>{m.stadium}</Text>
-                </View>
-                <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
-                  <Text style={s.miniFlag}>{m.away}</Text>
-                  <Text style={s.miniName}>{m.awayCode}</Text>
-                </View>
-              </LinearGradient>
-            ))}
+            
           </View>
         )}
 

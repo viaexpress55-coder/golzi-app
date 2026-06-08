@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../locales/i18n';
 
 function getFlagCode(flag: string): string {
   const codes: Record<string, string> = {
@@ -183,7 +184,7 @@ export default function MundialScreen() {
           />
           <View>
             <Text style={s.headerTitle}>{t('mundial_title')}</Text>
-            <Text style={s.headerSub}>MUNDIAL 2026</Text>
+            <Text style={s.headerSub}>{t('mundial_title')}</Text>
           </View>
         </View>
         <View style={s.teamCountBadge}>
@@ -242,7 +243,7 @@ export default function MundialScreen() {
                 <View style={s.table}>
                   <View style={s.tableHeader}>
                     <Text style={[s.th, { flex:2, textAlign:'left' }]}>{t('mundial_equipo')}</Text>
-                    <Text style={s.th}>PJ</Text>
+                    <Text style={s.th}>{t('mundial_pt')}</Text>
                     <Text style={s.th}>{t('mundial_g')}</Text>
                     <Text style={s.th}>{t('mundial_e')}</Text>
                     <Text style={s.th}>{t('mundial_p')}</Text>
@@ -299,8 +300,8 @@ export default function MundialScreen() {
                     </View>
                     {groupMatches.map((m, i) => {
                       const kickoff = m.kickoffTime ? new Date(m.kickoffTime.seconds * 1000) : null;
-                      const dateStr = kickoff ? kickoff.toLocaleDateString('es', { day:'numeric', month:'short' }) : '';
-                      const timeStr = kickoff ? kickoff.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' }) : '';
+                      const dateStr = kickoff ? kickoff.toLocaleDateString(i18n.language, { day:'numeric', month:'short' }) : '';
+                      const timeStr = kickoff ? kickoff.toLocaleTimeString(i18n.language, { hour:'2-digit', minute:'2-digit' }) : '';
                       const isFinished = m.status === 'FINISHED' || m.status === 'finished';
                       const isLive = m.status === 'IN_PLAY' || m.status === 'live';
                       return (
@@ -315,7 +316,7 @@ export default function MundialScreen() {
                           </View>
                           <View style={s.fixtureCenter}>
                             {isLive ? (
-                              <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:'#FF3355' }}>EN VIVO</Text>
+                              <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:'#FF3355' }}>{t('live_badge')}</Text>
                             ) : isFinished ? (
                               <Text style={s.fixtureScore}>{m.homeScore} - {m.awayScore}</Text>
                             ) : (
@@ -367,8 +368,8 @@ export default function MundialScreen() {
                   .filter(m => m.homeTeam === selGroup || m.awayTeam === selGroup)
                   .map((m, i) => {
                     const kickoff = m.kickoffTime ? new Date(m.kickoffTime.seconds * 1000) : null;
-                    const dateStr = kickoff ? kickoff.toLocaleDateString('es', { day:'numeric', month:'short' }) : '';
-                    const timeStr = kickoff ? kickoff.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' }) : '';
+                    const dateStr = kickoff ? kickoff.toLocaleDateString(i18n.language, { day:'numeric', month:'short' }) : '';
+                    const timeStr = kickoff ? kickoff.toLocaleTimeString(i18n.language, { hour:'2-digit', minute:'2-digit' }) : '';
                     const isHome = m.homeTeam === selGroup;
                     const rival = isHome ? m.awayTeam : m.homeTeam;
                     const rivalFlag = isHome ? m.awayFlag : m.homeFlag;
@@ -392,7 +393,7 @@ export default function MundialScreen() {
                   })}
                 {matches.filter(m => m.homeTeam === selGroup || m.awayTeam === selGroup).length === 0 && (
                   <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:C.muted, textAlign:'center', marginTop:20 }}>
-                    Sin partidos encontrados
+                    {t('mundial_no_matches')}
                   </Text>
                 )}
               </View>

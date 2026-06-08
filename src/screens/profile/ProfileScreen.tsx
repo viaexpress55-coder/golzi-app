@@ -24,11 +24,11 @@ const C = {
 
 // ─── XP / NIVELES ─────────────────────────────────────────────────────────────
 const LEVELS = [
-  { name:'NOVATO',        min:0,    max:50,   icon:'⚽', color:'#6B7A99' },
-  { name:'ANALISTA',      min:51,   max:200,  icon:'🎯', color:'#00C6FF' },
-  { name:'CRACK',         min:201,  max:500,  icon:'⚡', color:'#00FF87' },
-  { name:'LEYENDA',       min:501,  max:1000, icon:'🏆', color:'#FFD700' },
-  { name:'GOLZAIR ELITE', min:1001, max:9999, icon:'👑', color:'#FF6B35' },
+  { name:'NOVATO',        key:'level_novato',  min:0,    max:50,   icon:'⚡', color:'#6B7A99' },
+  { name:'ANALISTA',      key:'level_analyst', min:51,   max:200,  icon:'🎯', color:'#00C6FF' },
+  { name:'CRACK',         key:'level_crack',   min:201,  max:500,  icon:'⚡', color:'#00FF87' },
+  { name:'LEYENDA',       key:'level_legend',  min:501,  max:1000, icon:'🏆', color:'#FFD700' },
+  { name:'GOLZAIR ELITE', key:'level_elite',   min:1001, max:9999, icon:'👑', color:'#FF6B35' },
 ];
 
 function getLevel(pts: number) {
@@ -97,7 +97,7 @@ const xp = StyleSheet.create({
 });
 
 // ─── BADGES MOCK (se conectan a Firestore en siguiente iteración) ──────────────
-function getBadges(exactPredictions: number, maxStreak: number, totalPredictions: number, rankPosition: number | null) {
+function getBadges(exactPredictions: number, maxStreak: number, totalPredictions: number, rankPosition: number | null, t: (k: string) => string) {
   return [
     { icon:'🎯', name:'Primer Exacto',  desc:'Primera prediccion exacta',  earned: exactPredictions >= 1 },
     { icon:'🔥', name:'Racha x3',       desc:'3 correctas seguidas',        earned: maxStreak >= 3 },
@@ -199,9 +199,9 @@ export default function ProfileScreen() {
       const ca = userData?.createdAt;
       if (!ca) return '—';
       // Firestore Timestamp
-      if (ca?.toDate) return new Date(ca.toDate()).toLocaleDateString('es', { month:'short', year:'numeric' });
+      if (ca?.toDate) return new Date(ca.toDate()).toLocaleDateString(undefined, { month:'short', year:'numeric' });
       // Número (seconds)
-      if (ca?.seconds) return new Date(ca.seconds * 1000).toLocaleDateString('es', { month:'short', year:'numeric' });
+      if (ca?.seconds) return new Date(ca.seconds * 1000).toLocaleDateString(undefined, { month:'short', year:'numeric' });
       // String o Date
       const d = new Date(ca);
       if (!isNaN(d.getTime())) return d.toLocaleDateString('es', { month:'short', year:'numeric' });
@@ -238,8 +238,8 @@ export default function ProfileScreen() {
             style={s.headerLogo} resizeMode="contain"
           />
           <View>
-            <Text style={s.headerTitle}>PERFIL</Text>
-            <Text style={s.headerSub}>MUNDIAL 2026</Text>
+            <Text style={s.headerTitle}>{t('profile_tab')}</Text>
+            <Text style={s.headerSub}>{t('mundial_title')}</Text>
           </View>
         </View>
         <TouchableOpacity style={s.settingsBtn}>
@@ -325,8 +325,8 @@ export default function ProfileScreen() {
                     <Text style={s.lvIcon}>{lv.icon}</Text>
                     <View style={s.lvInfo}>
                       <Text style={[s.lvName, { color: isActive ? lv.color : C.muted }]}>
-                        {lv.name}{isActive ? ' ← ' + t('profile_tu_nivel') : ''}
-                      </Text>
+                      {t((lv as any).key) || lv.name}{isActive ? ' → ' + t('profile_tu_nivel') : ''}
+                    </Text>
                       <Text style={s.lvRange}>{lv.min} – {lv.name === 'GOLZAIR ELITE' ? '∞' : lv.max} pts</Text>
                     </View>
                     {isActive && <View style={[s.activeDot, { backgroundColor: lv.color }]} />}
@@ -376,7 +376,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity style={s.upgradeBtn} onPress={() => navigation.navigate('Plans')} activeOpacity={0.85}>
               <LinearGradient colors={[C.gold, C.gold2]} start={{x:0,y:0}} end={{x:1,y:0}} style={s.upgradeBtnInner}>
-                <Text style={s.upgradeTxt}>⚡ {t('profile_upgrade')}</Text>
+                <Text style={s.upgradeTxt}>⚡ {t('profile_upgrade_btn')}</Text>
                 <Text style={s.upgradeSub}>{t('profile_upgrade_sub')}</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -420,7 +420,7 @@ export default function ProfileScreen() {
                   <View style={s.histLeft}>
                     <Text style={s.histMatch}>{h.matchId}</Text>
                     <Text style={s.histDetail}>
-                      Tu pred: <Text style={{ color:C.muted2 }}>{h.homeScore} - {h.awayScore}</Text>
+                      {t('profile_pred')}: <Text style={{ color:C.muted2 }}>{h.homeScore} - {h.awayScore}</Text>
                       {isPending
                         ? <Text style={{ color:C.muted }}> · Pendiente</Text>
                         : <Text style={{ color: isExact ? C.green : isWinner ? C.gold : C.red }}> · {h.pointsEarned > 0 ? `+${h.pointsEarned} pts` : t('profile_no_points')}</Text>
@@ -451,7 +451,7 @@ export default function ProfileScreen() {
         {/* TAB 2 — BADGES */}
         {tab === 2 && (
           <View style={s.badgesGrid}>
-            {getBadges(exactPredictions, maxStreak, totalPredictions, rankPosition).map((b,i) => (
+            {getBadges(exactPredictions, maxStreak, totalPredictions, rankPosition, t).map((b,i) => (
               <LinearGradient
                 key={i}
                 colors={b.earned

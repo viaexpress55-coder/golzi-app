@@ -46,7 +46,7 @@ function getLevelProgress(pts: number): number {
 }
 
 // ─── XP BAR ───────────────────────────────────────────────────────────────────
-function XPBar({ pts }: { pts: number }) {
+function XPBar({ pts, t }: { pts: number; t: (k: string) => string }) {
   const level    = getLevel(pts);
   const nextLv   = getNextLevel(pts);
   const progress = getLevelProgress(pts);
@@ -57,10 +57,10 @@ function XPBar({ pts }: { pts: number }) {
       <View style={xp.labelRow}>
         <View style={[xp.levelBadge, { borderColor: level.color + '55', backgroundColor: level.color + '18' }]}>
           <Text style={xp.levelIcon}>{level.icon}</Text>
-          <Text style={[xp.levelName, { color: level.color }]}>{level.name}</Text>
+          <Text style={[xp.levelName, { color: level.color }]}>{t((level as any).key) || level.name}</Text>
         </View>
         {nextLv ? (
-          <Text style={xp.nextLabel}>{nextLv.min - pts > 0 ? `${nextLv.min - pts} pts → ${nextLv.icon} ${nextLv.name}` : ''}</Text>
+          <Text style={xp.nextLabel}>{nextLv.min - pts > 0 ? `${nextLv.min - pts} pts → ${nextLv.icon} ${t((nextLv as any).key) || nextLv.name}` : ''}</Text>
         ) : (
           <Text style={[xp.nextLabel, { color: C.gold }]}>NIVEL MAXIMO 👑</Text>
         )}
@@ -99,12 +99,12 @@ const xp = StyleSheet.create({
 // ─── BADGES MOCK (se conectan a Firestore en siguiente iteración) ──────────────
 function getBadges(exactPredictions: number, maxStreak: number, totalPredictions: number, rankPosition: number | null, t: (k: string) => string) {
   return [
-    { icon:'🎯', name:'Primer Exacto',  desc:'Primera prediccion exacta',  earned: exactPredictions >= 1 },
-    { icon:'🔥', name:'Racha x3',       desc:'3 correctas seguidas',        earned: maxStreak >= 3 },
-    { icon:'⚡', name:'Goleador',       desc:'10 predicciones exactas',     earned: exactPredictions >= 10 },
-    { icon:'🏆', name:'Campeon',        desc:'Gana una liga privada',       earned: false },
-    { icon:'🌍', name:'Mundial',        desc:'Predice todos los partidos',  earned: totalPredictions >= 104 },
-    { icon:'👑', name:'GOLZI Elite',    desc:'Top 10 global',               earned: rankPosition !== null && rankPosition <= 10 },
+    { icon:'🎯', name: t('badge_first_exact'),  desc: t('badge_first_exact_desc'),  earned: exactPredictions >= 1 },
+    { icon:'🔥', name: t('badge_streak_3'),     desc: t('badge_streak_3_desc'),     earned: maxStreak >= 3 },
+    { icon:'⚡',       name: t('badge_scorer'),       desc: t('badge_scorer_desc'),       earned: exactPredictions >= 10 },
+    { icon:'🏆', name: t('badge_champion'),     desc: t('badge_champion_desc'),     earned: false },
+    { icon:'🌍', name: t('badge_mundial'),      desc: t('badge_mundial_desc'),      earned: totalPredictions >= 104 },
+    { icon:'👑', name: t('badge_elite'),        desc: t('badge_elite_desc'),        earned: rankPosition !== null && rankPosition <= 10 },
   ];
 }
 
@@ -278,7 +278,7 @@ export default function ProfileScreen() {
 
           {/* XP BAR REAL */}
           <View style={s.xpWrap}>
-            <XPBar pts={totalPoints} />
+            <XPBar pts={totalPoints} t={t} />
           </View>
         </View>
 
@@ -465,9 +465,9 @@ export default function ProfileScreen() {
                 <Text style={[s.badgeName, !b.earned && { color:C.muted }]}>{b.name}</Text>
                 <Text style={s.badgeDesc}>{b.desc}</Text>
                 {b.earned ? (
-                  <View style={s.earnedPill}><Text style={s.earnedTxt}>✓ OBTENIDO</Text></View>
+                  <View style={s.earnedPill}><Text style={s.earnedTxt}>✓ {t('profile_badges_earned')}</Text></View>
                 ) : (
-                  <View style={s.lockedPill}><Text style={s.lockedTxt}>🔒 BLOQUEADO</Text></View>
+                  <View style={s.lockedPill}><Text style={s.lockedTxt}>🔒 {t('profile_badges_locked')}</Text></View>
                 )}
               </LinearGradient>
             ))}

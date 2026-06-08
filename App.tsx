@@ -4,7 +4,7 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { Platform } from 'react-native';
 import { initIAP, endIAP } from './src/services/iap';
 
-import './src/locales/i18n';
+import './src/locales/i18n'; // v1780934246627
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotifications } from './src/services/notifications';
 import i18n from './src/locales/i18n';

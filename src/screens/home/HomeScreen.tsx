@@ -205,6 +205,7 @@ function getMatchStats(teamName: string) {
 }
 
 function LiveBadge() {
+  const { t } = useTranslation();
   const pulse = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     Animated.loop(Animated.sequence([

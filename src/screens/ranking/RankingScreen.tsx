@@ -124,6 +124,7 @@ function PodiumCard({ player, rank }: { player: any; rank: number }) {
 
 // ── PaywallBanner ─────────────────────────────────────────────────────────────
 function PaywallBanner({ hiddenCount, onUnlock }: { hiddenCount:number; onUnlock:()=>void }) {
+  const { t } = useTranslation();
   const pulseAnim = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     Animated.loop(Animated.sequence([

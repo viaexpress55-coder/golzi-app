@@ -12,6 +12,7 @@ import { getAuth } from 'firebase/auth';
 import { Platform } from 'react-native';
 import { initIAP, purchaseProduct, PRODUCT_IDS } from '../../services/iap';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 
@@ -44,6 +45,7 @@ const PLAN_USERS: Record<string, string> = {
 export default function PaymentScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const route = useRoute<PaymentRouteProp>();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

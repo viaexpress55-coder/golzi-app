@@ -144,14 +144,14 @@ function PaywallBanner({ hiddenCount, onUnlock }: { hiddenCount:number; onUnlock
           <Text style={pw.blurredMore}>+{hiddenCount-5}</Text>
         </View>
         <Text style={pw.lockIcon}>🔒</Text>
-        <Text style={pw.title}>{hiddenCount} GOLZAIRES OCULTOS</Text>
-        <Text style={pw.sub}>Unete a una liga para ver el ranking completo</Text>
+        <Text style={pw.title}>{hiddenCount} {t('ranking_hidden')}</Text>
+        <Text style={pw.sub}>{t('ranking_join_league')}</Text>
         <TouchableOpacity style={pw.btn} onPress={onUnlock} activeOpacity={0.85}>
           <LinearGradient colors={[C.purple,'#7C3AED']} start={{x:0,y:0}} end={{x:1,y:0}} style={pw.btnInner}>
             <Text style={pw.btnTxt}>⚡ VER RANKING — UNETE A UNA LIGA</Text>
           </LinearGradient>
         </TouchableOpacity>
-        <Text style={pw.hint}>Los miembros de liga ven el ranking completo</Text>
+        <Text style={pw.hint}>{t('ranking_members_hint')}</Text>
       </LinearGradient>
     </Animated.View>
   );
@@ -367,7 +367,7 @@ export default function RankingScreen() {
           <Image source={{ uri:'https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5' }} style={s.headerLogo} resizeMode="contain" />
           <View>
             <Text style={s.headerTitle}>RANKING</Text>
-            <Text style={s.headerSub}>MUNDIAL 2026</Text>
+            <Text style={s.headerSub}>{t('mundial_title')}</Text>
           </View>
         </View>
         <View style={s.playerCount}>
@@ -391,7 +391,7 @@ export default function RankingScreen() {
               <Text style={s.myPosPts}>{me.pts}</Text>
               <Text style={s.myPosPtsLbl}>PTS</Text>
               <TouchableOpacity style={s.shareBtn} onPress={shareRanking}>
-                <Text style={s.shareBtnTxt}>📤 COMPARTIR</Text>
+                <Text style={s.shareBtnTxt}>📤 {t('ranking_share')}</Text>
               </TouchableOpacity>
             </View>
           </LinearGradient>
@@ -414,11 +414,11 @@ export default function RankingScreen() {
           <View style={{ paddingHorizontal:12, marginTop:8 }}>
             <View style={s.divider}>
               <View style={s.dividerLine} />
-              <Text style={s.dividerTxt}>🌍 RANKING DE PAÍSES</Text>
+              <Text style={s.dividerTxt}>🌍 {t('ranking_countries_title')}</Text>
               <View style={s.dividerLine} />
             </View>
             <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:C.muted, textAlign:'center', marginBottom:12 }}>
-              Puntos promedio por usuario de cada país
+              {t('ranking_avg_pts')}
             </Text>
             {countryRanking.map((c, idx) => {
               const medals = ['🥇','🥈','🥉'];
@@ -451,7 +451,7 @@ export default function RankingScreen() {
               );
             })}
             <View style={s.footer}>
-              <Text style={s.footerTxt}>⚡ Invita amigos de tu país para subir el ranking 🇨🇴</Text>
+              <Text style={s.footerTxt}>⚡ {t('ranking_invite_country')}</Text>
             </View>
           </View>
         )}
@@ -511,7 +511,7 @@ export default function RankingScreen() {
             {tab === 2 && (
               <View style={[s.divider, { marginTop:8 }]}>
                 <View style={s.dividerLine} />
-                <Text style={s.dividerTxt}>{myCountry} MI PAÍS</Text>
+                <Text style={s.dividerTxt}>{getCountryName(myCountry) || myCountry} {t('ranking_my_country')}</Text>
                 <View style={s.dividerLine} />
               </View>
             )}

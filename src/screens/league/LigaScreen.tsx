@@ -68,7 +68,7 @@ function getMaxMembersByPlan(plan: string): number {
   if (p === 'BUSINESS')      return 1000;
   if (p === 'GOLD')          return 2500;
   if (p === 'GOLZI PREMIUM') return 5000;
-  return 5;
+  return 0; // FREE no puede crear liga
 }
 
 export default function LigaScreen() {
@@ -494,8 +494,8 @@ export default function LigaScreen() {
             style={s.headerLogo} resizeMode="contain"
           />
           <View>
-            <Text style={s.headerTitle}>LIGA</Text>
-            <Text style={s.headerSub}>MUNDIAL 2026</Text>
+            <Text style={s.headerTitle}>{t('nav_liga')}</Text>
+            <Text style={s.headerSub}>{t('mundial_title')}</Text>
           </View>
         </View>
         {userData && (
@@ -1102,7 +1102,13 @@ export default function LigaScreen() {
               <Text style={s.formEyebrow}>GOLZI · MUNDIAL 2026</Text>
               <Text style={s.formTitle}>CREAR LIGA</Text>
               <View style={s.formTitleLine} />
-              <Text style={s.formSub}>Tu plan: {(userData?.plan || 'LIGA').toUpperCase()} · hasta {getMaxMembersByPlan(userData?.plan || 'liga')} jugadores</Text>
+              <Text style={s.formSub}>{
+                (() => {
+                  const p = ((userData as any)?.plan || 'free').toUpperCase();
+                  if (p === 'FREE' || p === '' ) return t('league_need_plan');
+                  return t('league_your_plan') + ': ' + p + ' · ' + t('league_up_to') + ' ' + getMaxMembersByPlan(p) + ' ' + t('league_players');
+                })()
+              }</Text>
               <Text style={s.inputLabel}>NOMBRE DE LA LIGA</Text>
               <View style={[s.inputWrap, createError && !ligaName.trim() && {borderColor:'#FF3355', borderWidth:1.5}]}>
                 <Text style={s.inputIcon}>🏆</Text>
@@ -1171,7 +1177,22 @@ export default function LigaScreen() {
               )}
               <LinearGradient colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']} style={s.featCard}>
                 <Text style={s.featTitle}>⚡ PLAN {(userData?.plan || 'LIGA').toUpperCase()}</Text>
-                {['Hasta ' + getMaxMembersByPlan(userData?.plan || 'liga') + ' jugadores','Ranking en tiempo real','Chat de liga'].map((f,i) => (
+                {(() => {
+                const p = ((userData as any)?.plan || 'liga').toUpperCase();
+                const feats = [];
+                const p2 = ((userData as any)?.plan || 'free').toUpperCase();
+                if (p2 === 'FREE') {
+                  feats.push(t('league_feat_predict'));
+                  feats.push(t('league_feat_chat_invited'));
+                  feats.push(t('league_feat_ranking_invited'));
+                } else {
+                  if (getMaxMembersByPlan(p2) > 0) feats.push(t('league_feat_slots').replace('{n}', String(getMaxMembersByPlan(p2))));
+                  feats.push(t('league_feat_ranking'));
+                  feats.push(t('league_feat_chat'));
+                  feats.push(t('league_feat_invite'));
+                }
+                return feats;
+              })().map((f,i) => (
                   <View key={i} style={s.featRow}>
                     <Text style={s.featCheck}>✓</Text>
                     <Text style={s.featTxt}>{f}</Text>

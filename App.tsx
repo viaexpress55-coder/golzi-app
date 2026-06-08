@@ -3,7 +3,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { Platform } from 'react-native';
 import { initIAP, endIAP } from './src/services/iap';
-import { initIAP, endIAP } from './src/services/iap';
+
 import './src/locales/i18n';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotifications } from './src/services/notifications';

@@ -221,7 +221,7 @@ const userId = user.uid;
               {loading ? (
                 <ActivityIndicator color="#000" size="small" />
               ) : (
-                <Text style={s.buyBtnTxt}>⚡ ACTIVAR {planName} — ${price}</Text>
+                <Text style={s.buyBtnTxt}>⚡ {t('plans_activate')} {planName} — ${price}</Text>
               )}
             </LinearGradient>
           </TouchableOpacity>

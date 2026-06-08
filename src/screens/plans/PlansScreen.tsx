@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 
@@ -80,6 +81,7 @@ const B2B_PLANS = [
 
 export default function PlansScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+  const { t } = useTranslation();
   const [tab, setTab] = useState(0);
 
   function handleB2CSelect(plan: typeof B2C_PLANS[0]) {
@@ -133,7 +135,7 @@ export default function PlansScreen() {
 
       {/* HERO */}
       <View style={s.hero}>
-        <Text style={s.heroTitle}>1 PAGA, TODOS JUEGAN</Text>
+        <Text style={s.heroTitle}>{t('plans_hero_title')}</Text>
         <Text style={s.heroSub}>Crea tu liga · Invita a quien quieras · Todos compiten</Text>
         <View style={s.heroRow}>
           <View style={s.heroPill}><Text style={s.heroPillTxt}>$1.99 POR JUGADOR</Text></View>
@@ -144,9 +146,9 @@ export default function PlansScreen() {
 
       {/* TABS */}
       <View style={s.tabs}>
-        {['PERSONAL', 'EMPRESAS'].map((t, i) => (
+        {[t('plans_tab_personal'), t('plans_tab_business')].map((tabName, i) => (
           <TouchableOpacity key={i} style={[s.tab, tab === i && s.tabOn]} onPress={() => setTab(i)}>
-            <Text style={[s.tabTxt, tab === i && s.tabTxtOn]}>{t}</Text>
+            <Text style={[s.tabTxt, tab === i && s.tabTxtOn]}>{tabName}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -191,10 +193,10 @@ export default function PlansScreen() {
               {plan.perUser && (
                 <View style={s.perUserRow}>
                   <Text style={[s.perUserPrice, { color:plan.color }]}>{plan.perUser}</Text>
-                  <Text style={s.perUserLabel}> por jugador</Text>
+                  <Text style={s.perUserLabel}> {t('plans_per_player')}</Text>
                   {plan.saving !== '0%' && plan.saving && (
                     <View style={[s.savingBadge, { backgroundColor:`${plan.color}20` }]}>
-                      <Text style={[s.savingTxt, { color:plan.color }]}>Ahorra {plan.saving}</Text>
+                      <Text style={[s.savingTxt, { color:plan.color }]}>{t('plans_save')} {plan.saving}</Text>
                     </View>
                   )}
                 </View>
@@ -232,7 +234,7 @@ export default function PlansScreen() {
           {/* Tabla de ahorro */}
           <View style={s.savingsTable}>
             <Text style={s.savingsTitleTxt}>COMPARA TU AHORRO</Text>
-            <Text style={s.savingsSubTxt}>Precio base: $1.99 por jugador</Text>
+            <Text style={s.savingsSubTxt}>Precio base: $1.99 {t('plans_per_player')}</Text>
             <View style={s.savingsRow}>
               {[
                 { name:'LIGA', price:'$1.99', saving:'0%' },
@@ -309,14 +311,14 @@ export default function PlansScreen() {
 
               <View style={s.perUserRow}>
                 <Text style={[s.perUserPrice, { color:plan.color }]}>{plan.perUser}</Text>
-                <Text style={s.perUserLabel}> por usuario</Text>
+                <Text style={s.perUserLabel}> {t('plans_per_user')}</Text>
                 <View style={[s.savingBadge, { backgroundColor:`${plan.color}20` }]}>
-                  <Text style={[s.savingTxt, { color:plan.color }]}>Ahorra {plan.saving}</Text>
+                  <Text style={[s.savingTxt, { color:plan.color }]}>{t('plans_save')} {plan.saving}</Text>
                 </View>
               </View>
 
               <View style={s.playersNote}>
-                <Text style={s.playersNoteTxt}>👥 {plan.users.toLocaleString()} usuarios en todas tus ligas</Text>
+                <Text style={s.playersNoteTxt}>👥 {t('plans_users_note').replace('{n}', plan.users.toLocaleString())}</Text>
               </View>
 
               <View style={s.divider} />
@@ -351,7 +353,7 @@ export default function PlansScreen() {
           {/* Tabla de ahorro B2B */}
           <View style={s.savingsTable}>
             <Text style={s.savingsTitleTxt}>COMPARA TU AHORRO</Text>
-            <Text style={s.savingsSubTxt}>Precio base: $1.99 por usuario</Text>
+            <Text style={s.savingsSubTxt}>Precio base: $1.99 {t('plans_per_user')}</Text>
             <View style={s.savingsRow}>
               {[
                 { name:'PARTNER', price:'$0.70', saving:'65%' },

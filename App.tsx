@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { Platform } from 'react-native';
+import { initIAP, endIAP } from './src/services/iap';
+import { initIAP, endIAP } from './src/services/iap';
 import './src/locales/i18n';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotifications } from './src/services/notifications';
@@ -30,6 +32,9 @@ export default function App() {
 
   useEffect(() => {
     // Registrar para notificaciones
+    if (Platform.OS === 'android') {
+      initIAP().catch(e => console.log('IAP init error:', e));
+    }
     registerForPushNotifications();
 
     // Listener cuando llega notificación con app abierta
@@ -46,6 +51,7 @@ export default function App() {
       // ✅ FIX APLICADO (REEMPLAZO EXACTO)
       notificationListener.current?.remove();
       responseListener.current?.remove();
+      if (Platform.OS === 'android') endIAP();
     };
   }, []);
 

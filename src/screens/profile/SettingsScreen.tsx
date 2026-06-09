@@ -193,7 +193,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
     try {
       setSavingUsername(true);
       await updateDoc(doc(db, 'users', user!.uid), { username: newUsername.trim() });
-      Alert.alert('✅', 'Nombre de usuario actualizado');
+      Alert.alert('✅', t('settings_username_title'));
       setActiveSection(null);
     } catch (e) {
       Alert.alert('Error', 'No se pudo actualizar el nombre');
@@ -216,7 +216,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
       const credential = EmailAuthProvider.credential(user!.email!, currentPassword);
       await reauthenticateWithCredential(user!, credential);
       await updatePassword(user!, newPassword);
-      Alert.alert('✅', 'Contraseña actualizada correctamente');
+      Alert.alert('✅', t('settings_update_password'));
       setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
       setActiveSection(null);
     } catch (e: any) {
@@ -236,7 +236,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
       await updateDoc(doc(db, 'users', user!.uid), { country: code });
       setSelectedCountry(code);
       setShowCountryModal(false);
-      Alert.alert('✅', 'País actualizado');
+      Alert.alert('✅', t('settings_country'));
     } catch (e) {
       Alert.alert('Error', 'No se pudo actualizar el país');
     } finally {
@@ -257,7 +257,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
 
   async function togglePush(val: boolean) {
     if (Platform.OS === 'web') {
-      Alert.alert('ℹ️', 'Las notificaciones push no están disponibles en web');
+      Alert.alert('ℹ️', t('settings_notif_web'));
       return;
     }
     if (val) {
@@ -279,12 +279,12 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
 
   async function clearCache() {
     Alert.alert(
-      '🗑️ Limpiar caché',
-      '¿Limpiar datos en caché de la app? Tus predicciones y puntos no se borrarán.',
+      '🗑️ ' + t('settings_cache'),
+      t('settings_cache_confirm_msg'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('settings_cancel'), style: 'cancel' },
         {
-          text: 'Limpiar',
+          text: t('settings_cache_ok'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -293,7 +293,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                 k.startsWith('golzi_cache_') || k.startsWith('expo_')
               );
               await AsyncStorage.multiRemove(cacheKeys);
-              Alert.alert('✅', 'Caché limpiado correctamente');
+              Alert.alert('✅', t('settings_cache_done'));
             } catch (e) {
               Alert.alert('Error', 'No se pudo limpiar el caché');
             }
@@ -305,16 +305,16 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
 
   async function handleDeleteAccount() {
     if (!deletePassword.trim()) {
-      Alert.alert('⚠️', 'Ingresa tu contraseña para confirmar');
+      Alert.alert('⚠️', t('settings_delete_confirm_label'));
       return;
     }
     Alert.alert(
-      '⚠️ ELIMINAR CUENTA',
-      'Esta acción es irreversible. Se borrarán todos tus datos, predicciones y ligas.',
+      t('settings_delete_confirm_title'),
+      t('settings_delete_confirm_msg'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('settings_cancel'), style: 'cancel' },
         {
-          text: 'ELIMINAR',
+          text: t('settings_delete_title'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -371,15 +371,15 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
       case 'username':
         return (
           <View style={s.sectionContent}>
-            <Text style={s.sectionTitle}>NOMBRE DE USUARIO</Text>
-            <Text style={s.sectionSub}>Mínimo 3 caracteres. Visible en el ranking.</Text>
+            <Text style={s.sectionTitle}>{t('settings_username_title')}</Text>
+            <Text style={s.sectionSub}>{t('settings_username_desc')}</Text>
             <View style={s.inputWrap}>
               <Text style={s.inputIcon}>👤</Text>
               <TextInput
                 style={s.input}
                 value={newUsername}
                 onChangeText={setNewUsername}
-                placeholder="Ej: Golzaire2026"
+                placeholder={t('settings_username_title')}
                 placeholderTextColor={C.muted}
                 maxLength={20}
                 autoCapitalize="none"
@@ -393,7 +393,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
               <LinearGradient colors={[C.gold, C.gold2]} style={s.actionBtnInner}>
                 {savingUsername
                   ? <ActivityIndicator color="#000" />
-                  : <Text style={s.actionBtnTxt}>⚡ GUARDAR</Text>
+                  : <Text style={s.actionBtnTxt}>{t('settings_save')}</Text>
                 }
               </LinearGradient>
             </TouchableOpacity>
@@ -404,12 +404,12 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
       case 'password':
         return (
           <View style={s.sectionContent}>
-            <Text style={s.sectionTitle}>CAMBIAR CONTRASEÑA</Text>
-            <Text style={s.sectionSub}>Mínimo 6 caracteres.</Text>
+            <Text style={s.sectionTitle}>{t('settings_password_title')}</Text>
+            <Text style={s.sectionSub}>{t('settings_password_desc')}</Text>
             {[
-              { label: 'CONTRASEÑA ACTUAL', val: currentPassword, set: setCurrentPassword },
-              { label: 'NUEVA CONTRASEÑA', val: newPassword, set: setNewPassword },
-              { label: 'CONFIRMAR NUEVA', val: confirmPassword, set: setConfirmPassword },
+              { label: t('settings_current_password'), val: currentPassword, set: setCurrentPassword },
+              { label: t('settings_new_password'), val: newPassword, set: setNewPassword },
+              { label: t('settings_confirm_password'), val: confirmPassword, set: setConfirmPassword },
             ].map((field, i) => (
               <View key={i}>
                 <Text style={s.inputLabel}>{field.label}</Text>
@@ -434,7 +434,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
               <LinearGradient colors={[C.gold, C.gold2]} style={s.actionBtnInner}>
                 {savingPassword
                   ? <ActivityIndicator color="#000" />
-                  : <Text style={s.actionBtnTxt}>⚡ ACTUALIZAR CONTRASEÑA</Text>
+                  : <Text style={s.actionBtnTxt}>{t('settings_update_password')}</Text>
                 }
               </LinearGradient>
             </TouchableOpacity>
@@ -445,7 +445,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
       case 'notifications':
         return (
           <View style={s.sectionContent}>
-            <Text style={s.sectionTitle}>NOTIFICACIONES</Text>
+            <Text style={s.sectionTitle}>{t('settings_notifications')}</Text>
             <View style={s.switchRow}>
               <View style={s.switchInfo}>
                 <Text style={s.switchLabel}>🔔 Notificaciones push</Text>
@@ -484,8 +484,8 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
       case 'faq':
         return (
           <View style={s.sectionContent}>
-            <Text style={s.sectionTitle}>PREGUNTAS FRECUENTES</Text>
-            <Text style={s.sectionSub}>Uso de la app y planes</Text>
+            <Text style={s.sectionTitle}>{t('settings_faq_title')}</Text>
+            <Text style={s.sectionSub}>{t('settings_faq_sub')}</Text>
             {FAQ_ITEMS.map((item, i) => (
               <TouchableOpacity
                 key={i}
@@ -509,16 +509,16 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
       case 'contact':
         return (
           <View style={s.sectionContent}>
-            <Text style={s.sectionTitle}>CONTACTO Y SOPORTE</Text>
-            <Text style={s.sectionSub}>Estamos para ayudarte</Text>
+            <Text style={s.sectionTitle}>{t('settings_contact_title')}</Text>
+            <Text style={s.sectionSub}>{t('settings_contact_desc')}</Text>
 
             <TouchableOpacity style={s.contactCard} onPress={openWhatsApp} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(0,255,135,0.08)', 'rgba(0,255,135,0.02)']} style={s.contactCardInner}>
                 <View style={s.contactCardTop} />
                 <Text style={s.contactCardIcon}>💬</Text>
                 <Text style={s.contactCardTitle}>WhatsApp</Text>
-                <Text style={s.contactCardVal}>+57 305 432 5588</Text>
-                <Text style={s.contactCardSub}>Lun–Vie 8am–8pm (COL)</Text>
+                <Text style={s.contactCardVal}>{t('settings_contact_whatsapp')}</Text>
+                <Text style={s.contactCardSub}>{t('settings_contact_hours')}</Text>
               </LinearGradient>
             </TouchableOpacity>
 
@@ -527,14 +527,14 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                 <View style={[s.contactCardTop, { backgroundColor: C.cyan }]} />
                 <Text style={s.contactCardIcon}>📧</Text>
                 <Text style={[s.contactCardTitle, { color: C.cyan }]}>Email</Text>
-                <Text style={s.contactCardVal}>golziapp@gmail.com</Text>
-                <Text style={s.contactCardSub}>Respuesta en menos de 24h</Text>
+                <Text style={s.contactCardVal}>{t('settings_contact_email_val')}</Text>
+                <Text style={s.contactCardSub}>{t('settings_contact_email_sub')}</Text>
               </LinearGradient>
             </TouchableOpacity>
 
             <View style={s.infoBox}>
               <Text style={s.infoBoxTxt}>
-                🏢 Para planes empresariales (PARTNER/BUSINESS/GOLD/PREMIUM) contactar directamente para atención prioritaria.
+                {t('settings_contact_enterprise')}
               </Text>
             </View>
           </View>
@@ -544,12 +544,12 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
       case 'app':
         return (
           <View style={s.sectionContent}>
-            <Text style={s.sectionTitle}>CONFIGURACIÓN DE APP</Text>
+            <Text style={s.sectionTitle}>{t('settings_cache_title')}</Text>
             <TouchableOpacity style={s.dangerRow} onPress={clearCache} activeOpacity={0.8}>
               <View style={s.dangerRowLeft}>
                 <Text style={s.dangerIcon}>🗑️</Text>
                 <View>
-                  <Text style={s.dangerLabel}>Limpiar caché</Text>
+                  <Text style={s.dangerLabel}>{t('settings_cache')}</Text>
                   <Text style={s.dangerSub}>Libera espacio de almacenamiento temporal</Text>
                 </View>
               </View>
@@ -567,13 +567,13 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
       case 'delete':
         return (
           <View style={s.sectionContent}>
-            <Text style={[s.sectionTitle, { color: C.red }]}>ELIMINAR CUENTA</Text>
+            <Text style={[s.sectionTitle, { color: C.red }]}>{t('settings_delete_title')}</Text>
             <View style={s.warningBox}>
               <Text style={s.warningTxt}>
-                ⚠️ Esta acción es permanente e irreversible. Se eliminarán todos tus datos: predicciones, puntos, ligas y perfil.
+                {t('settings_delete_warning')}
               </Text>
             </View>
-            <Text style={s.inputLabel}>CONFIRMA CON TU CONTRASEÑA</Text>
+            <Text style={s.inputLabel}>{t('settings_delete_confirm_label')}</Text>
             <View style={s.inputWrap}>
               <Text style={s.inputIcon}>🔒</Text>
               <TextInput
@@ -581,7 +581,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                 value={deletePassword}
                 onChangeText={setDeletePassword}
                 secureTextEntry
-                placeholder="Tu contraseña actual"
+                placeholder={t('settings_current_password')}
                 placeholderTextColor={C.muted}
               />
             </View>
@@ -593,7 +593,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
             >
               {deletingAccount
                 ? <ActivityIndicator color={C.red} />
-                : <Text style={s.deleteBtnTxt}>🗑️ ELIMINAR MI CUENTA</Text>
+                : <Text style={s.deleteBtnTxt}>{t('settings_delete_btn')}</Text>
               }
             </TouchableOpacity>
           </View>
@@ -616,14 +616,14 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
           <Text style={s.backArrow}>{activeSection ? '←' : '✕'}</Text>
         </TouchableOpacity>
         <Text style={s.headerTitle}>
-          {activeSection === 'username' ? 'NOMBRE' :
-           activeSection === 'password' ? 'CONTRASEÑA' :
-           activeSection === 'notifications' ? 'NOTIFICACIONES' :
-           activeSection === 'faq' ? 'FAQ' :
-           activeSection === 'contact' ? 'CONTACTO' :
-           activeSection === 'app' ? 'APP' :
-           activeSection === 'delete' ? 'ELIMINAR' :
-           'AJUSTES'}
+          {activeSection === 'username' ? t('settings_username_title') :
+           activeSection === 'password' ? t('settings_password_title') :
+           activeSection === 'notifications' ? t('settings_notif_title') :
+           activeSection === 'faq' ? t('settings_faq_title') :
+           activeSection === 'contact' ? t('settings_contact_title') :
+           activeSection === 'app' ? t('settings_cache_title') :
+           activeSection === 'delete' ? t('settings_delete_action') :
+           t('settings_title')}
         </Text>
         <View style={{ width: 40 }} />
       </LinearGradient>
@@ -634,13 +634,13 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
           <>
             {/* ── SECCIÓN: CUENTA ── */}
             <View style={s.group}>
-              <Text style={s.groupLabel}>CUENTA</Text>
+              <Text style={s.groupLabel}>{t('settings_account')}</Text>
 
               <TouchableOpacity style={s.row} onPress={() => setActiveSection('username')} activeOpacity={0.8}>
                 <View style={s.rowLeft}>
                   <View style={s.rowIconWrap}><Text style={s.rowIcon}>👤</Text></View>
                   <View>
-                    <Text style={s.rowLabel}>Nombre de usuario</Text>
+                    <Text style={s.rowLabel}>{t('settings_username')}</Text>
                     <Text style={s.rowVal}>{userData?.username || 'Sin nombre'}</Text>
                   </View>
                 </View>
@@ -651,7 +651,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                 <View style={s.rowLeft}>
                   <View style={s.rowIconWrap}><Text style={s.rowIcon}>🔒</Text></View>
                   <View>
-                    <Text style={s.rowLabel}>Contraseña</Text>
+                    <Text style={s.rowLabel}>{t('settings_password')}</Text>
                     <Text style={s.rowVal}>••••••••</Text>
                   </View>
                 </View>
@@ -664,7 +664,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                     <Text style={{ fontSize: 20 }}>{currentCountryObj?.flag || '🌍'}</Text>
                   </View>
                   <View>
-                    <Text style={s.rowLabel}>País</Text>
+                    <Text style={s.rowLabel}>{t('settings_country')}</Text>
                     <Text style={s.rowVal}>{currentCountryObj?.name || selectedCountry.toUpperCase()}</Text>
                   </View>
                 </View>
@@ -677,7 +677,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                     <Text style={{ fontSize: 20 }}>{currentLangObj?.flag || '🌐'}</Text>
                   </View>
                   <View>
-                    <Text style={s.rowLabel}>Idioma</Text>
+                    <Text style={s.rowLabel}>{t('settings_language')}</Text>
                     <Text style={s.rowVal}>{currentLangObj?.name || selectedLang}</Text>
                   </View>
                 </View>
@@ -687,13 +687,13 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
 
             {/* ── SECCIÓN: NOTIFICACIONES ── */}
             <View style={s.group}>
-              <Text style={s.groupLabel}>NOTIFICACIONES</Text>
+              <Text style={s.groupLabel}>{t('settings_notifications')}</Text>
               <TouchableOpacity style={s.row} onPress={() => setActiveSection('notifications')} activeOpacity={0.8}>
                 <View style={s.rowLeft}>
                   <View style={s.rowIconWrap}><Text style={s.rowIcon}>🔔</Text></View>
                   <View>
-                    <Text style={s.rowLabel}>Configurar notificaciones</Text>
-                    <Text style={s.rowVal}>{pushEnabled ? '✓ Activadas' : 'Desactivadas'}</Text>
+                    <Text style={s.rowLabel}>{t('settings_push')}</Text>
+                    <Text style={s.rowVal}>{pushEnabled ? '✓ ' + t('settings_push') : t('settings_notif_title')}</Text>
                   </View>
                 </View>
                 <Text style={s.rowArrow}>›</Text>
@@ -702,13 +702,13 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
 
             {/* ── SECCIÓN: APP ── */}
             <View style={s.group}>
-              <Text style={s.groupLabel}>APP</Text>
+              <Text style={s.groupLabel}>{t('settings_app')}</Text>
               <TouchableOpacity style={s.row} onPress={() => setActiveSection('app')} activeOpacity={0.8}>
                 <View style={s.rowLeft}>
                   <View style={s.rowIconWrap}><Text style={s.rowIcon}>🗑️</Text></View>
                   <View>
                     <Text style={s.rowLabel}>Limpiar caché</Text>
-                    <Text style={s.rowVal}>Libera almacenamiento temporal</Text>
+                    <Text style={s.rowVal}>{t('settings_cache_sub')}</Text>
                   </View>
                 </View>
                 <Text style={s.rowArrow}>›</Text>
@@ -717,14 +717,14 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
 
             {/* ── SECCIÓN: AYUDA ── */}
             <View style={s.group}>
-              <Text style={s.groupLabel}>AYUDA</Text>
+              <Text style={s.groupLabel}>{t('settings_help')}</Text>
 
               <TouchableOpacity style={s.row} onPress={() => setActiveSection('faq')} activeOpacity={0.8}>
                 <View style={s.rowLeft}>
                   <View style={s.rowIconWrap}><Text style={s.rowIcon}>❓</Text></View>
                   <View>
-                    <Text style={s.rowLabel}>Preguntas frecuentes</Text>
-                    <Text style={s.rowVal}>Uso de la app y planes</Text>
+                    <Text style={s.rowLabel}>{t('settings_faq')}</Text>
+                    <Text style={s.rowVal}>{t('settings_faq_sub')}</Text>
                   </View>
                 </View>
                 <Text style={s.rowArrow}>›</Text>
@@ -734,8 +734,8 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                 <View style={s.rowLeft}>
                   <View style={s.rowIconWrap}><Text style={s.rowIcon}>💬</Text></View>
                   <View>
-                    <Text style={s.rowLabel}>Contacto y soporte</Text>
-                    <Text style={s.rowVal}>WhatsApp · Email</Text>
+                    <Text style={s.rowLabel}>{t('settings_contact')}</Text>
+                    <Text style={s.rowVal}>{t('settings_contact_sub')}</Text>
                   </View>
                 </View>
                 <Text style={s.rowArrow}>›</Text>
@@ -745,8 +745,8 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                 <View style={s.rowLeft}>
                   <View style={s.rowIconWrap}><Text style={s.rowIcon}>📖</Text></View>
                   <View>
-                    <Text style={s.rowLabel}>Manual de usuario</Text>
-                    <Text style={s.rowVal}>Guía completa de la app</Text>
+                    <Text style={s.rowLabel}>{t('settings_manual')}</Text>
+                    <Text style={s.rowVal}>{t('settings_manual_sub')}</Text>
                   </View>
                 </View>
                 <Text style={s.rowArrow}>↗</Text>
@@ -756,8 +756,8 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                 <View style={s.rowLeft}>
                   <View style={s.rowIconWrap}><Text style={s.rowIcon}>🏢</Text></View>
                   <View>
-                    <Text style={s.rowLabel}>Manual empresarial</Text>
-                    <Text style={s.rowVal}>PARTNER · BUSINESS · GOLD · PREMIUM</Text>
+                    <Text style={s.rowLabel}>{t('settings_manual_business')}</Text>
+                    <Text style={s.rowVal}>{t('settings_manual_business_sub')}</Text>
                   </View>
                 </View>
                 <Text style={s.rowArrow}>↗</Text>
@@ -766,14 +766,14 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
 
             {/* ── SECCIÓN: SESIÓN ── */}
             <View style={s.group}>
-              <Text style={s.groupLabel}>SESIÓN</Text>
+              <Text style={s.groupLabel}>{t('settings_session')}</Text>
 
               <TouchableOpacity style={s.row} onPress={onLogout} activeOpacity={0.8}>
                 <View style={s.rowLeft}>
                   <View style={[s.rowIconWrap, { backgroundColor: 'rgba(255,51,85,0.1)' }]}>
                     <Text style={s.rowIcon}>🚪</Text>
                   </View>
-                  <Text style={[s.rowLabel, { color: C.red }]}>Cerrar sesión</Text>
+                  <Text style={[s.rowLabel, { color: C.red }]}>{t('settings_logout')}</Text>
                 </View>
                 <Text style={s.rowArrow}>›</Text>
               </TouchableOpacity>
@@ -783,14 +783,14 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
                   <View style={[s.rowIconWrap, { backgroundColor: 'rgba(255,51,85,0.08)' }]}>
                     <Text style={s.rowIcon}>🗑️</Text>
                   </View>
-                  <Text style={[s.rowLabel, { color: C.red }]}>Eliminar cuenta</Text>
+                  <Text style={[s.rowLabel, { color: C.red }]}>{t('settings_delete')}</Text>
                 </View>
                 <Text style={s.rowArrow}>›</Text>
               </TouchableOpacity>
             </View>
 
             {/* ── VERSION ── */}
-            <Text style={s.version}>GOLZI · v1.0.12 · Mundial 2026</Text>
+            <Text style={s.version}>{t('settings_version')}</Text>
           </>
         ) : (
           renderSection()
@@ -804,14 +804,14 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
           <View style={s.modalCard}>
             <LinearGradient colors={['#0A0F1A', '#020408']} style={StyleSheet.absoluteFill} />
             <View style={s.modalTopLine} />
-            <Text style={s.modalTitle}>SELECCIONAR PAÍS</Text>
+            <Text style={s.modalTitle}>{t('settings_select_country')}</Text>
             <View style={s.inputWrap}>
               <Text style={s.inputIcon}>🔍</Text>
               <TextInput
                 style={s.input}
                 value={countrySearch}
                 onChangeText={setCountrySearch}
-                placeholder="Buscar país..."
+                placeholder={t('settings_search_country')}
                 placeholderTextColor={C.muted}
               />
             </View>
@@ -830,7 +830,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
               ))}
             </ScrollView>
             <TouchableOpacity onPress={() => setShowCountryModal(false)} style={s.modalClose}>
-              <Text style={s.modalCloseTxt}>CERRAR</Text>
+              <Text style={s.modalCloseTxt}>{t('settings_close')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -842,7 +842,7 @@ export default function SettingsScreen({ userData, onClose, onLogout }: Props) {
           <View style={s.modalCard}>
             <LinearGradient colors={['#0A0F1A', '#020408']} style={StyleSheet.absoluteFill} />
             <View style={s.modalTopLine} />
-            <Text style={s.modalTitle}>SELECCIONAR IDIOMA</Text>
+            <Text style={s.modalTitle}>{t('settings_select_language')}</Text>
             <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
               {LANGUAGES.map(l => (
                 <TouchableOpacity

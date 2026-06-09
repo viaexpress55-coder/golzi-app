@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
@@ -13,6 +13,7 @@ import { COUNTRY_FLAGS } from '../../locales/i18n';
 import { sendLocalNotification, GOLZI_NOTIFICATIONS } from '../../services/notifications';
 import { doc, onSnapshot, collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '../../services/firebase';
+import SettingsScreen from './SettingsScreen';
 
 const C = {
   bg:'#020408', dark:'#05080F', surface:'#0A0F1A', surface2:'#0F1520',
@@ -122,6 +123,7 @@ export default function ProfileScreen() {
   const [challenges, setChallenges] = useState<any[]>([]);
   const [loadingUser, setLoadingUser] = useState(true);
   const [rankPosition, setRankPosition] = useState<number | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   const [fontsLoaded] = useFonts({
     BebasNeue_400Regular, BarlowCondensed_400Regular,
@@ -242,7 +244,7 @@ export default function ProfileScreen() {
             <Text style={s.headerSub}>{t('mundial_title')}</Text>
           </View>
         </View>
-        <TouchableOpacity style={s.settingsBtn}>
+        <TouchableOpacity style={s.settingsBtn} onPress={() => setShowSettings(true)}>
           <Text style={{ fontSize:20 }}>⚙️</Text>
         </TouchableOpacity>
       </LinearGradient>
@@ -475,6 +477,16 @@ export default function ProfileScreen() {
         )}
 
       </ScrollView>
+
+      {/* SETTINGS MODAL */}
+      <Modal animationType="none" visible={showSettings} statusBarTranslucent>
+        <SettingsScreen
+          userData={userData}
+          onClose={() => setShowSettings(false)}
+          onLogout={() => { setShowSettings(false); handleLogout(); }}
+        />
+      </Modal>
+
     </View>
   );
 }

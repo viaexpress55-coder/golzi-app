@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOLZI — Manual Empresarial</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
+
+  :root {
+    --gold: #FFD700;
+    --gold2: #FFA500;
+    --cyan: #00C6FF;
+    --green: #00FF87;
+    --purple: #A855F7;
+    --red: #FF3355;
+    --bg: #020408;
+    --surface: #0A0F1A;
+    --surface2: #0F1520;
+    --text: #F0F4FF;
+    --muted: #6B7A99;
+    --muted2: #9AAABB;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 270px;
+    background: var(--surface); border-right: 1px solid rgba(255,215,0,0.12);
+    overflow-y: auto; z-index: 100; display: flex; flex-direction: column;
+  }
+  .sidebar-logo { padding: 24px 20px 16px; border-bottom: 1px solid rgba(255,215,0,0.12); }
+  .logo-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--gold); letter-spacing: 4px; line-height: 1; }
+  .logo-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; color: var(--cyan); letter-spacing: 3px; margin-top: 2px; }
+  .logo-tag { display: inline-block; background: rgba(0,198,255,0.1); border: 1px solid rgba(0,198,255,0.3); border-radius: 20px; padding: 2px 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 9px; color: var(--cyan); letter-spacing: 2px; margin-top: 8px; }
+
+  .nav-section { padding: 10px 0; flex: 1; }
+  .nav-label { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; color: var(--muted); letter-spacing: 3px; padding: 10px 20px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; transition: all 0.2s; border-left: 2px solid transparent; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: var(--muted2); font-weight: 600; letter-spacing: 0.5px; text-decoration: none; }
+  .nav-item:hover { background: rgba(0,198,255,0.05); color: var(--cyan); border-left-color: rgba(0,198,255,0.4); }
+  .nav-item.active { background: rgba(0,198,255,0.08); color: var(--cyan); border-left-color: var(--cyan); }
+  .nav-emoji { font-size: 15px; width: 20px; text-align: center; }
+
+  .plan-indicators { display: flex; gap: 4px; flex-wrap: wrap; padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.05); }
+  .plan-dot { padding: 3px 8px; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+  .dot-partner { background: rgba(255,215,0,0.15); color: var(--gold); }
+  .dot-business { background: rgba(0,198,255,0.15); color: var(--cyan); }
+  .dot-gold { background: rgba(255,215,0,0.2); color: #FFE55C; }
+  .dot-premium { background: rgba(168,85,247,0.15); color: var(--purple); }
+
+  .sidebar-footer { padding: 12px 20px; border-top: 1px solid rgba(255,215,0,0.1); font-family: 'Barlow Condensed', sans-serif; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+  /* MAIN */
+  .main { margin-left: 270px; min-height: 100vh; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #020408 0%, #05080F 50%, #0A0F1A 100%);
+    border-bottom: 1px solid rgba(0,198,255,0.15);
+    padding: 56px 60px 48px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before { content: ''; position: absolute; top: -100px; right: -100px; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(0,198,255,0.05) 0%, transparent 70%); pointer-events: none; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,198,255,0.1); border: 1px solid rgba(0,198,255,0.3); border-radius: 20px; padding: 4px 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: var(--cyan); letter-spacing: 2px; margin-bottom: 20px; }
+  .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 60px; color: var(--gold); letter-spacing: 4px; line-height: 1; margin-bottom: 6px; }
+  .hero-subtitle { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--cyan); letter-spacing: 3px; margin-bottom: 12px; }
+  .hero-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; color: var(--muted2); letter-spacing: 1px; margin-bottom: 28px; }
+  .hero-plans { display: flex; gap: 10px; flex-wrap: wrap; }
+  .hero-plan { padding: 6px 16px; border-radius: 20px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; border: 1px solid; }
+
+  /* SECTIONS */
+  .section { display: none; padding: 48px 60px; max-width: 920px; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid rgba(0,198,255,0.15); }
+  .section-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; background: rgba(0,198,255,0.08); border: 1px solid rgba(0,198,255,0.25); flex-shrink: 0; }
+  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 34px; color: var(--text); letter-spacing: 2px; line-height: 1; }
+  .section-desc { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 24px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .card.cyan-accent::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--cyan), #0072FF); }
+  .card.gold-accent::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+  .card.green-accent::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--green), #00C853); }
+  .card.purple-accent::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--purple), #7C3AED); }
+
+  .card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
+  .card p { font-size: 15px; color: var(--muted2); line-height: 1.7; }
+
+  /* FEATURE GRID */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  .feature-card { background: var(--surface2); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 18px; transition: all 0.2s; }
+  .feature-card:hover { border-color: rgba(0,198,255,0.25); transform: translateY(-2px); }
+  .feature-emoji { font-size: 26px; margin-bottom: 10px; }
+  .feature-name { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* PLANS COMPARISON */
+  .plans-compare { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .plans-compare th { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 1px; padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .plans-compare td { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted2); vertical-align: middle; }
+  .plans-compare tr:hover td { background: rgba(255,255,255,0.02); }
+  .plans-compare td:first-child { color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 600; }
+
+  .check-yes { color: var(--green); font-size: 16px; }
+  .check-no { color: rgba(255,255,255,0.2); font-size: 14px; }
+  .check-vip { color: var(--gold); font-size: 12px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 1px; }
+
+  .col-partner { color: var(--gold) !important; font-family: 'Bebas Neue', sans-serif !important; font-size: 15px !important; }
+  .col-business { color: var(--cyan) !important; font-family: 'Bebas Neue', sans-serif !important; font-size: 15px !important; }
+  .col-gold { color: #FFE55C !important; font-family: 'Bebas Neue', sans-serif !important; font-size: 15px !important; }
+  .col-premium { color: var(--purple) !important; font-family: 'Bebas Neue', sans-serif !important; font-size: 15px !important; }
+
+  /* STEPS */
+  .steps { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+  .step { display: flex; align-items: flex-start; gap: 16px; background: var(--surface2); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,0.05); transition: border-color 0.2s; }
+  .step:hover { border-color: rgba(0,198,255,0.2); }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--cyan), #0072FF); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: #000; flex-shrink: 0; }
+  .step-title { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* SECTOR CARDS */
+  .sector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .sector-card { background: var(--surface2); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px; transition: all 0.2s; cursor: default; }
+  .sector-card:hover { border-color: rgba(0,198,255,0.25); transform: translateY(-2px); }
+  .sector-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sector-icon { font-size: 28px; }
+  .sector-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--cyan); letter-spacing: 1px; }
+  .sector-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+  .sector-list { display: flex; flex-direction: column; gap: 6px; }
+  .sector-item { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--muted2); line-height: 1.4; }
+  .sector-bullet { color: var(--cyan); margin-top: 2px; font-size: 10px; flex-shrink: 0; }
+
+  /* PLAN CARDS B2B */
+  .b2b-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  .b2b-card { background: var(--surface2); border-radius: 16px; padding: 22px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); transition: all 0.2s; }
+  .b2b-card:hover { transform: translateY(-3px); }
+  .b2b-top { height: 3px; position: absolute; top: 0; left: 0; right: 0; }
+  .b2b-plan { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; margin-top: 6px; }
+  .b2b-price { font-family: 'Bebas Neue', sans-serif; font-size: 40px; line-height: 1; margin: 8px 0 2px; }
+  .b2b-users { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: var(--muted2); margin: 6px 0 12px; }
+  .b2b-per { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+  .b2b-feat { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; color: var(--muted2); }
+  .b2b-check { font-size: 12px; color: var(--green); }
+
+  /* TIP / WARN */
+  .tip-box { background: rgba(0,198,255,0.04); border: 1px solid rgba(0,198,255,0.2); border-radius: 10px; padding: 12px 16px; margin: 14px 0; display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted2); line-height: 1.5; }
+  .warn-box { background: rgba(255,51,85,0.04); border: 1px solid rgba(255,51,85,0.2); border-radius: 10px; padding: 12px 16px; margin: 14px 0; display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted2); line-height: 1.5; }
+  .gold-box { background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.2); border-radius: 10px; padding: 12px 16px; margin: 14px 0; display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted2); line-height: 1.5; }
+  .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* FAQ */
+  .faq-item { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 16px 0; }
+  .faq-q { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; user-select: none; }
+  .faq-q:hover { color: var(--cyan); }
+  .faq-arrow { transition: transform 0.2s; color: var(--muted); font-size: 12px; flex-shrink: 0; }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--cyan); }
+  .faq-a { display: none; font-size: 14px; color: var(--muted2); line-height: 1.7; padding-top: 10px; }
+  .faq-item.open .faq-a { display: block; }
+
+  /* POOL VISUALIZER */
+  .pool-viz { background: var(--surface2); border: 1px solid rgba(255,215,0,0.15); border-radius: 14px; padding: 20px; margin: 16px 0; }
+  .pool-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: var(--muted); letter-spacing: 3px; margin-bottom: 12px; }
+  .pool-bar { height: 12px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; margin-bottom: 8px; display: flex; }
+  .pool-used { background: linear-gradient(90deg, var(--cyan), #0072FF); border-radius: 6px 0 0 6px; transition: width 1s ease; }
+  .pool-free { background: linear-gradient(90deg, var(--green), #00C853); border-radius: 0 6px 6px 0; }
+  .pool-labels { display: flex; justify-content: space-between; }
+  .pool-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; }
+
+  /* CONTACT */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .contact-card { background: var(--surface2); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; }
+  .contact-icon { font-size: 24px; width: 40px; text-align: center; }
+  .contact-label { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+  .contact-value { font-size: 14px; color: var(--text); font-weight: 500; margin-top: 2px; }
+
+  /* TAGS */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .tag { padding: 4px 12px; border-radius: 20px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid; }
+  .tag-gold { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.4); color: var(--gold); }
+  .tag-cyan { background: rgba(0,198,255,0.08); border-color: rgba(0,198,255,0.3); color: var(--cyan); }
+  .tag-green { background: rgba(0,255,135,0.08); border-color: rgba(0,255,135,0.3); color: var(--green); }
+  .tag-purple { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.3); color: var(--purple); }
+
+  /* NAV BOTTOM */
+  .section-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .nav-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 10px; background: rgba(0,198,255,0.06); border: 1px solid rgba(0,198,255,0.25); color: var(--cyan); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+  .nav-btn:hover { background: rgba(0,198,255,0.12); border-color: rgba(0,198,255,0.5); }
+  .nav-btn.disabled { opacity: 0.3; pointer-events: none; }
+
+  .divider { height: 1px; background: rgba(255,255,255,0.07); margin: 24px 0; }
+
+  h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); margin: 20px 0 10px; letter-spacing: 0.5px; }
+
+  strong { color: var(--text); }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .hero, .section { padding: 28px 20px; }
+    .feature-grid, .b2b-plans, .sector-grid, .contact-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-title">GOLZI</div>
+    <div class="logo-sub">PLANES EMPRESARIALES</div>
+    <div class="logo-tag">MANUAL B2B</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">INICIO</div>
+    <a class="nav-item active" onclick="showSection('intro', this)"><span class="nav-emoji">🏢</span> ¿Para quién?</a>
+    <a class="nav-item" onclick="showSection('comparativa', this)"><span class="nav-emoji">📊</span> Comparativa de planes</a>
+    <a class="nav-item" onclick="showSection('compra', this)"><span class="nav-emoji">💳</span> Compra y activación</a>
+    <div class="nav-label">FUNCIONALIDADES</div>
+    <a class="nav-item" onclick="showSection('ligas', this)"><span class="nav-emoji">🏆</span> Gestión de ligas</a>
+    <a class="nav-item" onclick="showSection('canal', this)"><span class="nav-emoji">📡</span> Canal de difusión</a>
+    <a class="nav-item" onclick="showSection('dashboard', this)"><span class="nav-emoji">📈</span> Dashboard</a>
+    <a class="nav-item" onclick="showSection('branding', this)"><span class="nav-emoji">🎨</span> Branding (BUSINESS+)</a>
+    <a class="nav-item" onclick="showSection('torneos', this)"><span class="nav-emoji">🥇</span> Torneos internos</a>
+    <a class="nav-item" onclick="showSection('tv', this)"><span class="nav-emoji">📺</span> Pantalla TV</a>
+    <div class="nav-label">MÁS</div>
+    <a class="nav-item" onclick="showSection('sectores', this)"><span class="nav-emoji">🎯</span> Casos de uso</a>
+    <a class="nav-item" onclick="showSection('faq', this)"><span class="nav-emoji">❓</span> FAQ B2B</a>
+  </div>
+  <div class="plan-indicators">
+    <span class="plan-dot dot-partner">PARTNER</span>
+    <span class="plan-dot dot-business">BUSINESS</span>
+    <span class="plan-dot dot-gold">GOLD</span>
+    <span class="plan-dot dot-premium">PREMIUM</span>
+  </div>
+  <div class="sidebar-footer">golzi.app · Manual B2B · v1.0 · 2026</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🏢 PLANES EMPRESARIALES</div>
+  <h1>GOLZI B2B</h1>
+  <div class="hero-subtitle">ACTIVA TU COMUNIDAD CON EL MUNDIAL 2026</div>
+  <div class="hero-sub">Bares · Empresas · Influencers · Eventos · Retail · Medios</div>
+  <div class="hero-plans">
+    <span class="hero-plan" style="color:var(--gold);border-color:rgba(255,215,0,0.4);background:rgba(255,215,0,0.08)">PARTNER $349.99 · 500 usuarios</span>
+    <span class="hero-plan" style="color:var(--cyan);border-color:rgba(0,198,255,0.4);background:rgba(0,198,255,0.08)">BUSINESS $499.99 · 1,000 usuarios</span>
+    <span class="hero-plan" style="color:#FFE55C;border-color:rgba(255,229,92,0.4);background:rgba(255,229,92,0.08)">GOLD $999.99 · 2,500 usuarios</span>
+    <span class="hero-plan" style="color:var(--purple);border-color:rgba(168,85,247,0.4);background:rgba(168,85,247,0.08)">PREMIUM · 5,000+</span>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section id="intro" class="section active">
+  <div class="section-header">
+    <div class="section-icon">🏢</div>
+    <div>
+      <div class="section-title">¿PARA QUIÉN SON?</div>
+      <div class="section-desc">Planes diseñados para activar comunidades durante el Mundial 2026</div>
+    </div>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">LA PROPUESTA</div>
+    <p>Los planes empresariales de GOLZI permiten a cualquier organización activar a su comunidad con predicciones del Mundial. <strong>Tú pagas una vez</strong> y todos los miembros de tu comunidad entran y juegan completamente gratis.</p>
+  </div>
+
+  <div class="sector-grid">
+    <div class="sector-card">
+      <div class="sector-header"><div class="sector-icon">🍺</div><div><div class="sector-name">BARES</div><div class="sector-tag">ENTRETENIMIENTO</div></div></div>
+      <div class="sector-list">
+        <div class="sector-item"><span class="sector-bullet">▸</span>Activa clientes durante cada partido</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Ranking visible en TV del local</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Promociones por resultados</div>
+      </div>
+    </div>
+    <div class="sector-card">
+      <div class="sector-header"><div class="sector-icon">🏢</div><div><div class="sector-name">EMPRESAS</div><div class="sector-tag">CORPORATIVO</div></div></div>
+      <div class="sector-list">
+        <div class="sector-item"><span class="sector-bullet">▸</span>Team building virtual</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Engagement entre empleados</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Comunicación interna activa</div>
+      </div>
+    </div>
+    <div class="sector-card">
+      <div class="sector-header"><div class="sector-icon">📱</div><div><div class="sector-name">INFLUENCERS</div><div class="sector-tag">DIGITAL</div></div></div>
+      <div class="sector-list">
+        <div class="sector-item"><span class="sector-bullet">▸</span>Comunidad activa en el Mundial</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Contenido diario con rankings</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Torneos públicos con visibilidad</div>
+      </div>
+    </div>
+    <div class="sector-card">
+      <div class="sector-header"><div class="sector-icon">🎯</div><div><div class="sector-name">EVENTOS</div><div class="sector-tag">ACTIVACIONES</div></div></div>
+      <div class="sector-list">
+        <div class="sector-item"><span class="sector-bullet">▸</span>QR en stands para registro</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Pantalla TV en tiempo real</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Premios y competencia en vivo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gold-box"><span class="tip-icon">⚡</span><span>Modelo <strong>"1 PAGA, TODOS JUEGAN"</strong>. El administrador paga una vez y todos los miembros participan gratis. Sin fricciones, sin que cada persona deba pagar.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn disabled">← Anterior</span>
+    <span class="nav-btn" onclick="showSection('comparativa', document.querySelector('[onclick*=comparativa]'))">Comparativa →</span>
+  </div>
+</section>
+
+<!-- COMPARATIVA -->
+<section id="comparativa" class="section">
+  <div class="section-header">
+    <div class="section-icon">📊</div>
+    <div>
+      <div class="section-title">COMPARATIVA DE PLANES</div>
+      <div class="section-desc">Elige el plan que mejor se adapta a tu comunidad</div>
+    </div>
+  </div>
+
+  <table class="plans-compare">
+    <thead>
+      <tr>
+        <th style="width:220px">CARACTERÍSTICA</th>
+        <th class="col-partner">PARTNER</th>
+        <th class="col-business">BUSINESS</th>
+        <th class="col-gold">GOLD</th>
+        <th class="col-premium">PREMIUM</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>💰 Precio</td><td>$349.99</td><td>$499.99</td><td>$999.99</td><td>Custom</td></tr>
+      <tr><td>👥 Participantes</td><td>Hasta 500</td><td>Hasta 1,000</td><td>Hasta 2,500</td><td>5,000+</td></tr>
+      <tr><td>💵 Precio/usuario</td><td>~$0.70</td><td>~$0.50</td><td>~$0.40</td><td>~$0.30</td></tr>
+      <tr><td>🏆 Múltiples ligas</td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+      <tr><td>📲 QR invitación</td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+      <tr><td>📡 Canal difusión</td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+      <tr><td>📈 Dashboard</td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+      <tr><td>📺 Pantalla TV</td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+      <tr><td>🎨 Branding empresa</td><td><span class="check-no">—</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+      <tr><td>🥇 Torneos internos</td><td><span class="check-no">—</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+      <tr><td>📋 Contrato/factura</td><td><span class="check-no">—</span></td><td><span class="check-no">—</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+      <tr><td>🎧 Soporte</td><td>Prioritario</td><td>WhatsApp</td><td><span class="check-vip">VIP 24/7</span></td><td>Dedicado</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box"><span class="tip-icon">💡</span><span>Todos los planes son <strong>pago único por torneo</strong>. Sin renovación automática. Válidos del 11 de junio al 19 de julio de 2026.</span></div>
+
+  <div class="divider"></div>
+  <h3>Pool de cupos</h3>
+  <div class="pool-viz">
+    <div class="pool-title">EJEMPLO: PLAN BUSINESS · 1,000 CUPOS TOTALES</div>
+    <div class="pool-bar">
+      <div class="pool-used" style="width:65%"></div>
+      <div class="pool-free" style="width:35%"></div>
+    </div>
+    <div class="pool-labels">
+      <span class="pool-label" style="color:var(--cyan)">650 cupos usados en 3 ligas</span>
+      <span class="pool-label" style="color:var(--green)">350 cupos disponibles</span>
+    </div>
+  </div>
+  <p style="font-size:13px; color:var(--muted2); margin-top:10px">Crea tantas ligas como necesites distribuyendo el pool entre ellas. Ejemplo con BUSINESS: Liga HQ (300), Liga Ventas (200), Liga Marketing (150) = 650 usados de 1,000.</p>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('intro', document.querySelector('[onclick*=intro]'))">← ¿Para quién?</span>
+    <span class="nav-btn" onclick="showSection('compra', document.querySelector('[onclick*=compra]'))">Compra →</span>
+  </div>
+</section>
+
+<!-- COMPRA -->
+<section id="compra" class="section">
+  <div class="section-header">
+    <div class="section-icon">💳</div>
+    <div>
+      <div class="section-title">COMPRA Y ACTIVACIÓN</div>
+      <div class="section-desc">Proceso paso a paso para activar tu plan empresarial</div>
+    </div>
+  </div>
+
+  <div class="b2b-plans">
+    <div class="b2b-card" style="border-color:rgba(255,215,0,0.25)">
+      <div class="b2b-top" style="background:linear-gradient(90deg,#FFD700,#FFA500)"></div>
+      <div class="b2b-plan" style="color:var(--gold)">PARTNER</div>
+      <div class="b2b-price" style="color:var(--gold)">$349.99</div>
+      <div class="b2b-users">👥 Hasta 500 usuarios</div>
+      <div class="b2b-per">~$0.70 por participante</div>
+      <div class="b2b-feat"><span class="b2b-check">✓</span>Pago directo en golzi.app</div>
+      <div class="b2b-feat"><span class="b2b-check">✓</span>Activación inmediata</div>
+    </div>
+    <div class="b2b-card" style="border-color:rgba(0,198,255,0.25)">
+      <div class="b2b-top" style="background:linear-gradient(90deg,#00C6FF,#0072FF)"></div>
+      <div class="b2b-plan" style="color:var(--cyan)">BUSINESS</div>
+      <div class="b2b-price" style="color:var(--cyan)">$499.99</div>
+      <div class="b2b-users">👥 Hasta 1,000 usuarios</div>
+      <div class="b2b-per">~$0.50 por participante</div>
+      <div class="b2b-feat"><span class="b2b-check">✓</span>Pago directo en golzi.app</div>
+      <div class="b2b-feat"><span class="b2b-check">✓</span>Branding + Torneos</div>
+    </div>
+    <div class="b2b-card" style="border-color:rgba(255,229,92,0.25)">
+      <div class="b2b-top" style="background:linear-gradient(90deg,#FFE55C,#FFD700)"></div>
+      <div class="b2b-plan" style="color:#FFE55C">GOLD</div>
+      <div class="b2b-price" style="color:#FFE55C">$999.99</div>
+      <div class="b2b-users">👥 Hasta 2,500 usuarios</div>
+      <div class="b2b-per">~$0.40 por participante</div>
+      <div class="b2b-feat"><span class="b2b-check">✓</span>Contacto directo GOLZI</div>
+      <div class="b2b-feat"><span class="b2b-check">✓</span>Contrato + factura</div>
+    </div>
+    <div class="b2b-card" style="border-color:rgba(168,85,247,0.25)">
+      <div class="b2b-top" style="background:linear-gradient(90deg,#A855F7,#7C3AED)"></div>
+      <div class="b2b-plan" style="color:var(--purple)">PREMIUM</div>
+      <div class="b2b-price" style="color:var(--purple)">Custom</div>
+      <div class="b2b-users">👥 5,000+ usuarios</div>
+      <div class="b2b-per">~$0.30 por participante</div>
+      <div class="b2b-feat"><span class="b2b-check">✓</span>Solo por contacto directo</div>
+      <div class="b2b-feat"><span class="b2b-check">✓</span>Implementación personalizada</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>🌐 Proceso PARTNER / BUSINESS (web)</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Ve a golzi.app → Planes</div><div class="step-desc">Selecciona PARTNER o BUSINESS</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Completa el pago con Wompi</div><div class="step-desc">Tarjeta Visa/Mastercard, PSE, Nequi o Efecty</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Plan activado automáticamente</div><div class="step-desc">El plan se activa en tu cuenta dentro de 1 minuto</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Crea tu primera liga</div><div class="step-desc">LIGA → CREAR → nombre → compartir código</div></div></div>
+  </div>
+
+  <div class="warn-box"><span class="tip-icon">⚠️</span><span>Los planes <strong>GOLD y GOLZI PREMIUM</strong> solo están disponibles por contacto directo: WhatsApp <strong>+57 305 432 5588</strong> o golziapp@gmail.com. No aparecen en Google Play.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('comparativa', document.querySelector('[onclick*=comparativa]'))">← Comparativa</span>
+    <span class="nav-btn" onclick="showSection('ligas', document.querySelector('[onclick*=ligas]'))">Gestión ligas →</span>
+  </div>
+</section>
+
+<!-- LIGAS -->
+<section id="ligas" class="section">
+  <div class="section-header">
+    <div class="section-icon">🏆</div>
+    <div>
+      <div class="section-title">GESTIÓN DE LIGAS</div>
+      <div class="section-desc">Crear, invitar y administrar tu comunidad</div>
+    </div>
+  </div>
+
+  <h3>➕ Crear una liga</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">LIGA → CREAR</div><div class="step-desc">Ingresa el nombre de la liga (ej: "Bar La Copa Norte")</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Asigna cupos (multiligas)</div><div class="step-desc">Selecciona cuántos cupos de tu pool asignar a esta liga</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Código generado automáticamente</div><div class="step-desc">Se crea un código único tipo GOLZ-XXXX para invitar</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Comparte la invitación</div><div class="step-desc">Por código, link de WhatsApp, o código QR (GOLZAIR+)</div></div></div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>🔗 Formas de invitar miembros</h3>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-emoji">📝</div><div class="feature-name">Código manual</div><div class="feature-desc">Comparte "GOLZ-XXXX". El miembro lo ingresa en LIGA → UNIRSE</div></div>
+    <div class="feature-card"><div class="feature-emoji">🔗</div><div class="feature-name">Link directo</div><div class="feature-desc">golzi.app/liga/CODIGO — al tocarlo abre la app directamente</div></div>
+    <div class="feature-card"><div class="feature-emoji">📲</div><div class="feature-name">Código QR</div><div class="feature-desc">Se genera automáticamente. Imprime o muestra en pantalla (GOLZAIR+)</div></div>
+    <div class="feature-card"><div class="feature-emoji">📱</div><div class="feature-name">WhatsApp</div><div class="feature-desc">Toca "Compartir por WhatsApp" desde la app — mensaje listo</div></div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>🔒 Control de invitaciones</h3>
+  <div class="card cyan-accent">
+    <div class="card-title">ABRIR / CERRAR INVITACIONES</div>
+    <p>Como administrador puedes activar o desactivar las invitaciones en cualquier momento desde LIGA → MI LIGA → botón de invitaciones. En planes PARTNER/BUSINESS/GOLD, los miembros invitados <strong>nunca ven el código QR</strong> — solo el administrador lo puede compartir.</p>
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('compra', document.querySelector('[onclick*=compra]'))">← Compra</span>
+    <span class="nav-btn" onclick="showSection('canal', document.querySelector('[onclick*=canal]'))">Canal difusión →</span>
+  </div>
+</section>
+
+<!-- CANAL -->
+<section id="canal" class="section">
+  <div class="section-header">
+    <div class="section-icon">📡</div>
+    <div>
+      <div class="section-title">CANAL DE DIFUSIÓN</div>
+      <div class="section-desc">Comunica a toda tu comunidad — disponible en PARTNER+</div>
+    </div>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">¿QUÉ ES?</div>
+    <p>Un canal de comunicación <strong>unidireccional</strong> dentro de tu liga. Solo el administrador puede publicar, todos los miembros lo leen. Como un canal de WhatsApp pero dentro de GOLZI.</p>
+  </div>
+
+  <div class="divider"></div>
+  <h3>📤 Tipos de contenido</h3>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-emoji">📝</div><div class="feature-name">Texto</div><div class="feature-desc">Anuncios, resultados, motivación, convocatorias</div></div>
+    <div class="feature-card"><div class="feature-emoji">🖼️</div><div class="feature-name">Imágenes</div><div class="feature-desc">Fotos del local, flyers, promociones, capturas</div></div>
+    <div class="feature-card"><div class="feature-emoji">🎥</div><div class="feature-name">Video</div><div class="feature-desc">Clips hasta 30 segundos — highlights, reacciones</div></div>
+    <div class="feature-card"><div class="feature-emoji">📣</div><div class="feature-name">Alertas</div><div class="feature-desc">Mensajes importantes que aparecen destacados</div></div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>💡 Ideas de mensajes por sector</h3>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+    <div style="background:var(--surface2);border-radius:10px;padding:14px;border-left:3px solid var(--gold)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">🍺 BAR</div>
+      <div style="font-size:13px;color:var(--muted2)">"¡HOY PARTIDO COLOMBIA! 2x1 en cervezas mientras juegan 🍺 El que acierte el marcador toma gratis 🏆"</div>
+    </div>
+    <div style="background:var(--surface2);border-radius:10px;padding:14px;border-left:3px solid var(--cyan)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">🏢 EMPRESA</div>
+      <div style="font-size:13px;color:var(--muted2)">"¡Felicitamos a María del área de Ventas por liderar el ranking con 85 puntos! 👑 ¿Alguien puede superarla?"</div>
+    </div>
+    <div style="background:var(--surface2);border-radius:10px;padding:14px;border-left:3px solid var(--green)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">📱 INFLUENCER</div>
+      <div style="font-size:13px;color:var(--muted2)">"Mi predicción para hoy: Argentina 2-1 Brasil 🇦🇷⚽🇧🇷 ¿La tuya? Comenta abajo 👇 El mejor predictor gana un shoutout"</div>
+    </div>
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('ligas', document.querySelector('[onclick*=ligas]'))">← Ligas</span>
+    <span class="nav-btn" onclick="showSection('dashboard', document.querySelector('[onclick*=dashboard]'))">Dashboard →</span>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="section">
+  <div class="section-header">
+    <div class="section-icon">📈</div>
+    <div>
+      <div class="section-title">DASHBOARD</div>
+      <div class="section-desc">Panel de control de tu liga — disponible en PARTNER+</div>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-emoji">👥</div><div class="feature-name">Miembros activos</div><div class="feature-desc">Total de miembros y cuántos han predicho al menos 1 partido</div></div>
+    <div class="feature-card"><div class="feature-emoji">📊</div><div class="feature-name">Participación</div><div class="feature-desc">% de miembros que predijeron por partido</div></div>
+    <div class="feature-card"><div class="feature-emoji">🏆</div><div class="feature-name">Ranking interno</div><div class="feature-desc">Clasificación actualizada en tiempo real de tu liga</div></div>
+    <div class="feature-card"><div class="feature-emoji">🎯</div><div class="feature-name">Exactitud</div><div class="feature-desc">Estadísticas de precisión de predicciones del grupo</div></div>
+  </div>
+
+  <div class="tip-box"><span class="tip-icon">💡</span><span>Usa el Dashboard antes de cada partido para identificar quién no ha predicho y enviarles un mensaje por el Canal de Difusión motivándolos a participar.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('canal', document.querySelector('[onclick*=canal]'))">← Canal</span>
+    <span class="nav-btn" onclick="showSection('branding', document.querySelector('[onclick*=branding]'))">Branding →</span>
+  </div>
+</section>
+
+<!-- BRANDING -->
+<section id="branding" class="section">
+  <div class="section-header">
+    <div class="section-icon">🎨</div>
+    <div>
+      <div class="section-title">BRANDING</div>
+      <div class="section-desc">Personaliza con tu identidad visual — BUSINESS+</div>
+    </div>
+  </div>
+
+  <div class="card gold-accent">
+    <div class="card-title">¿QUÉ PUEDES PERSONALIZAR?</div>
+    <p>Imprime la identidad de tu empresa dentro de la experiencia GOLZI. Tu logo, color y nombre aparecen en la liga, en la pantalla TV y en el canal de difusión.</p>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-emoji">🖼️</div><div class="feature-name">Logo de empresa</div><div class="feature-desc">PNG o JPG, recomendado 200x200px. Aparece en el header de la liga y pantalla TV</div></div>
+    <div class="feature-card"><div class="feature-emoji">🎨</div><div class="feature-name">Color de marca</div><div class="feature-desc">Reemplaza el dorado de GOLZI con el color principal de tu empresa (hex)</div></div>
+    <div class="feature-card"><div class="feature-emoji">✏️</div><div class="feature-name">Nombre de marca</div><div class="feature-desc">Aparece junto al nombre de la liga en todos los espacios</div></div>
+    <div class="feature-card"><div class="feature-emoji">📺</div><div class="feature-name">Pantalla TV</div><div class="feature-desc">El branding aparece en tiempo real en las pantallas del local o evento</div></div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>⚙️ Cómo configurarlo</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">LIGA → tab "BRANDING"</div><div class="step-desc">Solo visible para administradores con plan BUSINESS+</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Sube tu logo</div><div class="step-desc">PNG o JPG, fondo transparente recomendado, mín. 200x200px</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Selecciona el color</div><div class="step-desc">Ingresa el código hexadecimal de tu color de marca</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Guarda — cambios inmediatos</div><div class="step-desc">El branding se aplica a toda la liga en tiempo real</div></div></div>
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('dashboard', document.querySelector('[onclick*=dashboard]'))">← Dashboard</span>
+    <span class="nav-btn" onclick="showSection('torneos', document.querySelector('[onclick*=torneos]'))">Torneos →</span>
+  </div>
+</section>
+
+<!-- TORNEOS -->
+<section id="torneos" class="section">
+  <div class="section-header">
+    <div class="section-icon">🥇</div>
+    <div>
+      <div class="section-title">TORNEOS INTERNOS</div>
+      <div class="section-desc">Formaliza la competencia con premios — BUSINESS+</div>
+    </div>
+  </div>
+
+  <div class="card green-accent">
+    <div class="card-title">¿QUÉ SON?</div>
+    <p>Crea torneos internos dentro de tu liga con premios, reglas y página pública. Los torneos aparecen en la sección "Torneos" de GOLZI, dándole <strong>visibilidad extra a tu empresa</strong> en toda la comunidad.</p>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-emoji">🏆</div><div class="feature-name">Hasta 3 premios</div><div class="feature-desc">Configura 1er, 2do y 3er lugar con descripción de premios</div></div>
+    <div class="feature-card"><div class="feature-emoji">📍</div><div class="feature-name">Ubicación</div><div class="feature-desc">Ciudad y país del evento para geolocalización</div></div>
+    <div class="feature-card"><div class="feature-emoji">👥</div><div class="feature-name">Límite de participantes</div><div class="feature-desc">Controla cuántas personas pueden inscribirse</div></div>
+    <div class="feature-card"><div class="feature-emoji">🌐</div><div class="feature-name">Página pública</div><div class="feature-desc">Aparece en Torneos de GOLZI con tu sitio web oficial</div></div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>🛠️ Crear un torneo</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">LIGA → tab "TORNEOS"</div><div class="step-desc">Toca "Crear torneo"</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Completa la información</div><div class="step-desc">Nombre, descripción, ciudad, país, límite de participantes</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Configura los premios</div><div class="step-desc">Ej: 1er lugar: $500,000 · 2do: $200,000 · 3ro: $100,000</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Publica el torneo</div><div class="step-desc">Aparece en la sección Torneos de GOLZI para todos los usuarios</div></div></div>
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('branding', document.querySelector('[onclick*=branding]'))">← Branding</span>
+    <span class="nav-btn" onclick="showSection('tv', document.querySelector('[onclick*=tv]'))">Pantalla TV →</span>
+  </div>
+</section>
+
+<!-- TV -->
+<section id="tv" class="section">
+  <div class="section-header">
+    <div class="section-icon">📺</div>
+    <div>
+      <div class="section-title">PANTALLA TV</div>
+      <div class="section-desc">Ranking en tiempo real en tus pantallas — PARTNER+</div>
+    </div>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">¿QUÉ ES?</div>
+    <p>Una URL especial que proyecta el ranking de tu liga en cualquier televisor, proyector o pantalla LED. Se actualiza automáticamente sin necesidad de refrescar.</p>
+  </div>
+
+  <div class="gold-box"><span class="tip-icon">🔗</span><span>URL del formato: <strong>golzi.app/tv/GOLZ-XXXX</strong> (tu código de liga). Desde la app: LIGA → MI LIGA → "VER EN TV"</span></div>
+
+  <div class="divider"></div>
+  <h3>📺 Qué muestra la pantalla</h3>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-emoji">🏆</div><div class="feature-name">Ranking en vivo</div><div class="feature-desc">Posiciones actualizadas automáticamente con puntos y banderas</div></div>
+    <div class="feature-card"><div class="feature-emoji">⚽</div><div class="feature-name">Partido EN VIVO</div><div class="feature-desc">Marcador y minuto del partido que se está jugando</div></div>
+    <div class="feature-card"><div class="feature-emoji">🎨</div><div class="feature-name">Branding</div><div class="feature-desc">Tu logo y color de empresa si tienes BUSINESS+ configurado</div></div>
+    <div class="feature-card"><div class="feature-emoji">🔄</div><div class="feature-name">Auto-actualización</div><div class="feature-desc">Se refresca solo cada 5 minutos — sin intervención manual</div></div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>⚙️ Configuración recomendada</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Conecta laptop/tablet al TV</div><div class="step-desc">Por HDMI o por Chromecast</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Abre Chrome</div><div class="step-desc">Ve a golzi.app/tv/TU-CODIGO en el navegador</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Pantalla completa (F11)</div><div class="step-desc">Presiona F11 para maximizar sin barras de navegación</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">¡Listo!</div><div class="step-desc">La pantalla se actualiza sola durante todo el partido</div></div></div>
+  </div>
+
+  <div class="warn-box"><span class="tip-icon">⚠️</span><span>La pantalla TV requiere <strong>conexión a internet estable</strong>. Se recomienda WiFi con buena señal o conexión por cable Ethernet.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('torneos', document.querySelector('[onclick*=torneos]'))">← Torneos</span>
+    <span class="nav-btn" onclick="showSection('sectores', document.querySelector('[onclick*=sectores]'))">Casos de uso →</span>
+  </div>
+</section>
+
+<!-- SECTORES -->
+<section id="sectores" class="section">
+  <div class="section-header">
+    <div class="section-icon">🎯</div>
+    <div>
+      <div class="section-title">CASOS DE USO</div>
+      <div class="section-desc">Cómo sacarle el máximo a GOLZI en tu sector</div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:20px">
+
+    <div class="card gold-accent">
+      <div class="card-title">🍺 BARES Y RESTAURANTES</div>
+      <p style="margin-bottom:12px">Objetivo: <strong>más visitas y consumo</strong> durante los partidos del Mundial.</p>
+      <div class="sector-list">
+        <div class="sector-item"><span class="sector-bullet">▸</span>Coloca el QR impreso en cada mesa y en la entrada</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Proyecta el ranking en el TV secundario durante los partidos</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Anuncia el ganador semanal con un premio: consumo gratis, descuento, etc.</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Usa el canal: "¡HOY PARTIDO COLOMBIA! 2x1 en cervezas mientras juegan 🍺"</div>
+      </div>
+    </div>
+
+    <div class="card cyan-accent">
+      <div class="card-title">🏢 EMPRESAS Y CORPORATIVOS</div>
+      <p style="margin-bottom:12px">Objetivo: <strong>engagement entre empleados</strong> y team building virtual.</p>
+      <div class="sector-list">
+        <div class="sector-item"><span class="sector-bullet">▸</span>Crea una liga por departamento o sede</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>El área de RRHH administra la liga principal</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Crea un torneo con premios: día libre, bono, gift card</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Ranking en las pantallas de la oficina vía TV link</div>
+      </div>
+    </div>
+
+    <div class="card green-accent">
+      <div class="card-title">📱 INFLUENCERS Y CREADORES</div>
+      <p style="margin-bottom:12px">Objetivo: <strong>engagement con la audiencia</strong> durante el Mundial.</p>
+      <div class="sector-list">
+        <div class="sector-item"><span class="sector-bullet">▸</span>Crea tu liga con tu nombre de marca como branding</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Comparte el link en stories y publicaciones</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Publica tus predicciones por el canal antes de cada partido</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Genera contenido con el ranking de tu liga (screenshots para redes)</div>
+      </div>
+    </div>
+
+    <div class="card purple-accent">
+      <div class="card-title">🎯 EVENTOS Y ACTIVACIONES DE MARCA</div>
+      <p style="margin-bottom:12px">Objetivo: <strong>activación en vivo</strong> durante el Mundial.</p>
+      <div class="sector-list">
+        <div class="sector-item"><span class="sector-bullet">▸</span>QR en stands para registro instantáneo de asistentes</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Pantalla TV con ranking en tiempo real en el evento</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Canal de difusión para comunicar actividades y premios</div>
+        <div class="sector-item"><span class="sector-bullet">▸</span>Torneos públicos para visibilidad adicional en GOLZI</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('tv', document.querySelector('[onclick*=tv]'))">← Pantalla TV</span>
+    <span class="nav-btn" onclick="showSection('faq', document.querySelector('[onclick*=faq]'))">FAQ B2B →</span>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section">
+  <div class="section-header">
+    <div class="section-icon">❓</div>
+    <div>
+      <div class="section-title">PREGUNTAS FRECUENTES B2B</div>
+      <div class="section-desc">Respuestas para administradores empresariales</div>
+    </div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Cuántas ligas puedo crear? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Tantas como quieras, siempre que la suma de cupos no supere tu pool. Con BUSINESS (1,000 cupos) puedes crear 10 ligas de 100 cada una, o 4 de 250, o cualquier combinación.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Los miembros necesitan pagar? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">No. Solo el administrador (la empresa) paga una vez. Todos los participantes invitados entran y juegan completamente gratis sin registrar tarjeta.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Qué pasa si necesito más cupos? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Contáctanos por WhatsApp (+57 305 432 5588) o email (golziapp@gmail.com) para ampliar tu plan o hacer upgrade a uno mayor.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Hay facturación electrónica? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Los planes GOLD y GOLZI PREMIUM incluyen contrato y facturación empresarial. Para PARTNER y BUSINESS, el comprobante de pago de Wompi sirve como soporte contable.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Funciona fuera de Colombia? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Sí. GOLZI funciona en todo el mundo. El pago puede hacerse con tarjeta Visa/Mastercard internacional a través de Wompi.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Pueden mis empleados usar GOLZI en celulares de empresa? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Sí. Cualquier dispositivo Android con Google Play o cualquier teléfono con navegador Safari/Chrome puede acceder a golzi.app. No se requieren permisos especiales.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Puedo usar GOLZI para otros torneos después del Mundial? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Actualmente GOLZI está diseñado para el Mundial 2026 (11 jun - 19 jul). Los planes vencen al terminar el torneo. Habrá nuevos planes para futuros torneos.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Cómo me contacto con soporte prioritario? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Por WhatsApp al +57 305 432 5588. Para GOLD y PREMIUM tienes un ejecutivo dedicado. Para PARTNER y BUSINESS el tiempo de respuesta es inferior a 4 horas en horario laboral.</div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>📞 Contacto directo</h3>
+  <div class="contact-grid">
+    <div class="contact-card"><div class="contact-icon">💬</div><div><div class="contact-label">WHATSAPP</div><div class="contact-value">+57 305 432 5588</div></div></div>
+    <div class="contact-card"><div class="contact-icon">📧</div><div><div class="contact-label">EMAIL</div><div class="contact-value">golziapp@gmail.com</div></div></div>
+    <div class="contact-card"><div class="contact-icon">🌐</div><div><div class="contact-label">WEB</div><div class="contact-value">golzi.app</div></div></div>
+    <div class="contact-card"><div class="contact-icon">🕐</div><div><div class="contact-label">HORARIO</div><div class="contact-value">Lun–Vie 8am – 8pm COL</div></div></div>
+  </div>
+
+  <div class="gold-box" style="margin-top:20px"><span class="tip-icon">🏆</span><span>Para planes <strong>GOLD y GOLZI PREMIUM</strong> — atención personalizada 24/7 con ejecutivo dedicado. Contáctanos para una demo personalizada.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('sectores', document.querySelector('[onclick*=sectores]'))">← Casos de uso</span>
+    <span class="nav-btn" onclick="showSection('intro', document.querySelector('[onclick*=intro]'))">🏠 Inicio</span>
+  </div>
+</section>
+
+</div><!-- end main -->
+
+<script>
+function showSection(id, navEl) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const section = document.getElementById(id);
+  if (section) section.classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function toggleFaq(el) { el.classList.toggle('open'); }
+</script>
+</body>
+</html>

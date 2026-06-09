@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOLZI — Manual de Usuario</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
+
+  :root {
+    --gold: #FFD700;
+    --gold2: #FFA500;
+    --gold-dim: rgba(255,215,0,0.15);
+    --bg: #020408;
+    --surface: #0A0F1A;
+    --surface2: #0F1520;
+    --text: #F0F4FF;
+    --muted: #6B7A99;
+    --muted2: #9AAABB;
+    --green: #00FF87;
+    --cyan: #00C6FF;
+    --red: #FF3355;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid rgba(255,215,0,0.12);
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid rgba(255,215,0,0.12);
+  }
+
+  .sidebar-logo .title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+
+  .sidebar-logo .sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-top: 2px;
+  }
+
+  .nav-section {
+    padding: 12px 0;
+    flex: 1;
+  }
+
+  .nav-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    padding: 8px 20px 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    color: var(--muted2);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+  }
+
+  .nav-item:hover {
+    background: rgba(255,215,0,0.06);
+    color: var(--gold);
+    border-left-color: rgba(255,215,0,0.4);
+  }
+
+  .nav-item.active {
+    background: rgba(255,215,0,0.1);
+    color: var(--gold);
+    border-left-color: var(--gold);
+  }
+
+  .nav-emoji { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255,215,0,0.1);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    margin-left: 260px;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #020408 0%, #05080F 60%, #0A0F1A 100%);
+    border-bottom: 1px solid rgba(255,215,0,0.15);
+    padding: 60px 60px 50px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .hero-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    color: var(--muted2);
+    letter-spacing: 1px;
+    margin-bottom: 32px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .hero-stat .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .hero-stat .lbl {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    display: none;
+    padding: 48px 60px;
+    max-width: 900px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .section.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,215,0,0.15);
+  }
+
+  .section-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.3);
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--text);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .section-desc {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+  }
+
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .card p {
+    font-size: 15px;
+    color: var(--muted2);
+    line-height: 1.7;
+  }
+
+  /* ── STEPS ── */
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: border-color 0.2s;
+  }
+
+  .step:hover { border-color: rgba(255,215,0,0.25); }
+
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: #000;
+    flex-shrink: 0;
+  }
+
+  .step-content { flex: 1; }
+  .step-title { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* ── PILLS/TAGS ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+
+  .tag {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .tag-gold { background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.4); color: var(--gold); }
+  .tag-green { background: rgba(0,255,135,0.08); border: 1px solid rgba(0,255,135,0.3); color: var(--green); }
+  .tag-cyan { background: rgba(0,198,255,0.08); border: 1px solid rgba(0,198,255,0.3); color: var(--cyan); }
+  .tag-red { background: rgba(255,51,85,0.08); border: 1px solid rgba(255,51,85,0.3); color: var(--red); }
+
+  /* ── PUNTOS TABLE ── */
+  .points-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+
+  .points-table th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,215,0,0.15);
+  }
+
+  .points-table td {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--muted2);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .points-table tr:hover td { background: rgba(255,215,0,0.03); }
+
+  .pts-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    padding: 2px 10px;
+    border-radius: 8px;
+  }
+
+  .pts-gold { color: var(--gold); background: rgba(255,215,0,0.1); }
+  .pts-cyan { color: var(--cyan); background: rgba(0,198,255,0.1); }
+  .pts-green { color: var(--green); background: rgba(0,255,135,0.1); }
+  .pts-gray { color: var(--muted); background: rgba(255,255,255,0.05); }
+
+  /* ── FEATURE GRID ── */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+
+  .feature-card {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .feature-card:hover { border-color: rgba(255,215,0,0.25); transform: translateY(-2px); }
+
+  .feature-emoji { font-size: 24px; margin-bottom: 8px; }
+  .feature-name { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .feature-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ── LEVELS ── */
+  .levels { display: flex; flex-direction: column; gap: 10px; }
+
+  .level-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.2s;
+  }
+
+  .level-row:hover { border-color: rgba(255,215,0,0.2); }
+  .level-row.current { border-color: rgba(255,215,0,0.4); background: rgba(255,215,0,0.06); }
+
+  .level-icon { font-size: 24px; width: 32px; text-align: center; }
+  .level-info { flex: 1; }
+  .level-name { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+  .level-range { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+  .level-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .level-fill { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+
+  /* ── PLANS TABLE ── */
+  .plans-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 16px 0; }
+
+  .plan-card {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .plan-card:hover { border-color: rgba(255,215,0,0.3); transform: translateY(-3px); }
+  .plan-card.popular { border-color: rgba(0,255,135,0.4); }
+
+  .plan-top-line { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .plan-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; margin-top: 6px; }
+  .plan-price { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; margin: 8px 0 2px; }
+  .plan-period { font-size: 11px; color: var(--muted); font-family: 'Barlow Condensed', sans-serif; letter-spacing: 1px; }
+  .plan-users { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--muted2); margin: 8px 0 12px; }
+
+  .plan-feature { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; color: var(--muted2); }
+  .plan-check { color: var(--green); font-size: 12px; }
+
+  .popular-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--green);
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  /* ── TIP BOX ── */
+  .tip-box {
+    background: rgba(255,215,0,0.05);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+    color: var(--muted2);
+    line-height: 1.5;
+  }
+
+  .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── FAQ ── */
+  .faq-item {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 16px 0;
+  }
+
+  .faq-q {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+  }
+
+  .faq-q:hover { color: var(--gold); }
+  .faq-arrow { transition: transform 0.2s; color: var(--muted); font-size: 12px; flex-shrink: 0; }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--gold); }
+
+  .faq-a {
+    display: none;
+    font-size: 14px;
+    color: var(--muted2);
+    line-height: 1.7;
+    padding-top: 10px;
+  }
+
+  .faq-item.open .faq-a { display: block; }
+
+  /* ── RETOS TABLE ── */
+  .retos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+
+  .reto-card {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .reto-card:hover { border-color: rgba(255,215,0,0.25); }
+
+  .reto-pts {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--gold);
+    min-width: 52px;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .reto-pts span { font-size: 11px; color: var(--muted); display: block; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 1px; }
+
+  .reto-info .reto-name { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+  .reto-info .reto-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── BADGES ── */
+  .badges-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+
+  .badge-card {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .badge-card:hover { border-color: rgba(255,215,0,0.3); transform: translateY(-2px); }
+  .badge-icon { font-size: 32px; margin-bottom: 8px; }
+  .badge-name { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+  .badge-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+  /* ── CONTACT ── */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+
+  .contact-card {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .contact-icon { font-size: 24px; width: 40px; text-align: center; }
+  .contact-label { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+  .contact-value { font-size: 14px; color: var(--text); font-weight: 500; margin-top: 2px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-section { margin: 20px 0; }
+  .progress-label { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .progress-label span { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--muted); }
+  .progress-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--gold), var(--gold2)); transition: width 1s ease; }
+
+  /* ── SECTION NAV BOTTOM ── */
+  .section-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: rgba(255,215,0,0.08);
+    border: 1px solid rgba(255,215,0,0.25);
+    color: var(--gold);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .nav-btn:hover { background: rgba(255,215,0,0.15); border-color: rgba(255,215,0,0.5); }
+  .nav-btn.disabled { opacity: 0.3; pointer-events: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .hero { padding: 32px 20px; }
+    .hero h1 { font-size: 40px; }
+    .section { padding: 28px 20px; }
+    .feature-grid, .plans-grid, .retos-grid, .badges-grid, .contact-grid { grid-template-columns: 1fr; }
+  }
+
+  h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 20px 0 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .divider {
+    height: 1px;
+    background: rgba(255,215,0,0.12);
+    margin: 24px 0;
+  }
+
+  strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="title">GOLZI</div>
+    <div class="sub">MANUAL DE USUARIO</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">INICIO</div>
+    <a class="nav-item active" onclick="showSection('intro', this)"><span class="nav-emoji">🏠</span> Introducción</a>
+    <a class="nav-item" onclick="showSection('start', this)"><span class="nav-emoji">🚀</span> Primeros pasos</a>
+    <div class="nav-label">PANTALLAS</div>
+    <a class="nav-item" onclick="showSection('predecir', this)"><span class="nav-emoji">⚡</span> Predecir</a>
+    <a class="nav-item" onclick="showSection('envivo', this)"><span class="nav-emoji">🔴</span> En Vivo</a>
+    <a class="nav-item" onclick="showSection('ranking', this)"><span class="nav-emoji">👑</span> Ranking</a>
+    <a class="nav-item" onclick="showSection('mundial', this)"><span class="nav-emoji">🌐</span> Mundial</a>
+    <a class="nav-item" onclick="showSection('liga', this)"><span class="nav-emoji">🏆</span> Liga</a>
+    <a class="nav-item" onclick="showSection('perfil', this)"><span class="nav-emoji">⭐</span> Perfil</a>
+    <div class="nav-label">MÁS</div>
+    <a class="nav-item" onclick="showSection('planes', this)"><span class="nav-emoji">💳</span> Planes y pagos</a>
+    <a class="nav-item" onclick="showSection('faq', this)"><span class="nav-emoji">❓</span> Preguntas frecuentes</a>
+  </div>
+  <div class="sidebar-footer">golzi.app · v1.0 · Junio 2026</div>
+</nav>
+
+<!-- HERO -->
+<div class="main">
+<div class="hero">
+  <div class="hero-badge">📖 MANUAL OFICIAL</div>
+  <h1>GOLZI</h1>
+  <div class="hero-sub">Tu guía completa para el Mundial 2026 · Predice · Compite · Gana</div>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="num">72</span><span class="lbl">PARTIDOS</span></div>
+    <div class="hero-stat"><span class="num">12</span><span class="lbl">IDIOMAS</span></div>
+    <div class="hero-stat"><span class="num">48</span><span class="lbl">EQUIPOS</span></div>
+    <div class="hero-stat"><span class="num">+10</span><span class="lbl">PTS EXACTO</span></div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section id="intro" class="section active">
+  <div class="section-header">
+    <div class="section-icon">🏠</div>
+    <div>
+      <div class="section-title">BIENVENIDO A GOLZI</div>
+      <div class="section-desc">La app oficial de predicciones del Mundial 2026</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">¿QUÉ ES GOLZI?</div>
+    <p>GOLZI te permite predecir el marcador exacto de los 72 partidos del Mundial FIFA 2026. Gana puntos por cada acierto, sube en el ranking global y compite con amigos en ligas privadas.</p>
+    <p style="margin-top:10px; color: var(--green); font-weight: 500;">⚽ Sin apuestas · Los puntos no tienen valor monetario · 100% legal</p>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-emoji">⚡</div><div class="feature-name">Predicciones</div><div class="feature-desc">Predice los 72 partidos antes de que empiecen</div></div>
+    <div class="feature-card"><div class="feature-emoji">🔴</div><div class="feature-name">En Vivo</div><div class="feature-desc">Sigue los partidos con marcadores en tiempo real</div></div>
+    <div class="feature-card"><div class="feature-emoji">👑</div><div class="feature-name">Ranking</div><div class="feature-desc">Compite globalmente, por país y por liga</div></div>
+    <div class="feature-card"><div class="feature-emoji">🏆</div><div class="feature-name">Ligas privadas</div><div class="feature-desc">Crea tu liga y compite con quien quieras</div></div>
+    <div class="feature-card"><div class="feature-emoji">🌐</div><div class="feature-name">Mundial completo</div><div class="feature-desc">Grupos, fixture y equipos actualizados</div></div>
+    <div class="feature-card"><div class="feature-emoji">⭐</div><div class="feature-name">Perfil y logros</div><div class="feature-desc">Sube de nivel y desbloquea badges</div></div>
+  </div>
+
+  <div class="tip-box"><span class="tip-icon">📱</span><span>Disponible en <strong>Google Play</strong> (Android) y como <strong>PWA en golzi.app</strong> (iPhone vía Safari). El mismo usuario puede acceder desde ambos dispositivos.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn disabled">← Anterior</span>
+    <span class="nav-btn" onclick="showSection('start', document.querySelector('[onclick*=start]'))">Primeros pasos →</span>
+  </div>
+</section>
+
+<!-- PRIMEROS PASOS -->
+<section id="start" class="section">
+  <div class="section-header">
+    <div class="section-icon">🚀</div>
+    <div>
+      <div class="section-title">PRIMEROS PASOS</div>
+      <div class="section-desc">Descarga, instala y crea tu cuenta</div>
+    </div>
+  </div>
+
+  <h3>📱 Descarga la app</h3>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-emoji">🤖</div>
+      <div class="feature-name">Android</div>
+      <div class="feature-desc">Busca "GOLZI" en Google Play Store o visita: play.google.com/store/apps/details?id=com.viaexdev.golziapp</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-emoji">🍎</div>
+      <div class="feature-name">iPhone (PWA)</div>
+      <div class="feature-desc">Abre Safari → golzi.app → Compartir (⬆) → "Agregar a pantalla de inicio"</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>👤 Crea tu cuenta</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Abre GOLZI</div><div class="step-desc">Toca "Crear cuenta" en la pantalla de inicio</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Elige tu nombre de usuario</div><div class="step-desc">Mínimo 3 caracteres. Es tu identidad en GOLZI</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Email y contraseña</div><div class="step-desc">Usa un email válido — te servirá para recuperar tu cuenta</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Selecciona tu país</div><div class="step-desc">Aparecerás en el ranking de tu país</div></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Elige tu idioma</div><div class="step-desc">12 idiomas disponibles. Puedes cambiar después en PERFIL</div></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-title">¡Listo!</div><div class="step-desc">Ya puedes empezar a predecir partidos</div></div></div>
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('intro', document.querySelector('[onclick*=intro]'))">← Introducción</span>
+    <span class="nav-btn" onclick="showSection('predecir', document.querySelector('[onclick*=predecir]'))">Predecir →</span>
+  </div>
+</section>
+
+<!-- PREDECIR -->
+<section id="predecir" class="section">
+  <div class="section-header">
+    <div class="section-icon">⚡</div>
+    <div>
+      <div class="section-title">PREDECIR</div>
+      <div class="section-desc">El corazón de GOLZI · Predice los 72 partidos</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">SISTEMA DE PUNTOS</div>
+    <table class="points-table">
+      <thead><tr><th>TIPO DE ACIERTO</th><th>PUNTOS</th><th>CONDICIÓN</th></tr></thead>
+      <tbody>
+        <tr><td>🎯 Marcador exacto</td><td><span class="pts-badge pts-gold">+10</span></td><td>Adivinas el resultado exacto</td></tr>
+        <tr><td>✓ Ganador correcto</td><td><span class="pts-badge pts-cyan">+5</span></td><td>Aciertas quién gana</td></tr>
+        <tr><td>= Empate correcto</td><td><span class="pts-badge pts-green">+2</span></td><td>Predices el empate</td></tr>
+        <tr><td>✗ Incorrecto</td><td><span class="pts-badge pts-gray">0</span></td><td>No aciertas el resultado</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>🎮 Cómo predecir</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Toca el partido</div><div class="step-desc">Selecciona el partido que quieres predecir antes de que empiece</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Ingresa el marcador</div><div class="step-desc">Goles del equipo local y visitante</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Responde los retos (opcional)</div><div class="step-desc">Cada reto correcto suma puntos extra</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Guarda tu predicción</div><div class="step-desc">Puedes modificarla hasta que empiece el partido</div></div></div>
+  </div>
+
+  <div class="tip-box"><span class="tip-icon">⚠️</span><span>Solo puedes predecir <strong>ANTES</strong> de que empiece el partido. Una vez iniciado, la predicción se bloquea.</span></div>
+
+  <div class="divider"></div>
+
+  <h3>⚡ Retos rápidos (puntos extra)</h3>
+  <div class="retos-grid">
+    <div class="reto-card"><div class="reto-pts">+5<span>PTS</span></div><div class="reto-info"><div class="reto-name">⚽ Primer gol</div><div class="reto-desc">¿Quién anota primero? Local / Visitante / Nadie</div></div></div>
+    <div class="reto-card"><div class="reto-pts">+3<span>PTS</span></div><div class="reto-info"><div class="reto-name">📊 Más de 2.5 goles</div><div class="reto-desc">¿Habrá más de 2 goles en el partido?</div></div></div>
+    <div class="reto-card"><div class="reto-pts">+3<span>PTS</span></div><div class="reto-info"><div class="reto-name">🟨 Tarjetas amarillas</div><div class="reto-desc">Rango: 0-2 / 3-4 / 5-6 / 7+ tarjetas</div></div></div>
+    <div class="reto-card"><div class="reto-pts">+4<span>PTS</span></div><div class="reto-info"><div class="reto-name">🔄 Resultado al descanso</div><div class="reto-desc">¿Quién va ganando al medio tiempo?</div></div></div>
+    <div class="reto-card"><div class="reto-pts">+4<span>PTS</span></div><div class="reto-info"><div class="reto-name">🎯 Tanda de penaltis</div><div class="reto-desc">¿Se definirá en penaltis? (eliminatorias)</div></div></div>
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('start', document.querySelector('[onclick*=start]'))">← Primeros pasos</span>
+    <span class="nav-btn" onclick="showSection('envivo', document.querySelector('[onclick*=envivo]'))">En Vivo →</span>
+  </div>
+</section>
+
+<!-- EN VIVO -->
+<section id="envivo" class="section">
+  <div class="section-header">
+    <div class="section-icon">🔴</div>
+    <div>
+      <div class="section-title">EN VIVO</div>
+      <div class="section-desc">Sigue los partidos en tiempo real</div>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-emoji">⚡</div><div class="feature-name">EN VIVO AHORA</div><div class="feature-desc">Partidos que están jugándose con marcador en tiempo real</div></div>
+    <div class="feature-card"><div class="feature-emoji">📅</div><div class="feature-name">HOY</div><div class="feature-desc">Próximos partidos de las próximas 24 horas</div></div>
+    <div class="feature-card"><div class="feature-emoji">✓</div><div class="feature-name">RESULTADOS</div><div class="feature-desc">Últimos 3 partidos finalizados</div></div>
+    <div class="feature-card"><div class="feature-emoji">📊</div><div class="feature-name">ESTADÍSTICAS</div><div class="feature-desc">Posesión, tiros, faltas, tarjetas, córners</div></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title">ACTUALIZACIÓN AUTOMÁTICA</div>
+    <p>Los marcadores se actualizan automáticamente cada 5 minutos. <strong>No necesitas refrescar</strong> la app. Los puntos se calculan también automáticamente cuando termina el partido.</p>
+  </div>
+
+  <div class="tip-box"><span class="tip-icon">💡</span><span>Los puntos se calculan y acreditan en tu cuenta dentro de los 5 minutos después de que el árbitro pita el final del partido.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('predecir', document.querySelector('[onclick*=predecir]'))">← Predecir</span>
+    <span class="nav-btn" onclick="showSection('ranking', document.querySelector('[onclick*=ranking]'))">Ranking →</span>
+  </div>
+</section>
+
+<!-- RANKING -->
+<section id="ranking" class="section">
+  <div class="section-header">
+    <div class="section-icon">👑</div>
+    <div>
+      <div class="section-title">RANKING</div>
+      <div class="section-desc">Compite con todos los Golzaires del mundo</div>
+    </div>
+  </div>
+
+  <div class="tags">
+    <span class="tag tag-gold">GLOBAL</span>
+    <span class="tag tag-cyan">LIGA</span>
+    <span class="tag tag-green">PAÍS</span>
+    <span class="tag tag-gold">PAÍSES</span>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-emoji">🌍</div><div class="feature-name">Ranking Global</div><div class="feature-desc">Los mejores predictores del mundo. Actualizado cada 5 minutos.</div></div>
+    <div class="feature-card"><div class="feature-emoji">🏆</div><div class="feature-name">Ranking Liga</div><div class="feature-desc">Tu posición dentro de tu liga privada en tiempo real.</div></div>
+    <div class="feature-card"><div class="feature-emoji">🇨🇴</div><div class="feature-name">Ranking País</div><div class="feature-desc">Los mejores predictores de tu país.</div></div>
+    <div class="feature-card"><div class="feature-emoji">🗺️</div><div class="feature-name">Ranking Países</div><div class="feature-desc">Competencia entre naciones por puntos promedio.</div></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title">PAYWALL DEL RANKING</div>
+    <p>Con plan <strong>FREE</strong> puedes ver los primeros 5 lugares del ranking global. Para ver el ranking completo necesitas estar en una liga (como invitado o creador).</p>
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('envivo', document.querySelector('[onclick*=envivo]'))">← En Vivo</span>
+    <span class="nav-btn" onclick="showSection('mundial', document.querySelector('[onclick*=mundial]'))">Mundial →</span>
+  </div>
+</section>
+
+<!-- MUNDIAL -->
+<section id="mundial" class="section">
+  <div class="section-header">
+    <div class="section-icon">🌐</div>
+    <div>
+      <div class="section-title">MUNDIAL</div>
+      <div class="section-desc">Toda la información del torneo FIFA 2026</div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="background: linear-gradient(135deg, #FFD700, #FFA500);">G</div>
+      <div class="step-content">
+        <div class="step-title">Tab GRUPOS</div>
+        <div class="step-desc">12 grupos (A al L) con tabla de posiciones calculada automáticamente. Indicador verde para equipos clasificados.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background: linear-gradient(135deg, #00C6FF, #0072FF);">F</div>
+      <div class="step-content">
+        <div class="step-title">Tab FIXTURE</div>
+        <div class="step-desc">Los 72 partidos con fechas, horarios, estadios y resultados actualizados en tiempo real.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background: linear-gradient(135deg, #00FF87, #00C853);">E</div>
+      <div class="step-content">
+        <div class="step-title">Tab EQUIPOS</div>
+        <div class="step-desc">Los 48 equipos clasificados. Toca cualquiera para ver sus 3 partidos de fase de grupos.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box"><span class="tip-icon">🏟️</span><span>El Mundial 2026 se juega en <strong>USA, Canadá y México</strong> del <strong>11 de junio al 19 de julio de 2026</strong> con 48 equipos y 72 partidos.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('ranking', document.querySelector('[onclick*=ranking]'))">← Ranking</span>
+    <span class="nav-btn" onclick="showSection('liga', document.querySelector('[onclick*=liga]'))">Liga →</span>
+  </div>
+</section>
+
+<!-- LIGA -->
+<section id="liga" class="section">
+  <div class="section-header">
+    <div class="section-icon">🏆</div>
+    <div>
+      <div class="section-title">LIGA</div>
+      <div class="section-desc">Crea tu liga · Invita · Todos juegan gratis</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">MODELO "1 PAGA, TODOS JUEGAN"</div>
+    <p>El administrador paga una vez y <strong>todos los miembros entran gratis</strong>. Sin fricciones. Comparte el código y listo.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>➕ Crear una liga</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Ve a LIGA → CREAR</div><div class="step-desc">Requiere plan de pago (desde LIGA $9.99)</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Ponle nombre</div><div class="step-desc">Ej: "Los del Trabajo 2026" o "Familia Campeona"</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Comparte el código</div><div class="step-desc">Código único tipo GOLZ-XXXX. Por WhatsApp, link o QR</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">¡A jugar!</div><div class="step-desc">Tus amigos se unen gratis y el ranking empieza a moverse</div></div></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>🔗 Unirse a una liga</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Ve a LIGA → UNIRSE</div><div class="step-desc">Cualquier usuario FREE puede unirse a ligas</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Ingresa el código</div><div class="step-desc">El administrador te lo comparte (ej: GOLZ-ABC1)</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">¡Bienvenido!</div><div class="step-desc">Ya puedes ver el ranking, chatear y competir</div></div></div>
+  </div>
+
+  <div class="tip-box"><span class="tip-icon">💡</span><span>También puedes unirte escaneando el código QR del administrador (disponible en planes GOLZAIR+) con la cámara de tu celular.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('mundial', document.querySelector('[onclick*=mundial]'))">← Mundial</span>
+    <span class="nav-btn" onclick="showSection('perfil', document.querySelector('[onclick*=perfil]'))">Perfil →</span>
+  </div>
+</section>
+
+<!-- PERFIL -->
+<section id="perfil" class="section">
+  <div class="section-header">
+    <div class="section-icon">⭐</div>
+    <div>
+      <div class="section-title">PERFIL</div>
+      <div class="section-desc">Tu identidad y progreso en GOLZI</div>
+    </div>
+  </div>
+
+  <h3>🎯 Niveles XP</h3>
+  <div class="levels">
+    <div class="level-row"><div class="level-icon">⚡</div><div class="level-info"><div class="level-name">NOVATO</div><div class="level-range">0 – 50 puntos</div><div class="level-bar"><div class="level-fill" style="width:30%"></div></div></div></div>
+    <div class="level-row"><div class="level-icon">🎯</div><div class="level-info"><div class="level-name">ANALISTA</div><div class="level-range">51 – 200 puntos</div><div class="level-bar"><div class="level-fill" style="width:50%"></div></div></div></div>
+    <div class="level-row"><div class="level-icon">⚡</div><div class="level-info"><div class="level-name">CRACK</div><div class="level-range">201 – 500 puntos</div><div class="level-bar"><div class="level-fill" style="width:65%"></div></div></div></div>
+    <div class="level-row"><div class="level-icon">🏆</div><div class="level-info"><div class="level-name">LEYENDA</div><div class="level-range">501 – 1,000 puntos</div><div class="level-bar"><div class="level-fill" style="width:80%"></div></div></div></div>
+    <div class="level-row"><div class="level-icon">👑</div><div class="level-info"><div class="level-name">GOLZAIR ELITE</div><div class="level-range">1,001+ puntos</div><div class="level-bar"><div class="level-fill" style="width:100%"></div></div></div></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>🏅 Badges (Logros)</h3>
+  <div class="badges-grid">
+    <div class="badge-card"><div class="badge-icon">🎯</div><div class="badge-name">Primer Exacto</div><div class="badge-desc">Haz tu primera predicción exacta</div></div>
+    <div class="badge-card"><div class="badge-icon">🔥</div><div class="badge-name">Racha x3</div><div class="badge-desc">Acierta 3 predicciones seguidas</div></div>
+    <div class="badge-card"><div class="badge-icon">⚡</div><div class="badge-name">Goleador</div><div class="badge-desc">Logra 10 predicciones exactas</div></div>
+    <div class="badge-card"><div class="badge-icon">🏆</div><div class="badge-name">Campeón</div><div class="badge-desc">Gana una liga privada</div></div>
+    <div class="badge-card"><div class="badge-icon">🌍</div><div class="badge-name">Mundial</div><div class="badge-desc">Predice los 72 partidos</div></div>
+    <div class="badge-card"><div class="badge-icon">👑</div><div class="badge-name">GOLZI Elite</div><div class="badge-desc">Llega al Top 10 global</div></div>
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('liga', document.querySelector('[onclick*=liga]'))">← Liga</span>
+    <span class="nav-btn" onclick="showSection('planes', document.querySelector('[onclick*=planes]'))">Planes →</span>
+  </div>
+</section>
+
+<!-- PLANES -->
+<section id="planes" class="section">
+  <div class="section-header">
+    <div class="section-icon">💳</div>
+    <div>
+      <div class="section-title">PLANES Y PAGOS</div>
+      <div class="section-desc">1 PAGA · TODOS JUEGAN</div>
+    </div>
+  </div>
+
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-top-line" style="background: linear-gradient(90deg, #6B7A99, #9AAABB)"></div>
+      <div class="plan-name" style="color: #9AAABB">FREE</div>
+      <div class="plan-price" style="color: #9AAABB">GRATIS</div>
+      <div class="plan-period">siempre gratis</div>
+      <div class="plan-users">Sin liga propia</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Predecir 72 partidos</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Unirse a ligas con código</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Ranking global</div>
+    </div>
+    <div class="plan-card">
+      <div class="plan-top-line" style="background: linear-gradient(90deg, #FFD700, #FFA500)"></div>
+      <div class="plan-name" style="color: #FFD700">LIGA</div>
+      <div class="plan-price" style="color: #FFD700">$9.99</div>
+      <div class="plan-period">pago único · por torneo</div>
+      <div class="plan-users">👥 Hasta 5 jugadores</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Crear 1 liga privada</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Chat de liga</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Retos con puntos extra</div>
+    </div>
+    <div class="plan-card">
+      <div class="plan-top-line" style="background: linear-gradient(90deg, #00C6FF, #0072FF)"></div>
+      <div class="plan-name" style="color: #00C6FF">PRO</div>
+      <div class="plan-price" style="color: #00C6FF">$18.99</div>
+      <div class="plan-period">pago único · por torneo</div>
+      <div class="plan-users">👥 Hasta 10 jugadores</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Todo lo de LIGA</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Más jugadores</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>$1.90 por jugador</div>
+    </div>
+    <div class="plan-card popular">
+      <div class="popular-badge">⭐ POPULAR</div>
+      <div class="plan-top-line" style="background: linear-gradient(90deg, #00FF87, #00C853)"></div>
+      <div class="plan-name" style="color: #00FF87">MASTER</div>
+      <div class="plan-price" style="color: #00FF87">$39.99</div>
+      <div class="plan-period">pago único · por torneo</div>
+      <div class="plan-users">👥 Hasta 25 jugadores</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Todo lo de PRO</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>Tabla de predicciones</div>
+      <div class="plan-feature"><span class="plan-check">✓</span>$1.60 por jugador</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">GOLZAIR — $99.99 · HASTA 100 USUARIOS</div>
+    <p>Multiligas con un pool de 100 cupos. Código QR de invitación. Estadísticas del grupo. La opción ideal para comunidades grandes.</p>
+    <div class="tags" style="margin-top:10px">
+      <span class="tag tag-cyan">100 USUARIOS</span>
+      <span class="tag tag-gold">MULTILIGAS</span>
+      <span class="tag tag-green">QR INVITACIÓN</span>
+    </div>
+  </div>
+
+  <div class="tip-box"><span class="tip-icon">🔒</span><span>Pago seguro procesado por <strong>Google Play Billing</strong> (Android) o <strong>Wompi</strong> (web). GOLZI no almacena datos de tarjeta.</span></div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('perfil', document.querySelector('[onclick*=perfil]'))">← Perfil</span>
+    <span class="nav-btn" onclick="showSection('faq', document.querySelector('[onclick*=faq]'))">Preguntas frecuentes →</span>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section">
+  <div class="section-header">
+    <div class="section-icon">❓</div>
+    <div>
+      <div class="section-title">PREGUNTAS FRECUENTES</div>
+      <div class="section-desc">Respuestas rápidas a las dudas más comunes</div>
+    </div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Puedo cambiar mi predicción? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Una vez enviada tu predicción no puede modificarse. Asegúrate de confirmar el marcador antes de enviarlo.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Cuándo se calculan los puntos? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Los puntos se calculan automáticamente cuando el partido termina. Verás tu posición actualizada en el ranking dentro de los siguientes 5 minutos.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Los miembros de mi liga necesitan pagar? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">No. Solo el administrador (creador de la liga) paga. Todos los miembros invitados entran y juegan completamente gratis.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿GOLZI es una app de apuestas? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">No. GOLZI es un juego de predicciones. Los puntos no tienen valor monetario y no se pueden canjear por dinero. Es 100% legal.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Cómo cambio el idioma? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Ve a PERFIL → Idioma → selecciona tu idioma preferido. GOLZI está disponible en 12 idiomas: Español, English, Português, Français, Deutsch, Italiano, Русский, العربية, 中文, 日本語, 한국어, हिन्दी.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Funciona en iPhone? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Sí, vía PWA. Abre Safari → golzi.app → botón compartir (⬆) → "Agregar a pantalla de inicio". Funciona como una app nativa. Las notificaciones push no están disponibles en iPhone.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Puedo estar en varias ligas? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">
+      Sí, puedes ser miembro de múltiples ligas como invitado sin límite. Para crear ligas:<br><br>
+      • <strong style="color:var(--text)">LIGA / PRO / MASTER</strong> → 1 liga<br>
+      • <strong style="color:var(--text)">GOLZAIR</strong> → múltiples ligas distribuyendo tus 100 cupos<br>
+      • <strong style="color:var(--text)">PARTNER / BUSINESS / GOLD / PREMIUM</strong> → múltiples ligas distribuyendo los cupos de tu plan
+    </div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Qué pasa si no predigo un partido? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Simplemente no recibes puntos por ese partido. No hay penalización por no predecir.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Cómo contacto soporte? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Por WhatsApp al +57 305 432 5588 o por email a golziapp@gmail.com. Atención de lunes a viernes de 8am a 8pm (hora Colombia).</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>📞 Contacto</h3>
+  <div class="contact-grid">
+    <div class="contact-card"><div class="contact-icon">💬</div><div><div class="contact-label">WHATSAPP</div><div class="contact-value">+57 305 432 5588</div></div></div>
+    <div class="contact-card"><div class="contact-icon">📧</div><div><div class="contact-label">EMAIL</div><div class="contact-value">golziapp@gmail.com</div></div></div>
+    <div class="contact-card"><div class="contact-icon">🌐</div><div><div class="contact-label">WEB</div><div class="contact-value">golzi.app</div></div></div>
+    <div class="contact-card"><div class="contact-icon">📱</div><div><div class="contact-label">GOOGLE PLAY</div><div class="contact-value">GOLZI — Mundial 2026</div></div></div>
+  </div>
+
+  <div class="section-nav">
+    <span class="nav-btn" onclick="showSection('planes', document.querySelector('[onclick*=planes]'))">← Planes</span>
+    <span class="nav-btn" onclick="showSection('intro', document.querySelector('[onclick*=intro]'))">🏠 Inicio</span>
+  </div>
+</section>
+
+</div><!-- end main -->
+
+<script>
+function showSection(id, navEl) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const section = document.getElementById(id);
+  if (section) section.classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleFaq(el) {
+  el.classList.toggle('open');
+}
+</script>
+</body>
+</html>

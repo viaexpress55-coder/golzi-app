@@ -32,6 +32,10 @@
     ],
     "rewrites": [
       {
+        "source": "/privacidad",
+        "destination": "/privacidad.html"
+      },
+      {
         "source": "/tv/**",
         "destination": "/tv.html"
       },

@@ -97,7 +97,7 @@ const userId = user.uid;
           try {
             const products = await getProducts();
             if (!products || products.length === 0) {
-              setError('No se pudo conectar con Google Play. Verifica tu conexión e intenta de nuevo.');
+              setError('No se pudo conectar con Google Play v15. Verifica tu conexión e intenta de nuevo.');
               setLoading(false);
               return;
             }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   ScrollView, ActivityIndicator, Linking, Image,
@@ -10,7 +10,7 @@ import { Barlow_400Regular } from '@expo-google-fonts/barlow';
 import { createPaymentPreference, createWompiPaymentSession } from '../../services/payments';
 import { getAuth } from 'firebase/auth';
 import { Platform } from 'react-native';
-import { initIAP, purchaseProduct, PRODUCT_IDS } from '../../services/iap';
+import { initIAP, purchaseProduct, getProducts, endIAP, PRODUCT_IDS } from '../../services/iap';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -49,6 +49,16 @@ export default function PaymentScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Inicializar IAP una sola vez al montar (solo Android)
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      initIAP().catch(e => console.log('IAP init error:', e));
+    }
+    return () => {
+      if (Platform.OS === 'android') endIAP();
+    };
+  }, []);
+
   const { planId, planName, price, emoji } = route.params ?? {
     planId: 'liga', planName: 'LIGA', price: 14.99, emoji: '⚡',
   };
@@ -75,9 +85,8 @@ if (!user) { setError('Debes iniciar sesión para continuar.'); setLoading(false
 const email = user.email || '';
 const userId = user.uid;
 
-      // Android — Google Play Billing
+            // Android — Google Play Billing
       if (Platform.OS === 'android') {
-        // PREMIUM — solo por WhatsApp
         if (planId === 'golziplus') {
           await Linking.openURL('https://wa.me/573054325588?text=Hola%2C%20me%20interesa%20el%20plan%20GOLZI%20PREMIUM');
           setLoading(false);
@@ -86,10 +95,25 @@ const userId = user.uid;
         const productId = PRODUCT_IDS[planId as keyof typeof PRODUCT_IDS];
         if (productId) {
           try {
-            await initIAP();
+            const products = await getProducts();
+            if (!products || products.length === 0) {
+              setError('No se pudo conectar con Google Play. Verifica tu conexión e intenta de nuevo.');
+              setLoading(false);
+              return;
+            }
             await purchaseProduct(productId);
+            setLoading(false);
             return;
-          } catch (iapError) {
+          } catch (iapError: any) {
+            const errMsg = iapError?.message || iapError?.code || '';
+            if (!errMsg.includes('cancel') && !errMsg.includes('E_USER_CANCELLED')) {
+              setError('Error al procesar el pago. Intenta de nuevo.');
+            }
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (iapError) {
             console.log('IAP error:', iapError);
             const errMsg = (iapError as any)?.message || '';
             if (!errMsg.includes('cancel')) {

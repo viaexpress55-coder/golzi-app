@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal } from 'react-native';
+import { Platform, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
@@ -376,7 +376,7 @@ export default function ProfileScreen() {
               <LanguageSelector />
             </View>
 
-            <TouchableOpacity style={s.upgradeBtn} onPress={() => navigation.navigate('Plans')} activeOpacity={0.85}>
+            <TouchableOpacity style={s.upgradeBtn} onPress={() => Platform.OS === 'web' ? (typeof window !== 'undefined' && (window.location.href = 'https://golzi.app/planes')) : navigation.navigate('Plans')} activeOpacity={0.85}>
               <LinearGradient colors={[C.gold, C.gold2]} start={{x:0,y:0}} end={{x:1,y:0}} style={s.upgradeBtnInner}>
                 <Text style={s.upgradeTxt}>⚡ {t('profile_upgrade_btn')}</Text>
                 <Text style={s.upgradeSub}>{t('profile_upgrade_sub')}</Text>

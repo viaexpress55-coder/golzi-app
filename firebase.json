@@ -40,6 +40,10 @@
         "destination": "/mundial.html"
       },
       {
+        "source": "/planes",
+        "destination": "/planes.html"
+      },
+      {
         "source": "/tv/**",
         "destination": "/tv.html"
       },

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOLZI — Planes · Mundial 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#020408;--surface:#0A0F1A;--surface2:#0F1520;
+  --gold:#FFD700;--gold2:#FFA500;--green:#00FF87;
+  --cyan:#00C6FF;--red:#E8003D;--purple:#9B59B6;--blue:#60BFFF;
+  --text:#F0F4FF;--muted:#6B7A99;--muted2:#9AAABB;
+  --border:rgba(255,255,255,0.07);
+}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;width:100%;overflow-x:hidden;}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px;padding-top:20px;border-bottom:1px solid rgba(255,215,0,0.1);position:sticky;top:0;background:var(--bg);z-index:100;}
+.header-top-line{position:absolute;top:0;left:0;right:0;height:2px;background:rgba(255,215,0,0.5);}
+.logo{width:36px;height:36px;object-fit:contain;}
+.header-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:2px;}
+.back-btn{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;color:var(--muted);text-decoration:none;width:60px;}
+
+/* HERO */
+.hero{text-align:center;padding:16px;border-bottom:1px solid rgba(255,215,0,0.08);}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold);letter-spacing:2px;}
+.hero-sub{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--muted2);margin-top:4px;}
+.hero-pills{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center;}
+.hero-pill{background:rgba(255,215,0,0.08);border-radius:20px;padding:4px 10px;border:1px solid rgba(255,215,0,0.2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9px;color:var(--gold);letter-spacing:1px;}
+
+/* PROMO BANNER */
+.promo-banner{margin:12px 14px 0;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.4);border-radius:10px;padding:10px 14px;text-align:center;}
+.promo-txt{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--gold);letter-spacing:0.5px;}
+.promo-sub{font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--muted2);margin-top:2px;}
+
+/* TABS */
+.tabs{display:flex;gap:8px;padding:10px 14px;}
+.tab{flex:1;padding:8px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;color:var(--muted);letter-spacing:1px;cursor:pointer;text-align:center;transition:all .2s;}
+.tab.active{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);color:var(--gold);}
+
+/* PLAN CARDS */
+.plans-list{padding:0 14px 40px;display:flex;flex-direction:column;gap:10px;}
+.plan-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;overflow:hidden;position:relative;cursor:pointer;transition:transform .2s;}
+.plan-card:hover{transform:translateY(-2px);}
+.card-top-line{height:2px;}
+.badge{position:absolute;top:0;right:0;padding:3px 8px;border-bottom-left-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:8px;color:#000;letter-spacing:1px;z-index:1;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 8px;}
+.card-header-left{display:flex;align-items:center;gap:10px;}
+.card-emoji{font-size:24px;}
+.card-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;}
+.card-users{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:2px;}
+.card-price-box{text-align:right;}
+.original-price{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;color:var(--red);text-decoration:line-through;}
+.card-price{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1.1;}
+.card-period{font-family:'Barlow Condensed',sans-serif;font-size:9px;color:var(--muted);}
+.per-user-row{display:flex;align-items:center;gap:6px;padding:0 14px 6px;flex-wrap:wrap;}
+.per-user-price{font-family:'Bebas Neue',sans-serif;font-size:18px;}
+.per-user-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--muted);}
+.saving-badge{border-radius:20px;padding:2px 8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9px;letter-spacing:1px;}
+.players-note{margin:0 14px 8px;background:rgba(255,215,0,0.05);border-radius:8px;padding:8px;border-left:2px solid rgba(255,215,0,0.3);}
+.players-note-txt{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;color:rgba(255,215,0,0.7);}
+.divider{height:1px;background:rgba(255,255,255,0.06);margin:0 14px 8px;}
+.feature-list{display:flex;flex-direction:column;gap:5px;padding:0 14px 4px;}
+.feature-row{display:flex;align-items:center;gap:6px;}
+.feature-dot{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;width:14px;}
+.feature-txt{font-family:'Barlow',sans-serif;font-size:11px;color:var(--muted2);flex:1;}
+.cta{margin:14px;margin-top:10px;border-radius:10px;padding:12px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;text-decoration:none;display:block;transition:opacity .2s;}
+.cta:hover{opacity:0.85;}
+
+/* SAVINGS TABLE */
+.savings-table{background:rgba(255,255,255,0.03);border-radius:14px;border:1px solid rgba(255,255,255,0.08);padding:14px;margin:0 14px 10px;}
+.savings-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;color:var(--muted);letter-spacing:3px;margin-bottom:4px;}
+.savings-sub{font-family:'Barlow Condensed',sans-serif;font-size:9px;color:var(--muted);margin-bottom:10px;}
+.savings-row{display:flex;justify-content:space-between;}
+.savings-item{text-align:center;flex:1;}
+.savings-item-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9px;color:var(--muted2);letter-spacing:1px;}
+.savings-item-price{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);}
+.savings-item-saving{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:8px;color:var(--green);}
+
+/* HOW IT WORKS */
+.how-it-works{background:rgba(255,255,255,0.03);border-radius:14px;border:1px solid rgba(255,255,255,0.08);padding:14px;margin:0 14px 10px;}
+.how-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;color:var(--muted);letter-spacing:3px;margin-bottom:10px;}
+.how-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.how-num{width:24px;height:24px;border-radius:50%;background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.4);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--gold);flex-shrink:0;}
+.how-txt{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted2);}
+
+/* LEGAL */
+.legal{font-family:'Barlow',sans-serif;font-size:9px;color:var(--muted);text-align:center;padding:8px 14px 20px;}
+
+/* B2B PROMO */
+.b2b-promo{background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.3);border-radius:10px;padding:12px;text-align:center;margin-bottom:0;}
+.b2b-promo-txt{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;color:var(--gold);}
+.b2b-promo-sub{font-family:'Barlow Condensed',sans-serif;font-size:9px;color:var(--muted);margin-top:3px;}
+
+.hidden{display:none;}
+
+/* MAX WIDTH */
+
+</style>
+</head>
+<body>
+<div>
+
+<!-- HEADER -->
+<div class="header" style="position:relative;">
+  <div class="header-top-line"></div>
+  <a href="https://golzi.app" class="back-btn">← Volver</a>
+  <img src="https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5" class="logo" alt="GOLZI">
+  <div style="width:60px;"></div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-title">1 PAGA, TODOS JUEGAN</div>
+  <div class="hero-sub">Crea tu liga · Invita a quien quieras · Todos compiten</div>
+  <div class="hero-pills">
+    <span class="hero-pill">$1.60 POR JUGADOR</span>
+    <span class="hero-pill">1 SOLO PAGO</span>
+    <span class="hero-pill">TODOS JUEGAN</span>
+  </div>
+</div>
+
+<!-- PROMO BANNER -->
+<div class="promo-banner">
+  <div class="promo-txt">🔥 Oferta de lanzamiento · 25-35% descuento · Primeras 500 ligas</div>
+  <div class="promo-sub">Precio especial solo para el Mundial 2026</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)" id="tab0">PERSONAL</div>
+  <div class="tab" onclick="showTab(1)" id="tab1">EMPRESAS</div>
+</div>
+
+<!-- B2C PLANS -->
+<div id="b2c" class="plans-list">
+
+  <!-- FREE -->
+  <div class="plan-card" style="border-color:rgba(107,122,153,0.3);" onclick="goToPlan('free')">
+    <div class="card-top-line" style="background:var(--muted);"></div>
+    <div class="card-header">
+      <div class="card-header-left">
+        <span class="card-emoji">🎯</span>
+        <div>
+          <div class="card-name" style="color:var(--muted);">FREE</div>
+          <div class="card-users">PARA SIEMPRE</div>
+        </div>
+      </div>
+      <div class="card-price-box">
+        <div class="card-price" style="color:var(--muted);">GRATIS</div>
+        <div class="card-period">por todo el torneo</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="feature-list">
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Cuenta activa con perfil propio</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Predecir y guardar los 72 partidos</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Calendario completo y partidos en vivo</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Participar en ligas si te invitan</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--red);">✗</span><span class="feature-txt" style="color:var(--muted);">Crear tu propia liga privada</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--red);">✗</span><span class="feature-txt" style="color:var(--muted);">Retos diarios · Con anuncios</span></div>
+    </div>
+    <a href="https://golzi.app/?ref=planes&plan=free" class="cta" style="background:rgba(255,255,255,0.05);color:var(--muted);">⚡ EMPEZAR GRATIS</a>
+  </div>
+
+  <!-- LIGA -->
+  <div class="plan-card" style="border-color:rgba(255,215,0,0.3);" onclick="goToPlan('liga')">
+    <div class="card-top-line" style="background:var(--gold);"></div>
+    <div class="card-header">
+      <div class="card-header-left">
+        <span class="card-emoji">⚡</span>
+        <div>
+          <div class="card-name" style="color:var(--gold);">LIGA</div>
+          <div class="card-users">👥 5 JUGADORES</div>
+        </div>
+      </div>
+      <div class="card-price-box">
+        <div class="original-price">$9.99</div>
+        <div class="card-price" style="color:var(--gold);">$7.99</div>
+        <div class="card-period">pago único · USD</div>
+      </div>
+    </div>
+    <div class="per-user-row">
+      <span class="per-user-price" style="color:var(--gold);">$1.60</span>
+      <span class="per-user-label">por jugador</span>
+      <span class="saving-badge" style="background:rgba(255,215,0,0.2);color:var(--gold);">AHORRA 25%</span>
+    </div>
+    <div class="players-note"><div class="players-note-txt">👥 Tú + 4 jugadores juegan juntos</div></div>
+    <div class="divider"></div>
+    <div class="feature-list">
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Todo lo del plan FREE</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Crear 1 liga privada</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Hasta 5 participantes en tu liga</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Chat en tu liga · Retos diarios</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Sin anuncios · Link de invitación</span></div>
+    </div>
+    <a href="https://golzi.app/?ref=planes&plan=liga" class="cta" style="background:var(--gold);color:#000;">⚡ CREAR LIGA</a>
+  </div>
+
+  <!-- PRO -->
+  <div class="plan-card" style="border-color:rgba(0,198,255,0.3);" onclick="goToPlan('pro')">
+    <div class="badge" style="background:var(--cyan);">💰 MEJOR VALOR</div>
+    <div class="card-top-line" style="background:var(--cyan);"></div>
+    <div class="card-header">
+      <div class="card-header-left">
+        <span class="card-emoji">🔥</span>
+        <div>
+          <div class="card-name" style="color:var(--cyan);">PRO</div>
+          <div class="card-users">👥 10 JUGADORES</div>
+        </div>
+      </div>
+      <div class="card-price-box">
+        <div class="original-price">$18.99</div>
+        <div class="card-price" style="color:var(--cyan);">$13.99</div>
+        <div class="card-period">pago único · USD</div>
+      </div>
+    </div>
+    <div class="per-user-row">
+      <span class="per-user-price" style="color:var(--cyan);">$1.40</span>
+      <span class="per-user-label">por jugador</span>
+      <span class="saving-badge" style="background:rgba(0,198,255,0.2);color:var(--cyan);">AHORRA 25%</span>
+    </div>
+    <div class="players-note" style="border-left-color:rgba(0,198,255,0.3);"><div class="players-note-txt" style="color:rgba(0,198,255,0.7);">👥 Tú + 9 jugadores juegan juntos</div></div>
+    <div class="divider"></div>
+    <div class="feature-list">
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Todo lo del plan LIGA</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Hasta 10 participantes en tu liga</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Chat en tu liga · Retos diarios</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Sin anuncios · Link de invitación</span></div>
+    </div>
+    <a href="https://golzi.app/?ref=planes&plan=pro" class="cta" style="background:var(--cyan);color:#000;">⚡ CREAR LIGA</a>
+  </div>
+
+  <!-- MASTER -->
+  <div class="plan-card" style="border-color:rgba(0,255,135,0.5);border-width:1.5px;" onclick="goToPlan('master')">
+    <div class="badge" style="background:var(--green);">🔥 MÁS POPULAR</div>
+    <div class="card-top-line" style="background:var(--green);"></div>
+    <div class="card-header">
+      <div class="card-header-left">
+        <span class="card-emoji">🏆</span>
+        <div>
+          <div class="card-name" style="color:var(--green);">MASTER</div>
+          <div class="card-users">👥 25 JUGADORES</div>
+        </div>
+      </div>
+      <div class="card-price-box">
+        <div class="original-price">$39.99</div>
+        <div class="card-price" style="color:var(--green);">$29.99</div>
+        <div class="card-period">pago único · USD</div>
+      </div>
+    </div>
+    <div class="per-user-row">
+      <span class="per-user-price" style="color:var(--green);">$1.20</span>
+      <span class="per-user-label">por jugador</span>
+      <span class="saving-badge" style="background:rgba(0,255,135,0.2);color:var(--green);">AHORRA 25%</span>
+    </div>
+    <div class="players-note" style="border-left-color:rgba(0,255,135,0.3);"><div class="players-note-txt" style="color:rgba(0,255,135,0.7);">👥 Tú + 24 jugadores juegan juntos</div></div>
+    <div class="divider"></div>
+    <div class="feature-list">
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Todo lo del plan PRO</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Hasta 25 participantes en tu liga</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Chat · Retos diarios · Sin anuncios</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Link de invitación para tu liga</span></div>
+    </div>
+    <a href="https://golzi.app/?ref=planes&plan=master" class="cta" style="background:var(--green);color:#000;">⚡ CREAR LIGA</a>
+  </div>
+
+  <!-- GOLZAIR -->
+  <div class="plan-card" style="border-color:rgba(96,191,255,0.3);" onclick="goToPlan('golzair')">
+    <div class="badge" style="background:var(--blue);">👑 COMUNIDAD</div>
+    <div class="card-top-line" style="background:var(--blue);"></div>
+    <div class="card-header">
+      <div class="card-header-left">
+        <span class="card-emoji">👑</span>
+        <div>
+          <div class="card-name" style="color:var(--blue);">GOLZAIR</div>
+          <div class="card-users">🌍 100 JUGADORES</div>
+        </div>
+      </div>
+      <div class="card-price-box">
+        <div class="original-price">$99.99</div>
+        <div class="card-price" style="color:var(--blue);">$74.99</div>
+        <div class="card-period">pago único · USD</div>
+      </div>
+    </div>
+    <div class="per-user-row">
+      <span class="per-user-price" style="color:var(--blue);">$0.75</span>
+      <span class="per-user-label">por jugador</span>
+      <span class="saving-badge" style="background:rgba(96,191,255,0.2);color:var(--blue);">AHORRA 25%</span>
+    </div>
+    <div class="players-note" style="border-left-color:rgba(96,191,255,0.3);"><div class="players-note-txt" style="color:rgba(96,191,255,0.7);">👥 Hasta 100 jugadores · Multiligas</div></div>
+    <div class="divider"></div>
+    <div class="feature-list">
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Todo lo del plan MASTER</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Multiligas (1 pool de 100 cupos)</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">QR + Token de invitación</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Estadísticas del grupo</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Sin anuncios · Soporte prioritario</span></div>
+    </div>
+    <a href="https://golzi.app/?ref=planes&plan=golzair" class="cta" style="background:var(--blue);color:#000;">👑 CREAR LIGAS</a>
+  </div>
+
+  <!-- SAVINGS TABLE B2C -->
+  <div class="savings-table">
+    <div class="savings-title">COMPARA TU AHORRO</div>
+    <div class="savings-sub">Precio base: $1.99 por jugador</div>
+    <div class="savings-row">
+      <div class="savings-item"><div class="savings-item-name">LIGA</div><div class="savings-item-price">$1.60</div><div class="savings-item-saving">-25%</div></div>
+      <div class="savings-item"><div class="savings-item-name">PRO</div><div class="savings-item-price">$1.40</div><div class="savings-item-saving">-25%</div></div>
+      <div class="savings-item"><div class="savings-item-name">MASTER</div><div class="savings-item-price">$1.20</div><div class="savings-item-saving">-25%</div></div>
+      <div class="savings-item"><div class="savings-item-name">GOLZAIR</div><div class="savings-item-price">$0.75</div><div class="savings-item-saving">-25%</div></div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="how-it-works">
+    <div class="how-title">¿CÓMO FUNCIONA?</div>
+    <div class="how-row"><div class="how-num">1</div><div class="how-txt">Elige tu plan y cuántos jugadores quieres</div></div>
+    <div class="how-row"><div class="how-num">2</div><div class="how-txt">Pagas una sola vez — tu liga queda creada</div></div>
+    <div class="how-row"><div class="how-num">3</div><div class="how-txt">Invitas por link, código QR o redes sociales</div></div>
+    <div class="how-row"><div class="how-num">4</div><div class="how-txt">Todos entran gratis y compiten contigo</div></div>
+  </div>
+
+  <div class="legal">🔒 Sin apuestas · Pago único por torneo · Sin renovación automática · Mundial 2026</div>
+</div>
+
+<!-- B2B PLANS -->
+<div id="b2b" class="plans-list hidden">
+
+  <div class="b2b-promo">
+    <div class="b2b-promo-txt">🏢 Planes para empresas, organizaciones y comunidades grandes</div>
+    <div class="b2b-promo-sub">Precio base: $1.99 · Mientras más usuarios, menos pagas</div>
+  </div>
+
+  <!-- PARTNER -->
+  <div class="plan-card" style="border-color:rgba(255,215,0,0.3);" onclick="goToPlan('partner')">
+    <div class="card-top-line" style="background:var(--gold);"></div>
+    <div class="card-header">
+      <div class="card-header-left">
+        <span class="card-emoji">🤝</span>
+        <div>
+          <div class="card-name" style="color:var(--gold);">PARTNER</div>
+          <div class="card-users">👥 500 USUARIOS</div>
+        </div>
+      </div>
+      <div class="card-price-box">
+        <div class="original-price">$349.99</div>
+        <div class="card-price" style="color:var(--gold);">$244.99</div>
+        <div class="card-period">pago único · USD</div>
+      </div>
+    </div>
+    <div class="per-user-row">
+      <span class="per-user-price" style="color:var(--gold);">$0.49</span>
+      <span class="per-user-label">por usuario</span>
+      <span class="saving-badge" style="background:rgba(255,215,0,0.2);color:var(--gold);">AHORRA 30%</span>
+    </div>
+    <div class="divider"></div>
+    <div class="feature-list">
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Todo lo del plan GOLZAIR+</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Hasta 500 participantes · Múltiples ligas</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Canal de difusión · Dashboard completo</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Pantalla TV · Soporte prioritario</span></div>
+    </div>
+    <a href="https://golzi.app/?ref=planes&plan=partner" class="cta" style="background:var(--gold);color:#000;">⚡ CREAR LIGAS</a>
+  </div>
+
+  <!-- BUSINESS -->
+  <div class="plan-card" style="border-color:rgba(0,198,255,0.5);border-width:1.5px;" onclick="goToPlan('business')">
+    <div class="badge" style="background:var(--cyan);">🚀 MÁS POPULAR</div>
+    <div class="card-top-line" style="background:var(--cyan);"></div>
+    <div class="card-header">
+      <div class="card-header-left">
+        <span class="card-emoji">🚀</span>
+        <div>
+          <div class="card-name" style="color:var(--cyan);">BUSINESS</div>
+          <div class="card-users">👥 1,000 USUARIOS</div>
+        </div>
+      </div>
+      <div class="card-price-box">
+        <div class="original-price">$499.99</div>
+        <div class="card-price" style="color:var(--cyan);">$349.99</div>
+        <div class="card-period">pago único · USD</div>
+      </div>
+    </div>
+    <div class="per-user-row">
+      <span class="per-user-price" style="color:var(--cyan);">$0.35</span>
+      <span class="per-user-label">por usuario</span>
+      <span class="saving-badge" style="background:rgba(0,198,255,0.2);color:var(--cyan);">AHORRA 30%</span>
+    </div>
+    <div class="divider"></div>
+    <div class="feature-list">
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Todo lo del plan PARTNER+</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Hasta 1,000 participantes</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Branding de empresa en la liga</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Torneos internos · Soporte dedicado</span></div>
+    </div>
+    <a href="https://golzi.app/?ref=planes&plan=business" class="cta" style="background:var(--cyan);color:#000;">⚡ CREAR LIGAS</a>
+  </div>
+
+  <!-- GOLD -->
+  <div class="plan-card" style="border-color:rgba(255,215,0,0.3);" onclick="goToPlan('gold')">
+    <div class="card-top-line" style="background:var(--gold);"></div>
+    <div class="card-header">
+      <div class="card-header-left">
+        <span class="card-emoji">👑</span>
+        <div>
+          <div class="card-name" style="color:var(--gold);">GOLD</div>
+          <div class="card-users">🌍 2,500 USUARIOS</div>
+        </div>
+      </div>
+      <div class="card-price-box">
+        <div class="original-price">$999.99</div>
+        <div class="card-price" style="color:var(--gold);">$649.99</div>
+        <div class="card-period">pago único · USD</div>
+      </div>
+    </div>
+    <div class="per-user-row">
+      <span class="per-user-price" style="color:var(--gold);">$0.26</span>
+      <span class="per-user-label">por usuario</span>
+      <span class="saving-badge" style="background:rgba(255,215,0,0.2);color:var(--gold);">AHORRA 35%</span>
+    </div>
+    <div class="divider"></div>
+    <div class="feature-list">
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Todo lo del plan BUSINESS+</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Hasta 2,500 participantes</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Branding propio completo · Torneos públicos</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Eventos masivos · Soporte VIP</span></div>
+    </div>
+    <a href="https://wa.me/573054325588?text=Hola%2C%20me%20interesa%20el%20plan%20GOLD%20de%20GOLZI%20para%20el%20Mundial%202026" class="cta" style="background:var(--gold);color:#000;" target="_blank">👑 CONSULTAR · WHATSAPP</a>
+    <a href="mailto:golziapp@gmail.com?subject=Plan GOLD GOLZI Mundial 2026" style="display:block;text-align:center;padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;color:var(--muted);text-decoration:none;border:1px solid rgba(255,255,255,0.1);border-radius:10px;margin:0 14px 14px;" target="_blank">📧 golziapp@gmail.com</a>
+  </div>
+
+  <!-- GOLZI PREMIUM -->
+  <div class="plan-card" style="border-color:rgba(155,89,182,0.3);" onclick="goToPlan('golziplus')">
+    <div class="card-top-line" style="background:var(--purple);"></div>
+    <div class="card-header">
+      <div class="card-header-left">
+        <span class="card-emoji">⭐</span>
+        <div>
+          <div class="card-name" style="color:var(--purple);">GOLZI PREMIUM</div>
+          <div class="card-users">🌍 5,000+ USUARIOS</div>
+        </div>
+      </div>
+      <div class="card-price-box">
+        <div class="card-price" style="color:var(--purple);font-size:20px;">PERSONALIZADO</div>
+        <div class="card-period">~$0.30 por usuario</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="feature-list">
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Todo lo del plan GOLD+</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">5,000+ participantes</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Precio según volumen y necesidades</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Gerente de cuenta · SLA garantizado</span></div>
+      <div class="feature-row"><span class="feature-dot" style="color:var(--green);">✓</span><span class="feature-txt">Contrato y facturación empresarial</span></div>
+    </div>
+    <a href="https://wa.me/573054325588?text=Hola%2C%20me%20interesa%20el%20plan%20GOLZI%20PREMIUM%20para%20el%20Mundial%202026" class="cta" style="background:rgba(155,89,182,0.2);color:var(--purple);border:1px solid rgba(155,89,182,0.4);" target="_blank">⭐ CONSULTAR · WHATSAPP</a>
+    <a href="mailto:golziapp@gmail.com?subject=Plan GOLZI PREMIUM Mundial 2026" style="display:block;text-align:center;padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;color:var(--muted);text-decoration:none;border:1px solid rgba(255,255,255,0.1);border-radius:10px;margin:0 14px 14px;" target="_blank">📧 golziapp@gmail.com</a>
+  </div>
+
+  <!-- SAVINGS TABLE B2B -->
+  <div class="savings-table">
+    <div class="savings-title">COMPARA TU AHORRO</div>
+    <div class="savings-sub">Precio base: $1.99 por usuario</div>
+    <div class="savings-row">
+      <div class="savings-item"><div class="savings-item-name">PARTNER</div><div class="savings-item-price">$0.49</div><div class="savings-item-saving">-30%</div></div>
+      <div class="savings-item"><div class="savings-item-name">BUSINESS</div><div class="savings-item-price">$0.35</div><div class="savings-item-saving">-30%</div></div>
+      <div class="savings-item"><div class="savings-item-name">GOLD</div><div class="savings-item-price">$0.26</div><div class="savings-item-saving">-35%</div></div>
+      <div class="savings-item"><div class="savings-item-name">PREMIUM</div><div class="savings-item-price">$0.30</div><div class="savings-item-saving">-85%</div></div>
+    </div>
+  </div>
+
+  <div class="legal">🔒 Planes B2B sujetos a contrato. Sin apuestas. GOLZI no almacena datos de tarjeta.</div>
+</div>
+
+</div>
+
+<script>
+function showTab(i) {
+  document.getElementById('b2c').classList.toggle('hidden', i !== 0);
+  document.getElementById('b2b').classList.toggle('hidden', i !== 1);
+  document.getElementById('tab0').classList.toggle('active', i === 0);
+  document.getElementById('tab1').classList.toggle('active', i === 1);
+}
+
+function goToPlan(plan) {
+  if (plan === 'free') {
+    window.location.href = 'https://golzi.app/?ref=planes&plan=free';
+    return;
+  }
+  if (plan === 'gold' || plan === 'golziplus') return; // manejado por botones directos
+  window.location.href = 'https://golzi.app/?ref=planes&plan=' + plan;
+}
+</script>
+</body>
+</html>

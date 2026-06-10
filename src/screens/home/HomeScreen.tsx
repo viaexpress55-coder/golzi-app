@@ -4,7 +4,7 @@ import {
   TouchableOpacity, TextInput, ActivityIndicator, Animated, Image, Modal,
   RefreshControl, Alert,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Platform, LinearGradient } from 'expo-linear-gradient';
 import { collection, getDocs, query, doc, setDoc, getDoc, where } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { savePrediction } from '../../services/auth';
@@ -106,7 +106,7 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
         <View style={rs.retoPtsBadge}><Text style={rs.retoPtsTxt}>+{reto.pts}</Text></View>
       </View>
       {!isPaid ? (
-        <TouchableOpacity style={rs.paywall} onPress={() => navigation.navigate('Plans')} activeOpacity={0.85}>
+        <TouchableOpacity style={rs.paywall} onPress={() => Platform.OS === 'web' ? (typeof window !== 'undefined' && (window.location.href = 'https://golzi.app/planes')) : navigation.navigate('Plans')} activeOpacity={0.85}>
           <LinearGradient colors={[C.purple+'22', C.purple+'08']} style={rs.paywallInner}>
             <Text style={rs.paywallLock}>🔒</Text>
             <Text style={rs.paywallTxt}>{t('home_golzair_plus')}</Text>
@@ -419,7 +419,7 @@ export default function HomeScreen() {
     } catch (error: any) {
       const code = error?.code ?? '';
       if (code === 'functions/permission-denied') {
-        navigation.navigate('Plans');
+        Platform.OS === 'web' ? (typeof window !== 'undefined' && (window.location.href = 'https://golzi.app/planes')) : navigation.navigate('Plans');
         return;
       }
       if (code === 'functions/failed-precondition') {

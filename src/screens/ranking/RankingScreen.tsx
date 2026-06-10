@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, Animated, Share, Image, ActivityIndicator,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Platform, LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { useTranslation } from 'react-i18next';
@@ -565,7 +565,7 @@ export default function RankingScreen() {
 
             {/* PAYWALL — solo en tab Global */}
             {tab === 0 && !isPaid && globalHidden.length > 0 && (
-              <PaywallBanner hiddenCount={globalHidden.length} onUnlock={() => navigation.navigate('Plans')} />
+              <PaywallBanner hiddenCount={globalHidden.length} onUnlock={() => Platform.OS === 'web' ? (typeof window !== 'undefined' && (window.location.href = 'https://golzi.app/planes')) : navigation.navigate('Plans')} />
             )}
 
             {/* Empty state tab liga */}

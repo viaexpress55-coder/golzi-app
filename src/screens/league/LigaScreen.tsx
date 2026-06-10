@@ -4,7 +4,7 @@ import {
   TextInput, Image, ActivityIndicator, Share, Alert, Modal
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Platform, CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
@@ -280,7 +280,7 @@ export default function LigaScreen() {
       // Validar plan — redirigir a Plans si es FREE
       if (freshPlan === 'FREE' || !userSnap.data()?.plan) {
         setCreating(false);
-        navigation.navigate('Plans');
+        Platform.OS === 'web' ? (typeof window !== 'undefined' && (window.location.href = 'https://golzi.app/planes')) : navigation.navigate('Plans');
         return;
       }
       // Validar pool de cupos

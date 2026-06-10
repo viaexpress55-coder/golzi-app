@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, ScrollView, Platform, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -82,6 +82,7 @@ const B2B_PLANS = [
 export default function PlansScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
   const { t } = useTranslation();
+  const { height } = useWindowDimensions();
   const [tab, setTab] = useState(0);
 
   function handleB2CSelect(plan: typeof B2C_PLANS[0]) {
@@ -116,7 +117,7 @@ export default function PlansScreen() {
   }
 
   return (
-    <View style={s.root}>
+    <View style={[s.root, Platform.OS === 'web' ? { height } : {}]}>
       {/* HEADER */}
       <View style={s.header}>
         <View style={s.headerTopLine} />

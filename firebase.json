@@ -36,6 +36,10 @@
         "destination": "/privacidad.html"
       },
       {
+        "source": "/mundial",
+        "destination": "/mundial.html"
+      },
+      {
         "source": "/tv/**",
         "destination": "/tv.html"
       },

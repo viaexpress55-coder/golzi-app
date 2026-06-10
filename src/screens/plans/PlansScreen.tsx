@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, ScrollView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -380,7 +380,7 @@ export default function PlansScreen() {
 }
 
 const s = StyleSheet.create({
-  root:{ flex:1, backgroundColor:C.bg },
+  root:{ flex:1, backgroundColor:C.bg, ...(Platform.OS === 'web' ? { minHeight:'100vh' } as any : {}) },
   header:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:16, paddingTop:52, paddingBottom:12, borderBottomWidth:1, borderBottomColor:'rgba(255,215,0,0.1)', backgroundColor:C.bg },
   headerTopLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:'rgba(255,215,0,0.5)' },
   backBtn:{ width:60 },

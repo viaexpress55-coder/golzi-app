@@ -9,6 +9,7 @@ import {
   serverTimestamp, doc, updateDoc, getDocs, where, setDoc, deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../../services/firebase';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   bg:'#020408', surface:'#0A0F1A', gold:'#FFD700', gold2:'#FFA500',
@@ -44,6 +45,7 @@ interface Props {
 }
 
 export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, ligaBrandColor, ligaPlan, ownerId, userId, userName, members }: Props) {
+  const { t } = useTranslation();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -165,7 +167,7 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
 
   async function joinTournament(t: Tournament) {
     if (t.participants.includes(userId)) {
-      Alert.alert('Ya inscrito', 'Ya estás participando en este torneo');
+      Alert.alert(t('tourn_already_joined'), t('tourn_already_joined_msg'));
       return;
     }
     await updateDoc(doc(db, 'leagues', ligaId, 'tournaments', t.id), {
@@ -235,7 +237,7 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
     return 1000;
   };
   const statusColor = (s: string) => s === 'active' ? C.green : s === 'upcoming' ? C.cyan : C.muted;
-  const statusLabel = (s: string) => s === 'active' ? '🟢 ACTIVO' : s === 'upcoming' ? '⏳ PRÓXIMO' : '🏁 FINALIZADO';
+  const statusLabel = (s: string) => s === 'active' ? t('tourn_status_active') : s === 'upcoming' ? t('tourn_status_upcoming') : t('tourn_status_finished');
   const medals = ['🥇','🥈','🥉'];
 
   if (loading) return <View style={s.loading}><ActivityIndicator color={C.gold} size="large"/></View>;
@@ -247,10 +249,10 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
         {/* Header */}
         <View style={s.header}>
           <Text style={s.headerTitle}>🏆 TORNEOS</Text>
-        <Text style={s.headerSub}>{ligaName || 'Mundial 2026'}</Text>
+        <Text style={s.headerSub}>{ligaName || t('tourn_sub')}</Text>
         {isAdmin && (
           <View style={{backgroundColor:'rgba(255,215,0,0.06)',borderRadius:8,paddingHorizontal:10,paddingVertical:6,borderWidth:1,borderColor:'rgba(255,215,0,0.15)',marginTop:4}}>
-            <Text style={{color:'rgba(255,215,0,0.6)',fontSize:9,fontWeight:'700',letterSpacing:1}}>✉️ SOPORTE: golziapp@gmail.com</Text>
+            <Text style={{color:'rgba(255,215,0,0.6)',fontSize:9,fontWeight:'700',letterSpacing:1}}>✉️ {t('tourn_support')}</Text>
           </View>
         )}
         
@@ -260,7 +262,7 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
         {canCreate && (
           <TouchableOpacity onPress={() => setShowCreate(true)} style={s.createBtn}>
             <LinearGradient colors={[C.gold, C.gold2]} start={{x:0,y:0}} end={{x:1,y:0}} style={s.createBtnInner}>
-              <Text style={s.createBtnTxt}>⚡ CREAR NUEVO TORNEO</Text>
+              <Text style={s.createBtnTxt}>⚡ {t('tourn_create_btn')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         )}
@@ -269,8 +271,8 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
         {tournaments.length === 0 ? (
           <View style={s.empty}>
             <Text style={{fontSize:48}}>🏆</Text>
-            <Text style={s.emptyTitle}>SIN TORNEOS AÚN</Text>
-            <Text style={s.emptySub}>{canCreate ? 'Crea el primer torneo para tu liga.' : 'El administrador creará torneos aquí.'}</Text>
+            <Text style={s.emptyTitle}>{t('tourn_empty_title')}</Text>
+            <Text style={s.emptySub}>{canCreate ? t('tourn_empty_admin') : t('tourn_empty_member')}</Text>
           </View>
         ) : tournaments.map(t => (
           <View key={t.id} style={s.card}>
@@ -283,26 +285,26 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
               </View>
               {t.isPublic && (
                 <View style={s.publicBadge}>
-                  <Text style={s.publicBadgeTxt}>🌍 PÚBLICO</Text>
+                  <Text style={s.publicBadgeTxt}>{t('tourn_public_badge')}</Text>
                 </View>
               )}
             </View>
 
             <View style={s.cardInfo}>
               <View style={s.cardInfoItem}>
-                <Text style={s.cardInfoLabel}>INICIO</Text>
+                <Text style={s.cardInfoLabel}>{t('tourn_label_start')}</Text>
                 <Text style={s.cardInfoValue}>{t.startDate}</Text>
               </View>
               <View style={s.cardInfoItem}>
-                <Text style={s.cardInfoLabel}>FIN</Text>
+                <Text style={s.cardInfoLabel}>{t('tourn_label_end')}</Text>
                 <Text style={s.cardInfoValue}>{t.endDate}</Text>
               </View>
               <View style={s.cardInfoItem}>
-                <Text style={s.cardInfoLabel}>PARTIDOS</Text>
+                <Text style={s.cardInfoLabel}>{t('tourn_label_matches')}</Text>
                 <Text style={s.cardInfoValue}>{t.matchIds?.length || 0}</Text>
               </View>
               <View style={s.cardInfoItem}>
-                <Text style={s.cardInfoLabel}>INSCRITOS</Text>
+                <Text style={s.cardInfoLabel}>{t('tourn_label_members')}</Text>
                 <Text style={s.cardInfoValue}>{t.participants?.length || 0}</Text>
               </View>
             </View>
@@ -339,7 +341,7 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
             <View style={s.cardActions}>
               {!t.participants?.includes(userId) ? (
                 <TouchableOpacity onPress={() => joinTournament(t)} style={s.joinBtn}>
-                  <Text style={s.joinBtnTxt}>⚡ INSCRIBIRME</Text>
+                  <Text style={s.joinBtnTxt}>{t('tourn_join_btn')}</Text>
                 </TouchableOpacity>
               ) : (
                 <View style={s.joinedBadge}>
@@ -347,7 +349,7 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
                 </View>
               )}
               <TouchableOpacity onPress={() => loadRanking(t)} style={s.rankingBtn}>
-                <Text style={s.rankingBtnTxt}>📊 VER RANKING</Text>
+                <Text style={s.rankingBtnTxt}>{t('tourn_ranking_btn')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -359,7 +361,7 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
         <View style={s.modalOverlay}>
           <View style={s.modalContent}>
             <ScrollView contentContainerStyle={{padding:20, gap:14}}>
-              <Text style={s.modalTitle}>⚡ NUEVO TORNEO</Text>
+              <Text style={s.modalTitle}>{t('tourn_create_btn')}</Text>
 
               <Text style={s.inputLabel}>NOMBRE DEL TORNEO *</Text>
               <TextInput style={[s.input, formErrors.name && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: Torneo Cuartos de Final" placeholderTextColor={C.muted} value={tName} onChangeText={v => {setTName(v); setFormErrors(p=>({...p,name:false}))}} maxLength={40}/>
@@ -367,34 +369,34 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
               <Text style={s.inputLabel}>DESCRIPCIÓN (opcional)</Text>
               <TextInput style={[s.input,{height:70}]} placeholder="Describe el torneo..." placeholderTextColor={C.muted} value={tDesc} onChangeText={setTDesc} multiline maxLength={150}/>
 
-              <Text style={s.inputLabel}>🥇 PREMIO 1ER LUGAR *</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_prize1')}</Text>
               <TextInput style={[s.input, formErrors.prize1 && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: Cena para 2 + botella de vino" placeholderTextColor={C.muted} value={tPrize1} onChangeText={v => {setTPrize1(v); setFormErrors(p=>({...p,prize1:false}))}} maxLength={80}/>
 
-              <Text style={s.inputLabel}>🥈 PREMIO 2DO LUGAR (opcional)</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_prize2')}</Text>
               <TextInput style={s.input} placeholder="Ej: Cupón 30% descuento" placeholderTextColor={C.muted} value={tPrize2} onChangeText={setTPrize2} maxLength={80}/>
 
-              <Text style={s.inputLabel}>🥉 PREMIO 3ER LUGAR (opcional)</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_prize3')}</Text>
               <TextInput style={s.input} placeholder="Ej: Consumo gratis una noche" placeholderTextColor={C.muted} value={tPrize3} onChangeText={setTPrize3} maxLength={80}/>
 
-              <Text style={s.inputLabel}>📅 FECHA INICIO * (YYYY-MM-DD)</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_start')}</Text>
               <TextInput style={[s.input, formErrors.start && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="2026-06-11" placeholderTextColor={C.muted} value={tStart} onChangeText={v => {setTStart(v); setFormErrors(p=>({...p,start:false}))}} maxLength={10}/>
 
-              <Text style={s.inputLabel}>📅 FECHA FIN * (YYYY-MM-DD)</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_end')}</Text>
               <TextInput style={[s.input, formErrors.end && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="2026-07-19" placeholderTextColor={C.muted} value={tEnd} onChangeText={v => {setTEnd(v); setFormErrors(p=>({...p,end:false}))}} maxLength={10}/>
 
-              <Text style={s.inputLabel}>📍 CIUDAD *</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_city')}</Text>
               <TextInput style={[s.input, formErrors.ciudad && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: Bogotá" placeholderTextColor={C.muted} value={tCiudad} onChangeText={v => {setTCiudad(v); setFormErrors(p=>({...p,ciudad:false}))}} maxLength={40}/>
 
-              <Text style={s.inputLabel}>🌍 PAÍS *</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_country')}</Text>
               <TextInput style={[s.input, formErrors.pais && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: Colombia" placeholderTextColor={C.muted} value={tPais} onChangeText={v => {setTPais(v); setFormErrors(p=>({...p,pais:false}))}} maxLength={40}/>
 
-              <Text style={s.inputLabel}>🌐 PÁGINA WEB (opcional)</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_web')}</Text>
               <TextInput style={s.input} placeholder="https://www.tunegocio.com" placeholderTextColor={C.muted} value={tWeb} onChangeText={setTWeb} maxLength={100} autoCapitalize="none"/>
 
-              <Text style={s.inputLabel}>👥 LÍMITE DE INSCRITOS *</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_max')}</Text>
               <TextInput style={[s.input, formErrors.maxPart && {borderColor:'#FF3355',borderWidth:1.5}]} placeholder="Ej: 100" placeholderTextColor={C.muted} value={tMaxPart} onChangeText={v => {setTMaxPart(v); setFormErrors(p=>({...p,maxPart:false}))}} maxLength={6} keyboardType="numeric"/>
 
-              <Text style={s.inputLabel}>🏷️ CATEGORÍA DEL NEGOCIO</Text>
+              <Text style={s.inputLabel}>{t('tourn_form_category')}</Text>
               <View style={{ flexDirection:'row', flexWrap:'wrap', gap:8, marginBottom:8 }}>
                 {['Restaurante','Sports Bar','Cervecería','Bar','Hotel','Casino','Empresa','Comunidad','Otro'].map(cat => (
                   <TouchableOpacity
@@ -417,10 +419,10 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
               {canPublic && (
                 <TouchableOpacity onPress={() => setTPublic(!tPublic)} style={[s.publicToggle, tPublic && {borderColor:C.cyan}]}>
                   <Text style={{color: tPublic ? C.cyan : C.muted, fontWeight:'700'}}>
-                    {tPublic ? '🌍 TORNEO PÚBLICO' : '🔒 TORNEO PRIVADO'}
+                    {tPublic ? t('tourn_form_public') : t('tourn_form_private')}
                   </Text>
                   <Text style={{color:C.muted, fontSize:10, marginTop:2}}>
-                    {tPublic ? 'Visible para todos los usuarios de GOLZI' : 'Solo para miembros de tu liga'}
+                    {tPublic ? t('tourn_form_public_hint') : t('tourn_form_private_hint')}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -437,11 +439,11 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
               )}
               <TouchableOpacity onPress={handleCreate} disabled={creating} style={s.createBtnModal}>
                 <LinearGradient colors={[C.gold, C.gold2]} style={s.createBtnInner}>
-                  <Text style={s.createBtnTxt}>{creating ? '⏳ CREANDO TORNEO...' : '⚡ CREAR TORNEO'}</Text>
+                  <Text style={s.createBtnTxt}>{creating ? t('tourn_creating') : t('tourn_create_action')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowCreate(false)} style={{alignItems:'center', padding:12, backgroundColor:'rgba(255,51,85,0.08)', borderRadius:12, borderWidth:1, borderColor:'rgba(255,51,85,0.3)', marginTop:4}}>
-                <Text style={{color:'#FF3355', fontSize:13, fontWeight:'700', letterSpacing:1}}>✕ CERRAR FORMULARIO</Text>
+                <Text style={{color:'#FF3355', fontSize:13, fontWeight:'700', letterSpacing:1}}>{t('tourn_close_form')}</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -459,7 +461,7 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
               {rankingLoading ? (
                 <ActivityIndicator color={C.gold} style={{marginTop:20}}/>
               ) : ranking.length === 0 ? (
-                <Text style={{color:C.muted, textAlign:'center', padding:20}}>Sin predicciones aún</Text>
+                <Text style={{color:C.muted, textAlign:'center', padding:20}}>{t('tourn_no_preds')}</Text>
               ) : ranking.map((p, i) => (
                 <View key={p.uid} style={[s.rankRow, i===0 && {borderColor:C.gold, borderWidth:1.5}]}>
                   <Text style={{fontSize:20, width:32}}>{i < 3 ? medals[i] : i+1}</Text>

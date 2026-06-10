@@ -101,7 +101,7 @@ function MainTabs() {
       <Tab.Screen name="Ranking" options={{ tabBarLabel: t('ranking_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="👑" focused={focused} /> }}>
         {() => <RankingScreen />}
       </Tab.Screen>
-      <Tab.Screen name="Torneos" options={{ tabBarLabel: 'TORNEOS', tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} /> }}>
+      <Tab.Screen name="Torneos" options={{ tabBarLabel: t('tourn_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} /> }}>
         {() => <TorneosPublicosScreen />}
       </Tab.Screen>
       <Tab.Screen name="Mundial" options={{ tabBarLabel: t('mundial_title'), tabBarIcon: ({ focused }) => <TabIcon emoji="🌐" focused={focused} /> }}>

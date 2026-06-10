@@ -485,7 +485,7 @@ export default function RankingScreen() {
                         onPress={() => { setSelectedLeagueIdx(idx); setLeagueData(lg.members); }}
                         style={{
                           paddingHorizontal:14, paddingVertical:8, borderRadius:12,
-                          borderWidth:1,
+                          borderWidth:StyleSheet.hairlineWidth,
                           backgroundColor: selectedLeagueIdx === idx ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
                           borderColor: selectedLeagueIdx === idx ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.08)',
                         }}>

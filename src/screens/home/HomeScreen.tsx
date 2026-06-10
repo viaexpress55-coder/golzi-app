@@ -133,18 +133,18 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
 }
 
 const rs = StyleSheet.create({
-  retoCard:{ backgroundColor:'rgba(168,85,247,0.06)', borderRadius:12, borderWidth:1, borderColor:'rgba(168,85,247,0.2)', padding:12, marginBottom:8 },
+  retoCard:{ backgroundColor:'rgba(168,85,247,0.06)', borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.2)', padding:12, marginBottom:8 },
   retoHeader:{ flexDirection:'row', alignItems:'center', gap:8, marginBottom:10 },
   retoIcon:{ fontSize:16 }, retoLabel:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:'#E9D5FF', flex:1 },
-  retoPtsBadge:{ backgroundColor:'rgba(168,85,247,0.2)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:1, borderColor:'rgba(168,85,247,0.4)' },
+  retoPtsBadge:{ backgroundColor:'rgba(168,85,247,0.2)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.4)' },
   retoPtsTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:'#C084FC' },
   paywall:{ borderRadius:10, overflow:'hidden' },
-  paywallInner:{ padding:12, alignItems:'center', gap:6, borderRadius:10, borderWidth:1, borderColor:'rgba(168,85,247,0.25)' },
+  paywallInner:{ padding:12, alignItems:'center', gap:6, borderRadius:10, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.25)' },
   paywallLock:{ fontSize:20 }, paywallTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#C084FC' },
-  paywallBtn:{ backgroundColor:'rgba(168,85,247,0.3)', borderRadius:20, paddingHorizontal:16, paddingVertical:6, borderWidth:1, borderColor:'rgba(168,85,247,0.5)' },
+  paywallBtn:{ backgroundColor:'rgba(168,85,247,0.3)', borderRadius:20, paddingHorizontal:16, paddingVertical:6, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.5)' },
   paywallBtnTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:'#E9D5FF', letterSpacing:1 },
   optionsRow:{ flexDirection:'row', gap:8 },
-  optionBtn:{ flex:1, paddingVertical:10, borderRadius:10, backgroundColor:'rgba(255,255,255,0.05)', alignItems:'center', borderWidth:1, borderColor:'rgba(255,255,255,0.1)' },
+  optionBtn:{ flex:1, paddingVertical:10, borderRadius:10, backgroundColor:'rgba(255,255,255,0.05)', alignItems:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.1)' },
   optionBtnSelected:{ backgroundColor:'rgba(168,85,247,0.25)', borderColor:'rgba(168,85,247,0.6)' },
   optionTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:12, color:'#9B7AC4', letterSpacing:1 },
   optionTxtSelected:{ color:'#E9D5FF' },
@@ -556,13 +556,13 @@ export default function HomeScreen() {
 
       <Modal visible={showConfirmModal} transparent animationType="fade" onRequestClose={() => setShowConfirmModal(false)}>
         <View style={{ flex:1, backgroundColor:'rgba(0,0,0,0.85)', alignItems:'center', justifyContent:'center', padding:24 }}>
-          <View style={{ backgroundColor:'#0A0F1A', borderRadius:20, padding:24, width:'100%', borderWidth:1, borderColor:'rgba(255,215,0,0.3)', gap:16 }}>
+          <View style={{ backgroundColor:'#0A0F1A', borderRadius:20, padding:24, width:'100%', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)', gap:16 }}>
             <View style={{ height:2, backgroundColor:'#FFD700', borderRadius:1 }} />
             <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:'#FFD700', letterSpacing:3, textAlign:'center' }}>¿CONFIRMAS TU PREDICCIÓN?</Text>
             {confirmMatch && (
               <View style={{ alignItems:'center', gap:8 }}>
                 <Text style={{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:16, color:'#9AAABB', textAlign:'center' }}>{confirmMatch.homeTeam} vs {confirmMatch.awayTeam}</Text>
-                <View style={{ flexDirection:'row', alignItems:'center', gap:16, backgroundColor:'rgba(255,215,0,0.1)', borderRadius:14, paddingHorizontal:24, paddingVertical:14, borderWidth:1, borderColor:'rgba(255,215,0,0.25)' }}>
+                <View style={{ flexDirection:'row', alignItems:'center', gap:16, backgroundColor:'rgba(255,215,0,0.1)', borderRadius:14, paddingHorizontal:24, paddingVertical:14, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.25)' }}>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:'#FFD700' }}>{getScore(confirmMatch.id)[0] || '0'}</Text>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:'#6B7A99' }}>-</Text>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:'#FFD700' }}>{getScore(confirmMatch.id)[1] || '0'}</Text>
@@ -571,7 +571,7 @@ export default function HomeScreen() {
               </View>
             )}
             <View style={{ flexDirection:'row', gap:10 }}>
-              <TouchableOpacity style={{ flex:1, borderRadius:12, borderWidth:1, borderColor:'rgba(255,255,255,0.1)', paddingVertical:14, alignItems:'center' }} onPress={() => setShowConfirmModal(false)}>
+              <TouchableOpacity style={{ flex:1, borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.1)', paddingVertical:14, alignItems:'center' }} onPress={() => setShowConfirmModal(false)}>
                 <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#6B7A99', letterSpacing:1 }}>{t('home_cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex:2, borderRadius:12, overflow:'hidden' }} onPress={() => { setShowConfirmModal(false); if (confirmMatch) confirm(confirmMatch.id); }}>
@@ -842,7 +842,7 @@ const s = StyleSheet.create({
   goalTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold, letterSpacing:4, marginBottom:8 },
   goalPts:{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:C.green, letterSpacing:4 },
   modalOverlay:{ flex:1, backgroundColor:'rgba(0,0,0,0.85)', alignItems:'center', justifyContent:'flex-end' },
-  modalCard:{ width:'100%', borderTopLeftRadius:24, borderTopRightRadius:24, overflow:'hidden', padding:24, alignItems:'center', borderWidth:1, borderColor:'rgba(255,215,0,0.2)' },
+  modalCard:{ width:'100%', borderTopLeftRadius:24, borderTopRightRadius:24, overflow:'hidden', padding:24, alignItems:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)' },
   modalTopLine:{ position:'absolute', top:0, left:0, right:0, height:3, backgroundColor:C.gold },
   modalTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold, letterSpacing:3, marginBottom:6 },
   modalSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted, marginBottom:20, textAlign:'center' },
@@ -901,7 +901,7 @@ const s = StyleSheet.create({
   shareSmallBtn:{ width:32, height:32, borderRadius:16, backgroundColor:'rgba(255,215,0,0.1)', alignItems:'center', justifyContent:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)' },
   shareSmallTxt:{ fontSize:14 },
   predictBtn:{ marginHorizontal:14, marginBottom:14, zIndex:1, borderRadius:12, overflow:'hidden' },
-  predictBtnInner:{ borderRadius:12, paddingVertical:14, alignItems:'center', borderWidth:1, borderColor:'rgba(255,215,0,0.2)' },
+  predictBtnInner:{ borderRadius:12, paddingVertical:14, alignItems:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)' },
   predictBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:17, letterSpacing:3 },
   analysisBox:{ marginHorizontal:14, marginBottom:10, backgroundColor:'rgba(0,198,255,0.05)', borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(0,198,255,0.2)', padding:12 },
   analysisHeader:{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:10 },

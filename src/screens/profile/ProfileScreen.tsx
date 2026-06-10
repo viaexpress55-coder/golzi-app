@@ -85,7 +85,7 @@ function XPBar({ pts, t }: { pts: number; t: (k: string) => string }) {
 const xp = StyleSheet.create({
   container:{ marginTop:12, gap:6 },
   labelRow:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between' },
-  levelBadge:{ flexDirection:'row', alignItems:'center', gap:5, borderRadius:8, borderWidth:1, paddingHorizontal:10, paddingVertical:4 },
+  levelBadge:{ flexDirection:'row', alignItems:'center', gap:5, borderRadius:8, borderWidth:StyleSheet.hairlineWidth, paddingHorizontal:10, paddingVertical:4 },
   levelIcon:{ fontSize:13 },
   levelName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, letterSpacing:1 },
   nextLabel:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted },

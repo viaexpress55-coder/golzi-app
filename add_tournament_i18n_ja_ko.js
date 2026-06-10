@@ -1,0 +1,36 @@
+const fs = require('fs');
+const filePath = 'src/locales/i18n.ts';
+let content = fs.readFileSync(filePath, 'utf8');
+
+const blocks = [
+  {
+    lang: 'ja',
+    anchor: "ranking_share: '\u30b7\u30a7\u30a2'",
+    translation: `      tourn_title: '\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8', tourn_sub: '\u30ef\u30fc\u30eb\u30c9\u30ab\u30c3\u30d72026', tourn_support: '\u30b5\u30dd\u30fc\u30c8: golziapp@gmail.com', tourn_create_btn: '\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8\u4f5c\u6210', tourn_join_btn: '\u53c2\u52a0\u3059\u308b', tourn_ranking_btn: '\u30e9\u30f3\u30ad\u30f3\u30b0', tourn_close_form: '\u9589\u3058\u308b', tourn_create_action: '\u4f5c\u6210\u3059\u308b', tourn_creating: '\u4f5c\u6210\u4e2d...', tourn_close: '\u9589\u3058\u308b', tourn_empty_title: '\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8\u306a\u3057', tourn_empty_admin: '\u30ea\u30fc\u30b0\u306e\u6700\u521d\u306e\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8\u3092\u4f5c\u6210\u3057\u3066\u304f\u3060\u3055\u3044\u3002', tourn_empty_member: '\u7ba1\u7406\u8005\u304c\u3053\u3053\u306b\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8\u3092\u4f5c\u6210\u3057\u307e\u3059\u3002', tourn_status_active: '\u958b\u50ac\u4e2d', tourn_status_upcoming: '\u4e88\u5b9a', tourn_status_finished: '\u7d42\u4e86', tourn_public_badge: '\u516c\u958b', tourn_label_start: '\u958b\u59cb', tourn_label_end: '\u7d42\u4e86', tourn_label_matches: '\u8a66\u5408', tourn_label_members: '\u53c2\u52a0\u8005', tourn_joined: '\u53c2\u52a0\u6e08\u307f', tourn_form_name: '\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8\u540d *', tourn_form_desc: '\u8aac\u660e\uff08\u4efb\u610f\uff09', tourn_form_prize1: '1\u4f4d\u8cde\u54c1 *', tourn_form_prize2: '2\u4f4d\u8cde\u54c1\uff08\u4efb\u610f\uff09', tourn_form_prize3: '3\u4f4d\u8cde\u54c1\uff08\u4efb\u610f\uff09', tourn_form_start: '\u958b\u59cb\u65e5 * (YYYY-MM-DD)', tourn_form_end: '\u7d42\u4e86\u65e5 * (YYYY-MM-DD)', tourn_form_city: '\u90fd\u5e02 *', tourn_form_country: '\u56fd *', tourn_form_web: '\u30a6\u30a7\u30d6\u30b5\u30a4\u30c8\uff08\u4efb\u610f\uff09', tourn_form_max: '\u6700\u5927\u53c2\u52a0\u8005\u6570 *', tourn_form_category: '\u30d3\u30b8\u30cd\u30b9\u30ab\u30c6\u30b4\u30ea', tourn_form_public: '\u516c\u958b\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8', tourn_form_private: '\u30d7\u30e9\u30a4\u30d9\u30fc\u30c8\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8', tourn_form_public_hint: '\u3059\u3079\u3066\u306eGOLZI\u30e6\u30fc\u30b6\u30fc\u306b\u8868\u793a', tourn_form_private_hint: '\u30ea\u30fc\u30b0\u30e1\u30f3\u30d0\u30fc\u306e\u307f', tourn_form_error: '*\u306e\u5fc5\u9808\u9805\u76ee\u3092\u3059\u3079\u3066\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044', tourn_no_preds: '\u307e\u3060\u4e88\u6e2c\u306a\u3057', tourn_already_joined: '\u53c2\u52a0\u6e08\u307f', tourn_already_joined_msg: '\u3059\u3067\u306b\u3053\u306e\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8\u306b\u53c2\u52a0\u3057\u3066\u3044\u307e\u3059', tourn_error_create: '\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8\u3092\u4f5c\u6210\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f', tourn_ph_name: '\u4f8b\uff1a\u6e96\u3005\u6c7a\u52dd\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8', tourn_ph_desc: '\u30c8\u30fc\u30ca\u30e1\u30f3\u30c8\u3092\u8aac\u660e...', tourn_ph_prize1: '\u4f8b\uff1a2\u540d\u69d8\u30c7\u30a3\u30ca\u30fc', tourn_ph_prize2: '\u4f8b\uff1a30%\u5272\u5f15', tourn_ph_prize3: '\u4f8b\uff1a\u7121\u6599\u30c9\u30ea\u30f3\u30af', tourn_ph_city: '\u4f8b\uff1a\u6771\u4eac', tourn_ph_country: '\u4f8b\uff1a\u65e5\u672c', tourn_ph_web: 'https://www.yourbusiness.jp', tourn_ph_max: '\u4f8b\uff1a100',`
+  },
+  {
+    lang: 'ko',
+    anchor: "ranking_share: '\uc0c1\ud5a4'",
+    translation: `      tourn_title: '\ud1a0\ub108\uba3c\ud2b8', tourn_sub: '\uc6d4\ub4dc\ucef42026', tourn_support: '\uc9c0\uc6d0: golziapp@gmail.com', tourn_create_btn: '\ud1a0\ub108\uba3c\ud2b8 \ub9cc\ub4e4\uae30', tourn_join_btn: '\ucc38\uac00\ud558\uae30', tourn_ranking_btn: '\uc21c\uc704 \ubcf4\uae30', tourn_close_form: '\ub2eb\uae30', tourn_create_action: '\ub9cc\ub4e4\uae30', tourn_creating: '\uc0dd\uc131 \uc911...', tourn_close: '\ub2eb\uae30', tourn_empty_title: '\ud1a0\ub108\uba3c\ud2b8 \uc5c6\uc74c', tourn_empty_admin: '\ub9ac\uadf8\uc758 \uccab \ubc88\uc9f8 \ud1a0\ub108\uba3c\ud2b8\ub97c \ub9cc\ub4dc\uc138\uc694.', tourn_empty_member: '\uad00\ub9ac\uc790\uac00 \uc5ec\uae30\uc5d0 \ud1a0\ub108\uba3c\ud2b8\ub97c \ub9cc\ub4e4 \uac83\uc785\ub2c8\ub2e4.', tourn_status_active: '\uc9c4\ud589 \uc911', tourn_status_upcoming: '\uc608\uc815', tourn_status_finished: '\uc885\ub8cc', tourn_public_badge: '\uacf5\uac1c', tourn_label_start: '\uc2dc\uc791', tourn_label_end: '\uc885\ub8cc', tourn_label_matches: '\uacbd\uae30', tourn_label_members: '\ucc38\uac00\uc790', tourn_joined: '\ucc38\uac00\ub428', tourn_form_name: '\ud1a0\ub108\uba3c\ud2b8 \uc774\ub984 *', tourn_form_desc: '\uc124\uba85 (\uc120\ud0dd)', tourn_form_prize1: '1\uc704 \uc0c1\ud488 *', tourn_form_prize2: '2\uc704 \uc0c1\ud488 (\uc120\ud0dd)', tourn_form_prize3: '3\uc704 \uc0c1\ud488 (\uc120\ud0dd)', tourn_form_start: '\uc2dc\uc791\uc77c * (YYYY-MM-DD)', tourn_form_end: '\uc885\ub8cc\uc77c * (YYYY-MM-DD)', tourn_form_city: '\ub3c4\uc2dc *', tourn_form_country: '\uad6d\uac00 *', tourn_form_web: '\uc6f9\uc0ac\uc774\ud2b8 (\uc120\ud0dd)', tourn_form_max: '\ucd5c\ub300 \ucc38\uac00\uc790 \uc218 *', tourn_form_category: '\ube44\uc988\ub2c8\uc2a4 \uce74\ud14c\uace0\ub9ac', tourn_form_public: '\uacf5\uac1c \ud1a0\ub108\uba3c\ud2b8', tourn_form_private: '\ube44\uacf5\uac1c \ud1a0\ub108\uba3c\ud2b8', tourn_form_public_hint: '\ubaa8\ub4e0 GOLZI \uc0ac\uc6a9\uc790\uc5d0\uac8c \ud45c\uc2dc', tourn_form_private_hint: '\ub9ac\uadf8 \uba64\ubc84\ub9cc', tourn_form_error: '*\ub85c \ud45c\uc2dc\ub41c \ud544\uc218 \ud56d\ubaa9\uc744 \ubaa8\ub450 \uc785\ub825\ud558\uc138\uc694', tourn_no_preds: '\uc544\uc9c1 \uc608\uce21 \uc5c6\uc74c', tourn_already_joined: '\uc774\ubbf8 \ucc38\uac00\ud568', tourn_already_joined_msg: '\uc774\ubbf8 \uc774 \ud1a0\ub108\uba3c\ud2b8\uc5d0 \ucc38\uac00\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4', tourn_error_create: '\ud1a0\ub108\uba3c\ud2b8\ub97c \ub9cc\ub4e4 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4', tourn_ph_name: '\uc608: 8\uac15 \ud1a0\ub108\uba3c\ud2b8', tourn_ph_desc: '\ud1a0\ub108\uba3c\ud2b8 \uc124\uba85...', tourn_ph_prize1: '\uc608: 2\uc778 \uc800\ub141 \uc2dd\uc0ac', tourn_ph_prize2: '\uc608: 30% \ud560\uc778 \ucfe0\ud3f0', tourn_ph_prize3: '\uc608: \ubb34\ub8cc \uc74c\ub8cc', tourn_ph_city: '\uc608: \uc11c\uc6b8', tourn_ph_country: '\uc608: \ud55c\uad6d', tourn_ph_web: 'https://www.yourbusiness.kr', tourn_ph_max: '\uc608: 100',`
+  }
+];
+
+let count = 0;
+for (const block of blocks) {
+  if (content.includes(block.anchor)) {
+    content = content.replace(block.anchor, `${block.translation}\n      ${block.anchor}`);
+    count++;
+    console.log(`✅ ${block.lang}: claves agregadas`);
+  } else {
+    console.log(`⚠️  ${block.lang}: ancla no encontrada — buscando alternativa...`);
+    // Buscar línea con ranking_share de ese idioma
+    const lines = content.split('\n');
+    const lineIdx = block.lang === 'ja' ? 2418 : 2661;
+    console.log(`   Línea ${lineIdx}: ${lines[lineIdx - 1]?.substring(0, 80)}`);
+  }
+}
+
+if (count > 0) {
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log(`\n✅ ${count} idiomas actualizados`);
+}

@@ -307,7 +307,7 @@ export default function LiveScreen() {
                 </View>
                 <View style={s.miniCenter}>
                   <Text style={s.miniVs}>VS</Text>
-                  <Text style={s.miniTime}>{m.utcDate ? new Date(m.utcDate).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}</Text>
+                  <Text style={s.miniTime}>{m.kickoffTime ? new Date(m.kickoffTime?.seconds ? m.kickoffTime.seconds * 1000 : m.kickoffTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}</Text>
                 </View>
                 <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
                   <Text style={s.miniFlag}>{m.awayFlag || '🌍'}</Text>
@@ -377,7 +377,7 @@ const s = StyleSheet.create({
   headerLogo:{ width:36, height:36 },
   headerTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold, letterSpacing:3 },
   headerSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted, letterSpacing:2 },
-  liveCountBadge:{ backgroundColor:'rgba(255,51,85,0.12)', borderRadius:10, borderWidth:1, borderColor:'rgba(255,51,85,0.5)', padding:10, alignItems:'center', shadowColor:'#FF3355', shadowOffset:{width:0,height:4}, shadowOpacity:0.3, shadowRadius:8, elevation:6 },
+  liveCountBadge:{ backgroundColor:'rgba(255,51,85,0.12)', borderRadius:10, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,51,85,0.5)', padding:10, alignItems:'center', shadowColor:'#FF3355', shadowOffset:{width:0,height:4}, shadowOpacity:0.3, shadowRadius:8, elevation:6 },
   liveCountNum:{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:C.red },
   liveCountLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.red, letterSpacing:2 },
 
@@ -387,16 +387,16 @@ const s = StyleSheet.create({
   sectionDot:{ width:8, height:8, borderRadius:4, backgroundColor:C.red },
   sectionLabel:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3 },
 
-  scoreCard:{ backgroundColor:C.surface2, borderRadius:18, borderWidth:1, borderColor:'rgba(255,215,0,0.35)', marginBottom:12, overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:6}, shadowOpacity:0.3, shadowRadius:12, elevation:8 },
+  scoreCard:{ backgroundColor:C.surface2, borderRadius:18, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.35)', marginBottom:12, overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:6}, shadowOpacity:0.3, shadowRadius:12, elevation:8 },
   scoreCardGlow:{ position:'absolute', top:0, left:0, right:0, height:80 },
   scoreTopLine:{ height:2 },
   scoreVenue:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2, textAlign:'center', paddingTop:10, paddingBottom:6 },
 
-  liveBadge:{ flexDirection:'row', alignItems:'center', gap:5, backgroundColor:'rgba(255,51,85,0.12)', borderWidth:1, borderColor:'rgba(255,51,85,0.3)', borderRadius:20, alignSelf:'center', paddingHorizontal:12, paddingVertical:4, marginBottom:6 },
+  liveBadge:{ flexDirection:'row', alignItems:'center', gap:5, backgroundColor:'rgba(255,51,85,0.12)', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,51,85,0.3)', borderRadius:20, alignSelf:'center', paddingHorizontal:12, paddingVertical:4, marginBottom:6 },
   liveDot:{ width:8, height:8, borderRadius:4, backgroundColor:C.red },
   liveTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.red, letterSpacing:1 },
 
-  finishedBadge:{ backgroundColor:'rgba(136,136,136,0.1)', borderRadius:20, alignSelf:'center', paddingHorizontal:12, paddingVertical:4, marginBottom:6, borderWidth:1, borderColor:'rgba(136,136,136,0.2)' },
+  finishedBadge:{ backgroundColor:'rgba(136,136,136,0.1)', borderRadius:20, alignSelf:'center', paddingHorizontal:12, paddingVertical:4, marginBottom:6, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(136,136,136,0.2)' },
   finishedTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.muted, letterSpacing:2 },
 
   scoreRow:{ flexDirection:'row', alignItems:'center', paddingHorizontal:14, paddingBottom:14, paddingTop:4 },
@@ -405,10 +405,10 @@ const s = StyleSheet.create({
   scoreCode:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.gold, letterSpacing:2 },
   scoreName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted, textAlign:'center' },
   scoreCenter:{ alignItems:'center', paddingHorizontal:8 },
-  scoreBox:{ flexDirection:'row', alignItems:'center', gap:8, backgroundColor:'rgba(255,215,0,0.06)', borderRadius:16, borderWidth:1, borderColor:'rgba(255,215,0,0.2)', paddingHorizontal:16, paddingVertical:10 },
+  scoreBox:{ flexDirection:'row', alignItems:'center', gap:8, backgroundColor:'rgba(255,215,0,0.06)', borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', paddingHorizontal:16, paddingVertical:10 },
   scoreNum:{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:C.text, lineHeight:56 },
   scoreDash:{ fontFamily:'BebasNeue_400Regular', fontSize:32, color:C.muted },
-  vsCircle:{ width:72, height:72, borderRadius:36, borderWidth:2, borderColor:C.goldBorder, alignItems:'center', justifyContent:'center' },
+  vsCircle:{ width:72, height:72, borderRadius:36, borderWidth:StyleSheet.hairlineWidth * 2, borderColor:C.goldBorder, alignItems:'center', justifyContent:'center' },
   vsTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:C.gold },
   minRow:{ flexDirection:'row', alignItems:'center', gap:5, marginTop:6 },
   minDot:{ width:8, height:8, borderRadius:4, backgroundColor:C.red },
@@ -429,7 +429,7 @@ const s = StyleSheet.create({
   statBarHome:{ height:4, backgroundColor:C.gold, borderRadius:2 },
   statBarAway:{ height:4, backgroundColor:C.cyan, borderRadius:2 },
 
-  miniCard:{ borderRadius:14, borderWidth:1, borderColor:'rgba(255,255,255,0.06)', padding:14, flexDirection:'row', alignItems:'center', marginBottom:8 },
+  miniCard:{ borderRadius:14, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.06)', padding:14, flexDirection:'row', alignItems:'center', marginBottom:8 },
   miniTeamBox:{ flex:1, alignItems:'flex-start', gap:4 },
   miniFlag:{ fontSize:22 },
   miniName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:12, color:C.text },
@@ -441,12 +441,12 @@ const s = StyleSheet.create({
   miniFinal:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2 },
 
   emptyBox:{ marginTop:20, paddingHorizontal:4 },
-  emptyCard:{ borderRadius:20, borderWidth:1, borderColor:'rgba(255,215,0,0.35)', padding:32, alignItems:'center', marginBottom:8, shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.2, shadowRadius:8, elevation:5 },
+  emptyCard:{ borderRadius:20, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.35)', padding:32, alignItems:'center', marginBottom:8, shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.2, shadowRadius:8, elevation:5 },
   emptyLogo:{ width:70, height:70, marginBottom:16 },
   emptyTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:C.gold, letterSpacing:3, marginBottom:10 },
   emptySub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted, textAlign:'center' },
   emptyDivider:{ width:40, height:1, backgroundColor:'rgba(255,215,0,0.2)', marginVertical:16 },
   emptyDate:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:12, color:C.gold2 },
 
-  scoreFlagImg:{ width:44, height:30 },
+  scoreFlagImg:{ width:56, height:40, borderRadius:4 },
 });

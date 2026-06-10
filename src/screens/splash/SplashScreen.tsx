@@ -105,6 +105,42 @@ export default function SplashScreen() {
 
     Animated.timing(fadeAnim, { toValue:1, duration:800, useNativeDriver:false }).start();
 
+    // Detectar parámetro plan en URL → ir directo a PaymentScreen
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const planParam = params.get('plan');
+      const PLAN_DATA: Record<string, { name: string; price: number; emoji: string }> = {
+        liga:     { name: 'LIGA',     price: 7.99,   emoji: '⚡' },
+        pro:      { name: 'PRO',      price: 13.99,  emoji: '🔥' },
+        master:   { name: 'MASTER',   price: 29.99,  emoji: '🏆' },
+        golzair:  { name: 'GOLZAIR',  price: 74.99,  emoji: '👑' },
+        partner:  { name: 'PARTNER',  price: 244.99, emoji: '🤝' },
+        business: { name: 'BUSINESS', price: 349.99, emoji: '🚀' },
+        gold:     { name: 'GOLD',     price: 649.99, emoji: '👑' },
+      };
+      if (planParam && PLAN_DATA[planParam]) {
+        const plan = PLAN_DATA[planParam];
+        const auth = getAuth();
+        const unsubPlan = auth.onAuthStateChanged((user) => {
+          unsubPlan();
+          if (user) {
+            setTimeout(() => {
+              navigation.navigate('Payment', {
+                planId: planParam,
+                planName: plan.name,
+                price: plan.price,
+                emoji: plan.emoji,
+              });
+            }, 0);
+          } else {
+            setTimeout(() => {
+              navigation.navigate('Onboarding');
+            }, 0);
+          }
+        });
+      }
+    }
+
     // Auto-redirect si hay pending_invite y usuario ya tiene sesión
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       const pending = localStorage.getItem('golzi_pending_invite');
@@ -120,7 +156,7 @@ export default function SplashScreen() {
                 screen: 'Liga',
                 params: { inviteCode }
               } as any);
-            }, 500);
+            }, 0);
           }
         });
       }

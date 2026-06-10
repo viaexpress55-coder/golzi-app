@@ -107,7 +107,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 <!-- HEADER -->
 <div class="header" style="position:relative;">
   <div class="header-top-line"></div>
-  <a href="https://golzi.app" class="back-btn">← Volver</a>
+  <a href="#" onclick="history.back();return false;" class="back-btn">← Volver</a>
   <img src="https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5" class="logo" alt="GOLZI">
   <div style="width:60px;"></div>
 </div>
@@ -484,7 +484,16 @@ function showTab(i) {
   document.getElementById('b2b').classList.toggle('hidden', i !== 1);
   document.getElementById('tab0').classList.toggle('active', i === 0);
   document.getElementById('tab1').classList.toggle('active', i === 1);
+  history.pushState({ tab: i }, '', i === 0 ? '/planes' : '/planes?tab=empresas');
 }
+
+window.addEventListener('popstate', function(e) {
+  var i = (e.state && e.state.tab) ? e.state.tab : 0;
+  document.getElementById('b2c').classList.toggle('hidden', i !== 0);
+  document.getElementById('b2b').classList.toggle('hidden', i !== 1);
+  document.getElementById('tab0').classList.toggle('active', i === 0);
+  document.getElementById('tab1').classList.toggle('active', i === 1);
+});
 
 function goToPlan(plan) {
   if (plan === 'free') {

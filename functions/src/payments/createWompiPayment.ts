@@ -8,13 +8,13 @@ const wompiIntegrityKey = defineSecret('WOMPI_INTEGRITY_KEY');
 // PLANES v3 - Modelo "1 paga, todos juegan" - Precio base $1.99/jugador
 // Precios en COP (1 USD ≈ 4,000 COP)
 const PLANS: Record<string, { id: string; name: string; amountCents: number; description: string }> = {
-  LIGA:      { id: 'liga',      name: 'LIGA',      amountCents: 3650000,   description: '5 jugadores · $9.99 USD' },
-  PRO:       { id: 'pro',       name: 'PRO',        amountCents: 6930000,   description: '10 jugadores · $18.99 USD' },
-  MASTER:    { id: 'master',    name: 'MASTER',     amountCents: 14590000,  description: '25 jugadores · $39.99 USD' },
-  GOLZAIR:   { id: 'golzair',   name: 'GOLZAIR',    amountCents: 36490000,  description: '100 usuarios · $99.99 USD' },
-  PARTNER:   { id: 'partner',   name: 'PARTNER',    amountCents: 127740000, description: '500 usuarios · $349.99 USD' },
-  BUSINESS:  { id: 'business',  name: 'BUSINESS',   amountCents: 182490000, description: '1,000 usuarios · $499.99 USD' },
-  GOLD:      { id: 'gold',      name: 'GOLD',       amountCents: 364990000, description: '2,500 usuarios · $999.99 USD' },
+  LIGA:      { id: 'liga',      name: 'LIGA',      amountCents: 2876400,   description: '5 jugadores · $9.99 USD' },
+  PRO:       { id: 'pro',       name: 'PRO',        amountCents: 5036400,   description: '10 jugadores · $18.99 USD' },
+  MASTER:    { id: 'master',    name: 'MASTER',     amountCents: 10796400,  description: '25 jugadores · $39.99 USD' },
+  GOLZAIR:   { id: 'golzair',   name: 'GOLZAIR',    amountCents: 26996400,  description: '100 usuarios · $99.99 USD' },
+  PARTNER:   { id: 'partner',   name: 'PARTNER',    amountCents: 88196400, description: '500 usuarios · $349.99 USD' },
+  BUSINESS:  { id: 'business',  name: 'BUSINESS',   amountCents: 125996400, description: '1,000 usuarios · $499.99 USD' },
+  GOLD:      { id: 'gold',      name: 'GOLD',       amountCents: 233996400, description: '2,500 usuarios · $999.99 USD' },
   // TODO: definir precio real de GOLZIPLUS antes del lanzamiento
   GOLZIPLUS: { id: 'golziplus', name: 'GOLZI+',     amountCents: 399996000, description: 'Enterprise · A medida · 85% ahorro' },
 };

@@ -113,16 +113,6 @@ const userId = user.uid;
             return;
           }
         }
-      } catch (iapError) {
-            console.log('IAP error:', iapError);
-            const errMsg = (iapError as any)?.message || '';
-            if (!errMsg.includes('cancel')) {
-              setError('Error con Google Play. Verifica tu cuenta e intenta de nuevo.');
-            }
-            setLoading(false);
-            return;
-          }
-        }
       }
 
       // B2B — directo a Wompi

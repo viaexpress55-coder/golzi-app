@@ -44,6 +44,10 @@
         "destination": "/planes.html"
       },
       {
+        "source": "/client/mundial2026",
+        "destination": "/client/mundial2026.html"
+      },
+      {
         "source": "/tv/**",
         "destination": "/tv.html"
       },
@@ -67,6 +71,13 @@
           { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
           { "key": "Pragma", "value": "no-cache" },
           { "key": "Expires", "value": "0" }
+        ]
+      },
+      {
+        "source": "/client/**",
+        "headers": [
+          { "key": "Cross-Origin-Opener-Policy", "value": "unsafe-none" },
+          { "key": "Cross-Origin-Embedder-Policy", "value": "unsafe-none" }
         ]
       },
       {

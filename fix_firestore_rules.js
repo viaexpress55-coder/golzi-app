@@ -1,116 +1,47 @@
 const fs = require('fs');
+let c = fs.readFileSync('firestore.rules', 'utf8');
 
-const rules = `rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null && request.auth.uid == userId;
-      allow delete: if false;
-    }
-    match /matches/{matchId} {
+const newRules = `
+    // WHITE LABEL CLIENTS
+    match /clients/{clientId} {
       allow read: if true;
       allow write: if false;
-    }
-    match /predictions/{predId} {
-      allow read: if request.auth != null &&
-        resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null &&
-        request.resource.data.userId == request.auth.uid &&
-        request.resource.data.homeScore is int &&
-        request.resource.data.awayScore is int &&
-        request.resource.data.homeScore >= 0 &&
-        request.resource.data.awayScore >= 0 &&
-        request.resource.data.homeScore <= 20 &&
-        request.resource.data.awayScore <= 20;
-      allow update: if false;
-      allow delete: if false;
-    }
-    match /leagues/{leagueId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null &&
-        (resource.data.ownerId == request.auth.uid ||
-         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds']));
-      allow delete: if false;
-      match /messages/{messageId} {
+      match /users/{userId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null && userId == request.auth.uid;
+        allow update: if request.auth != null && userId == request.auth.uid;
+        allow delete: if false;
+      }
+      match /predictions/{predId} {
         allow read: if request.auth != null;
         allow create: if request.auth != null &&
           request.resource.data.userId == request.auth.uid &&
-          request.resource.data.text.size() <= 200;
-        allow delete: if request.auth != null &&
-          resource.data.userId == request.auth.uid;
+          request.resource.data.homeScore is int &&
+          request.resource.data.awayScore is int;
         allow update: if false;
+        allow delete: if false;
       }
-      match /members/{memberId} {
+      match /leagues/{leagueId} {
         allow read: if true;
-        allow create: if request.auth != null &&
-          memberId == request.auth.uid;
-        allow update: if request.auth != null &&
-          (memberId == request.auth.uid ||
-           get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid);
-        allow delete: if request.auth != null &&
-          (memberId == request.auth.uid ||
-           get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid);
+        allow write: if request.auth != null;
       }
-      match /broadcasts/{broadcastId} {
-        allow read: if true;
-        allow create: if request.auth != null &&
-          get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
-        allow update: if request.auth != null &&
-          get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
-        allow delete: if request.auth != null &&
-          get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
-      }
-      match /tournaments/{tournamentId} {
-        allow read: if request.auth != null;
-        allow create: if request.auth != null &&
-          get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
-        allow update: if request.auth != null;
-        allow delete: if request.auth != null &&
-          get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
-      }
-    }
-    match /tournaments/{tournamentId} {
-      allow read: if true;
-      allow write: if false;
-    }
-    match /live_matches/{matchId} {
-      allow read: if true;
-      allow write: if false;
-    }
-    match /quick_challenges/{challengeId} {
-      allow read: if request.auth != null &&
-        resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null &&
-        request.resource.data.userId == request.auth.uid;
-      allow update: if request.auth != null &&
-        resource.data.userId == request.auth.uid;
-      allow delete: if false;
-    }
-    match /leads/{leadId} {
-      allow read: if false;
-      allow create: if true;
-    }
-    match /business_leads/{leadId} {
-      allow read: if false;
-      allow create: if true;
-    }
-    match /public_tournaments/{torneoId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null &&
-        resource.data.ownerId == request.auth.uid;
-      allow delete: if request.auth != null &&
-        resource.data.ownerId == request.auth.uid;
-    }
-    match /businesses/{businessId} {
+    }`;
+
+c = c.replace(
+  `    match /businesses/{businessId} {
       allow read: if request.auth != null;
       allow write: if false;
     }
   }
-}`;
+}`,
+  `    match /businesses/{businessId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+${newRules}
+  }
+}`
+);
 
-fs.writeFileSync('firestore.rules', rules, 'utf8');
-console.log('✅ firestore.rules restaurado correctamente');
+fs.writeFileSync('firestore.rules', c);
+console.log('✅ Reglas clients agregadas:', c.includes('WHITE LABEL CLIENTS'));

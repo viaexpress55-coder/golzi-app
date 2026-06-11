@@ -745,7 +745,7 @@ export default function LigaScreen() {
                     <View style={[s.heroTopLine, {backgroundColor: selectedLeague.brandColor || '#FFD700'}]} />
                     <View style={s.ligaHeroTop}>
                       <View style={{ flex:1 }}>
-                        {selectedLeague.brandLogo && <Image source={{uri:selectedLeague.brandLogo}} style={{width:28,height:28,borderRadius:14,borderWidth:StyleSheet.hairlineWidth.5,borderColor:selectedLeague.brandColor||'#FFD700',marginBottom:4}}/>}
+                        {selectedLeague.brandLogo && <Image source={{uri:selectedLeague.brandLogo}} style={{width:28,height:28,borderRadius:14,borderWidth:StyleSheet.hairlineWidth,borderColor:selectedLeague.brandColor||'#FFD700',marginBottom:4}}/>}
                         <Text style={s.ligaName}>{selectedLeague.brandName ? selectedLeague.brandName + ' · ' : ''}{selectedLeague.name}</Text>
                         <Text style={s.ligaInfo}>{members.length}/{selectedLeague.maxMembers || 5} jugadores · Plan {selectedLeague.plan}</Text>
                       </View>
@@ -1110,7 +1110,7 @@ export default function LigaScreen() {
                 })()
               }</Text>
               <Text style={s.inputLabel}>NOMBRE DE LA LIGA</Text>
-              <View style={[s.inputWrap, createError && !ligaName.trim() && {borderColor:'#FF3355', borderWidth:StyleSheet.hairlineWidth.5}]}>
+              <View style={[s.inputWrap, createError && !ligaName.trim() && {borderColor:'#FF3355', borderWidth:StyleSheet.hairlineWidth}]}>
                 <Text style={s.inputIcon}>🏆</Text>
                 <TextInput
                   style={s.input}

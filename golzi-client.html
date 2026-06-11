@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#020408">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Mundial 2026 · Powered by GOLZI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const CLIENT_ID = 'mundial2026';
+
+const app = initializeApp({
+  apiKey: "AIzaSyB8p-figRsYJNLh2KEHeJBIauoqrR8pVk0",
+  authDomain: "golzi-2026.firebaseapp.com",
+  projectId: "golzi-2026",
+  storageBucket: "golzi-2026.firebasestorage.app",
+  messagingSenderId: "466137327410",
+  appId: "1:466137327410:web:4fbc9e9aa9df73ee52192b"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+
+let currentUser = null;
+let currentTab = 'home';
+let matches = [];
+let predictions = {};
+
+// ── AUTH STATE ──
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    // Guardar en clients/mundial2026/users/
+    const userRef = doc(db, 'clients', CLIENT_ID, 'users', user.uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        displayName: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        photoURL: user.photoURL || null,
+        clientId: CLIENT_ID,
+        totalPoints: 0,
+        exactPredictions: 0,
+        totalPredictions: 0,
+        createdAt: serverTimestamp(),
+      });
+    }
+    showApp();
+    loadMatches();
+    loadPredictions();
+    loadRanking();
+  } else {
+    currentUser = null;
+    showAuth();
+  }
+});
+
+// ── AUTH FUNCTIONS ──
+window.loginGoogle = async function() {
+  try {
+    setAuthLoading(true);
+    await signInWithPopup(auth, googleProvider);
+  } catch(e) {
+    showAuthError('Error con Google: ' + e.message);
+    setAuthLoading(false);
+  }
+};
+
+window.loginEmail = async function() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value.trim();
+  const name = document.getElementById('authName') ? document.getElementById('authName').value.trim() : '';
+  if (!email || !password) { showAuthError('Completa todos los campos'); return; }
+  try {
+    setAuthLoading(true);
+    if (document.getElementById('authMode').dataset.mode === 'register') {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      if (name) await updateProfile(cred.user, { displayName: name });
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+  } catch(e) {
+    let msg = 'Error de autenticación';
+    if (e.code === 'auth/email-already-in-use') msg = 'Este correo ya está registrado';
+    if (e.code === 'auth/wrong-password') msg = 'Contraseña incorrecta';
+    if (e.code === 'auth/user-not-found') msg = 'Usuario no encontrado';
+    if (e.code === 'auth/weak-password') msg = 'Contraseña muy débil (mín. 6 caracteres)';
+    showAuthError(msg);
+    setAuthLoading(false);
+  }
+};
+
+window.logoutUser = async function() {
+  await signOut(auth);
+};
+
+window.toggleAuthMode = function() {
+  const mode = document.getElementById('authMode');
+  const isLogin = mode.dataset.mode === 'login';
+  mode.dataset.mode = isLogin ? 'register' : 'login';
+  document.getElementById('authTitle').textContent = isLogin ? 'Crear cuenta' : 'Iniciar sesión';
+  document.getElementById('authSubmitBtn').textContent = isLogin ? '⚡ Crear cuenta' : '⚡ Entrar';
+  document.getElementById('authToggleBtn').textContent = isLogin ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate';
+  document.getElementById('authNameRow').style.display = isLogin ? 'block' : 'none';
+};
+
+// ── DATA FUNCTIONS ──
+async function loadMatches() {
+  const snap = await getDocs(collection(db, 'matches'));
+  matches = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a,b) => (a.date?.seconds||0) - (b.date?.seconds||0));
+  renderMatches();
+  renderFixture();
+  renderGroups();
+}
+
+async function loadPredictions() {
+  if (!currentUser) return;
+  const snap = await getDocs(query(
+    collection(db, 'clients', CLIENT_ID, 'predictions'),
+    where('userId', '==', currentUser.uid)
+  ));
+  snap.forEach(d => { predictions[d.data().matchId] = d.data(); });
+  renderMatches();
+}
+
+async function loadRanking() {
+  const snap = await getDocs(query(
+    collection(db, 'clients', CLIENT_ID, 'users'),
+    orderBy('totalPoints', 'desc'),
+    limit(50)
+  ));
+  const users = snap.docs.map((d,i) => ({ rank: i+1, ...d.data() }));
+  renderRanking(users);
+}
+
+window.savePrediction = async function(matchId, home, away) {
+  if (!currentUser) return;
+  const h = parseInt(home);
+  const a = parseInt(away);
+  if (isNaN(h) || isNaN(a) || h < 0 || a < 0) return;
+  
+  const predId = currentUser.uid + '_' + matchId;
+  const predRef = doc(db, 'clients', CLIENT_ID, 'predictions', predId);
+  const existing = await getDoc(predRef);
+  if (existing.exists()) { 
+    showToast('⚠️ Ya enviaste esta predicción');
+    return; 
+  }
+  
+  await setDoc(predRef, {
+    userId: currentUser.uid,
+    matchId,
+    homeScore: h,
+    awayScore: a,
+    clientId: CLIENT_ID,
+    createdAt: serverTimestamp(),
+  });
+  
+  predictions[matchId] = { homeScore: h, awayScore: a };
+  renderMatches();
+  showToast('✅ Predicción guardada');
+};
+
+// ── RENDER FUNCTIONS ──
+function renderMatches() {
+  const container = document.getElementById('matchesList');
+  if (!container || !matches.length) return;
+  
+  const upcoming = matches.filter(m => !m.homeScore && m.homeScore !== 0);
+  const predicted = upcoming.filter(m => predictions[m.id]);
+  const pending = upcoming.filter(m => !predictions[m.id]);
+  
+  container.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:12px;padding:0 2px;">
+      <div style="flex:1;background:rgba(0,255,135,0.1);border:1px solid rgba(0,255,135,0.3);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-family:'Bebas Neue';font-size:24px;color:#00FF87;">${predicted.length}</div>
+        <div style="font-family:'Barlow Condensed';font-size:10px;color:#6B7A99;letter-spacing:1px;">PREDICHAS</div>
+      </div>
+      <div style="flex:1;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-family:'Bebas Neue';font-size:24px;color:#FFD700;">${pending.length}</div>
+        <div style="font-family:'Barlow Condensed';font-size:10px;color:#6B7A99;letter-spacing:1px;">PENDIENTES</div>
+      </div>
+      <div style="flex:1;background:rgba(0,198,255,0.1);border:1px solid rgba(0,198,255,0.3);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-family:'Bebas Neue';font-size:24px;color:#00C6FF;">${matches.length}</div>
+        <div style="font-family:'Barlow Condensed';font-size:10px;color:#6B7A99;letter-spacing:1px;">TOTAL</div>
+      </div>
+    </div>
+    ${pending.slice(0,20).map(m => renderMatchCard(m)).join('')}
+    ${predicted.length > 0 ? `<div style="font-family:'Barlow Condensed';font-size:11px;color:#6B7A99;text-align:center;padding:12px;letter-spacing:1px;">✅ ${predicted.length} PARTIDOS YA PREDICHOS</div>` : ''}
+  `;
+}
+
+function renderMatchCard(m) {
+  const pred = predictions[m.id];
+  const dateStr = m.date ? new Date(m.date.seconds * 1000).toLocaleDateString('es', {weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+  return `
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,215,0,0.2);border-radius:14px;margin-bottom:10px;overflow:hidden;">
+      <div style="height:2px;background:linear-gradient(to right,#FFD700,#FFA500);"></div>
+      <div style="padding:12px 14px;">
+        <div style="font-family:'Barlow Condensed';font-size:10px;color:#6B7A99;margin-bottom:8px;letter-spacing:1px;">GRUPO ${m.group||''} · ${dateStr}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;text-align:center;">
+            <div style="font-size:28px;">${m.homeFlag||'⚽'}</div>
+            <div style="font-family:'Barlow Condensed';font-weight:700;font-size:12px;color:#F0F4FF;margin-top:4px;">${m.homeTeam||''}</div>
+          </div>
+          ${pred ? `
+            <div style="text-align:center;background:rgba(0,255,135,0.1);border:1px solid rgba(0,255,135,0.3);border-radius:10px;padding:8px 14px;">
+              <div style="font-family:'Bebas Neue';font-size:28px;color:#00FF87;">${pred.homeScore} - ${pred.awayScore}</div>
+              <div style="font-family:'Barlow Condensed';font-size:9px;color:#00FF87;letter-spacing:1px;">✓ ENVIADO</div>
+            </div>
+          ` : `
+            <div style="text-align:center;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                <input type="number" min="0" max="20" placeholder="0" id="h_${m.id}" style="width:48px;height:48px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.4);border-radius:8px;color:#FFD700;font-family:'Bebas Neue';font-size:24px;text-align:center;outline:none;">
+                <span style="font-family:'Bebas Neue';font-size:20px;color:#6B7A99;">-</span>
+                <input type="number" min="0" max="20" placeholder="0" id="a_${m.id}" style="width:48px;height:48px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.4);border-radius:8px;color:#FFD700;font-family:'Bebas Neue';font-size:24px;text-align:center;outline:none;">
+              </div>
+              <button onclick="savePrediction('${m.id}',document.getElementById('h_${m.id}').value,document.getElementById('a_${m.id}').value)" style="background:linear-gradient(to right,#FFD700,#FFA500);border:none;border-radius:8px;padding:8px 16px;font-family:'Bebas Neue';font-size:14px;color:#000;letter-spacing:1px;cursor:pointer;width:100%;">⚡ PREDECIR</button>
+            </div>
+          `}
+          <div style="flex:1;text-align:center;">
+            <div style="font-size:28px;">${m.awayFlag||'⚽'}</div>
+            <div style="font-family:'Barlow Condensed';font-weight:700;font-size:12px;color:#F0F4FF;margin-top:4px;">${m.awayTeam||''}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRanking(users) {
+  const container = document.getElementById('rankingList');
+  if (!container) return;
+  container.innerHTML = users.map((u,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:${u.uid===currentUser?.uid?'rgba(255,215,0,0.08)':'rgba(255,255,255,0.02)'};border:1px solid ${u.uid===currentUser?.uid?'rgba(255,215,0,0.3)':'rgba(255,255,255,0.06)'};border-radius:12px;margin-bottom:8px;">
+      <div style="font-family:'Bebas Neue';font-size:20px;color:${i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'#6B7A99'};width:28px;text-align:center;">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+      <div style="width:36px;height:36px;border-radius:18px;background:rgba(255,215,0,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${u.photoURL?`<img src="${u.photoURL}" style="width:36px;height:36px;border-radius:18px;">`:u.displayName?.charAt(0)||'?'}</div>
+      <div style="flex:1;">
+        <div style="font-family:'Barlow Condensed';font-weight:700;font-size:14px;color:#F0F4FF;">${u.displayName||'Usuario'} ${u.uid===currentUser?.uid?'· TÚ':''}</div>
+        <div style="font-family:'Barlow Condensed';font-size:10px;color:#6B7A99;">${u.exactPredictions||0} exactas · ${u.totalPredictions||0} predicciones</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'Bebas Neue';font-size:22px;color:#FFD700;">${u.totalPoints||0}</div>
+        <div style="font-family:'Barlow Condensed';font-size:9px;color:#6B7A99;letter-spacing:1px;">PTS</div>
+      </div>
+    </div>
+  `).join('') || '<div style="text-align:center;color:#6B7A99;padding:20px;font-family:Barlow Condensed;">Sin participantes aún</div>';
+}
+
+function renderGroups() {
+  const container = document.getElementById('groupsList');
+  if (!container || !matches.length) return;
+  const groups = {};
+  matches.forEach(m => {
+    if (!m.group) return;
+    if (!groups[m.group]) groups[m.group] = { teams: new Set() };
+    groups[m.group].teams.add(JSON.stringify({name:m.homeTeam,flag:m.homeFlag}));
+    groups[m.group].teams.add(JSON.stringify({name:m.awayTeam,flag:m.awayFlag}));
+  });
+  
+  container.innerHTML = Object.entries(groups).sort(([a],[b])=>a.localeCompare(b)).map(([g,data])=>`
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,215,0,0.2);border-radius:14px;margin-bottom:10px;overflow:hidden;">
+      <div style="height:2px;background:linear-gradient(to right,#FFD700,#FFA500);"></div>
+      <div style="padding:12px 14px;">
+        <div style="font-family:'Bebas Neue';font-size:18px;color:#FFD700;letter-spacing:2px;margin-bottom:10px;">GRUPO ${g}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${[...data.teams].map(t=>{const team=JSON.parse(t);return`
+            <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;">
+              <span style="font-size:20px;">${team.flag||'🏳️'}</span>
+              <span style="font-family:'Barlow Condensed';font-weight:700;font-size:12px;color:#F0F4FF;">${team.name}</span>
+            </div>
+          `}).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderFixture() {
+  const container = document.getElementById('fixtureList');
+  if (!container || !matches.length) return;
+  container.innerHTML = matches.slice(0,20).map(m=>{
+    const dateStr = m.date ? new Date(m.date.seconds*1000).toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    return `
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:6px;">
+        <span style="font-size:18px;">${m.homeFlag||'⚽'}</span>
+        <span style="font-family:'Barlow Condensed';font-weight:700;font-size:12px;color:#F0F4FF;flex:1;">${m.homeTeam}</span>
+        <div style="text-align:center;min-width:60px;">
+          ${m.homeScore!==undefined&&m.homeScore!==null?`<span style="font-family:'Bebas Neue';font-size:18px;color:#FFD700;">${m.homeScore}-${m.awayScore}</span>`:`<span style="font-family:'Barlow Condensed';font-size:9px;color:#6B7A99;">${dateStr}</span>`}
+        </div>
+        <span style="font-family:'Barlow Condensed';font-weight:700;font-size:12px;color:#F0F4FF;flex:1;text-align:right;">${m.awayTeam}</span>
+        <span style="font-size:18px;">${m.awayFlag||'⚽'}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── UI FUNCTIONS ──
+function showAuth() {
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('appScreen').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'flex';
+  updateUserInfo();
+}
+
+function updateUserInfo() {
+  const el = document.getElementById('userDisplayName');
+  if (el && currentUser) el.textContent = currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuario';
+}
+
+function setAuthLoading(loading) {
+  const btn = document.getElementById('authSubmitBtn');
+  const gBtn = document.getElementById('googleBtn');
+  if (btn) btn.disabled = loading;
+  if (gBtn) gBtn.disabled = loading;
+  if (btn) btn.textContent = loading ? '⏳ Cargando...' : (document.getElementById('authMode')?.dataset.mode === 'register' ? '⚡ Crear cuenta' : '⚡ Entrar');
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+window.showToast = function(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; }, 2500);
+};
+
+window.switchTab = function(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  const content = document.getElementById('tab-' + tab);
+  if (content) content.style.display = 'block';
+  const btn = document.getElementById('tabBtn-' + tab);
+  if (btn) btn.classList.add('active');
+  
+  if (tab === 'ranking') loadRanking();
+};
+
+window.switchMundialTab = function(tab) {
+  ['groups','fixture'].forEach(t => {
+    const el = document.getElementById('mundial-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.mundial-tab-btn').forEach(el => el.classList.remove('active'));
+  const btn = document.getElementById('mundialTab-' + tab);
+  if (btn) btn.classList.add('active');
+};
+
+</script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{--bg:#020408;--gold:#FFD700;--gold2:#FFA500;--green:#00FF87;--cyan:#00C6FF;--red:#E8003D;--text:#F0F4FF;--muted:#6B7A99;--muted2:#9AAABB;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;overflow:hidden;}
+
+/* AUTH */
+#authScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:24px;background:var(--bg);}
+.auth-logo{width:72px;height:72px;object-fit:contain;margin-bottom:8px;}
+.auth-brand{font-family:'Bebas Neue';font-size:36px;color:var(--gold);letter-spacing:4px;margin-bottom:4px;}
+.auth-powered{font-family:'Barlow Condensed';font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:28px;}
+.auth-card{width:100%;max-width:380px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,215,0,0.2);border-radius:20px;padding:24px;}
+.auth-title{font-family:'Bebas Neue';font-size:22px;color:var(--gold);letter-spacing:2px;margin-bottom:20px;text-align:center;}
+.auth-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Barlow Condensed';font-size:14px;outline:none;margin-bottom:12px;}
+.auth-input:focus{border-color:rgba(255,215,0,0.4);}
+.auth-btn{width:100%;border:none;border-radius:10px;padding:14px;font-family:'Bebas Neue';font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:10px;}
+.auth-btn-gold{background:linear-gradient(to right,var(--gold),var(--gold2));color:#000;}
+.auth-btn-google{background:rgba(255,255,255,0.08);color:var(--text);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;gap:10px;}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:4px 0 10px;}
+.auth-divider-line{flex:1;height:1px;background:rgba(255,255,255,0.08);}
+.auth-divider-txt{font-family:'Barlow Condensed';font-size:10px;color:var(--muted);letter-spacing:1px;}
+.auth-toggle{font-family:'Barlow Condensed';font-size:12px;color:var(--gold);text-align:center;cursor:pointer;padding:4px;}
+.auth-error{font-family:'Barlow Condensed';font-size:12px;color:var(--red);text-align:center;margin-bottom:10px;display:none;}
+
+/* APP */
+#appScreen{display:none;flex-direction:column;height:100vh;}
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));background:var(--bg);border-bottom:1px solid rgba(255,215,0,0.1);position:relative;flex-shrink:0;}
+.app-header-line{position:absolute;top:0;left:0;right:0;height:2px;background:rgba(255,215,0,0.5);}
+.app-logo{width:32px;height:32px;object-fit:contain;}
+.app-title{font-family:'Bebas Neue';font-size:18px;color:var(--gold);letter-spacing:2px;}
+.app-user{font-family:'Barlow Condensed';font-size:11px;color:var(--muted);cursor:pointer;}
+
+/* TAB CONTENT */
+.tab-content{display:none;flex:1;overflow-y:auto;padding:14px;padding-bottom:80px;}
+.tab-content.active{display:block;}
+#tab-home{display:block;}
+
+/* BOTTOM NAV */
+.bottom-nav{display:flex;background:rgba(8,10,16,0.98);border-top:1px solid rgba(255,255,255,0.07);padding-bottom:max(16px,env(safe-area-inset-bottom));flex-shrink:0;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px;cursor:pointer;border:none;background:none;gap:3px;transition:opacity .2s;}
+.tab-btn .tab-icon{font-size:18px;opacity:0.35;}
+.tab-btn .tab-label{font-family:'Barlow Condensed';font-weight:600;font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.tab-btn.active .tab-icon{opacity:1;}
+.tab-btn.active .tab-label{color:var(--gold);}
+
+/* MUNDIAL TABS */
+.mundial-tabs{display:flex;gap:8px;margin-bottom:12px;}
+.mundial-tab-btn{flex:1;padding:8px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);font-family:'Barlow Condensed';font-weight:700;font-size:11px;color:var(--muted);letter-spacing:1px;cursor:pointer;text-align:center;transition:all .2s;}
+.mundial-tab-btn.active{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);color:var(--gold);}
+
+/* SECTION TITLE */
+.section-title{font-family:'Bebas Neue';font-size:20px;color:var(--gold);letter-spacing:2px;margin-bottom:12px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,255,135,0.15);border:1px solid rgba(0,255,135,0.4);border-radius:20px;padding:10px 20px;font-family:'Barlow Condensed';font-size:13px;color:#00FF87;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;}
+
+/* POWERED BY */
+.powered-by{font-family:'Barlow Condensed';font-size:9px;color:var(--muted);text-align:center;padding:8px;letter-spacing:1px;opacity:0.5;}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen">
+  <img src="https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5" class="auth-logo" alt="GOLZI">
+  <div class="auth-brand">MUNDIAL 2026</div>
+  <div class="auth-powered">⚡ POWERED BY GOLZI</div>
+  
+  <div class="auth-card" id="authMode" data-mode="login">
+    <div class="auth-title" id="authTitle">Iniciar sesión</div>
+    <div id="authError" class="auth-error"></div>
+    
+    <button class="auth-btn auth-btn-google" id="googleBtn" onclick="loginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
+      ENTRAR CON GOOGLE
+    </button>
+    
+    <div class="auth-divider">
+      <div class="auth-divider-line"></div>
+      <div class="auth-divider-txt">O CON EMAIL</div>
+      <div class="auth-divider-line"></div>
+    </div>
+    
+    <div id="authNameRow" style="display:none;">
+      <input type="text" id="authName" class="auth-input" placeholder="Tu nombre">
+    </div>
+    <input type="email" id="authEmail" class="auth-input" placeholder="tu@email.com">
+    <input type="password" id="authPassword" class="auth-input" placeholder="Contraseña (mín. 6 caracteres)">
+    
+    <button class="auth-btn auth-btn-gold" id="authSubmitBtn" onclick="loginEmail()">⚡ ENTRAR</button>
+    <div class="auth-toggle" id="authToggleBtn" onclick="toggleAuthMode()">¿No tienes cuenta? Regístrate</div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appScreen">
+  
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="app-header-line"></div>
+    <img src="https://firebasestorage.googleapis.com/v0/b/golzi-2026.firebasestorage.app/o/icon.png?alt=media&token=2fc09f84-4a1a-4717-8f35-ef0faa08f7c5" class="app-logo" alt="GOLZI">
+    <div class="app-title">MUNDIAL 2026</div>
+    <div class="app-user" onclick="logoutUser()" id="userDisplayName">Salir</div>
+  </div>
+
+  <!-- TAB: PREDICTOR -->
+  <div class="tab-content" id="tab-home">
+    <div class="section-title">⚡ PREDICE</div>
+    <div id="matchesList"><div style="text-align:center;padding:40px;color:#6B7A99;font-family:'Barlow Condensed';">Cargando partidos...</div></div>
+    <div class="powered-by">⚡ POWERED BY GOLZI</div>
+  </div>
+
+  <!-- TAB: RANKING -->
+  <div class="tab-content" id="tab-ranking">
+    <div class="section-title">👑 RANKING</div>
+    <div id="rankingList"><div style="text-align:center;padding:40px;color:#6B7A99;font-family:'Barlow Condensed';">Cargando ranking...</div></div>
+    <div class="powered-by">⚡ POWERED BY GOLZI</div>
+  </div>
+
+  <!-- TAB: MUNDIAL -->
+  <div class="tab-content" id="tab-mundial">
+    <div class="section-title">🌐 MUNDIAL 2026</div>
+    <div class="mundial-tabs">
+      <div class="mundial-tab-btn active" id="mundialTab-groups" onclick="switchMundialTab('groups')">GRUPOS</div>
+      <div class="mundial-tab-btn" id="mundialTab-fixture" onclick="switchMundialTab('fixture')">FIXTURE</div>
+    </div>
+    <div id="mundial-groups"><div id="groupsList"></div></div>
+    <div id="mundial-fixture" style="display:none;"><div id="fixtureList"></div></div>
+    <div class="powered-by">⚡ POWERED BY GOLZI</div>
+  </div>
+
+  <!-- TAB: PERFIL -->
+  <div class="tab-content" id="tab-perfil">
+    <div class="section-title">⭐ MI PERFIL</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,215,0,0.2);border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:48px;margin-bottom:8px;">⭐</div>
+      <div style="font-family:'Bebas Neue';font-size:24px;color:var(--gold);" id="profileName">-</div>
+      <div style="font-family:'Barlow Condensed';font-size:12px;color:var(--muted);margin-top:4px;" id="profileEmail">-</div>
+    </div>
+    <button onclick="logoutUser()" style="width:100%;background:rgba(232,0,61,0.1);border:1px solid rgba(232,0,61,0.3);border-radius:12px;padding:14px;font-family:'Bebas Neue';font-size:16px;color:#E8003D;letter-spacing:2px;cursor:pointer;">CERRAR SESIÓN</button>
+    <div class="powered-by" style="margin-top:20px;">⚡ POWERED BY GOLZI · golzi.app</div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="tab-btn active" id="tabBtn-home" onclick="switchTab('home')">
+      <span class="tab-icon">⚡</span>
+      <span class="tab-label">PREDICE</span>
+    </button>
+    <button class="tab-btn" id="tabBtn-ranking" onclick="switchTab('ranking')">
+      <span class="tab-icon">👑</span>
+      <span class="tab-label">RANKING</span>
+    </button>
+    <button class="tab-btn" id="tabBtn-mundial" onclick="switchTab('mundial')">
+      <span class="tab-icon">🌐</span>
+      <span class="tab-label">MUNDIAL</span>
+    </button>
+    <button class="tab-btn" id="tabBtn-perfil" onclick="switchTab('perfil')">
+      <span class="tab-icon">⭐</span>
+      <span class="tab-label">PERFIL</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// Update profile tab
+function updateProfileTab() {
+  const nameEl = document.getElementById('profileName');
+  const emailEl = document.getElementById('profileEmail');
+  if (nameEl && window.currentUser) nameEl.textContent = window.currentUser.displayName || 'Usuario';
+  if (emailEl && window.currentUser) emailEl.textContent = window.currentUser.email || '';
+}
+setInterval(updateProfileTab, 1000);
+</script>
+
+</body>
+</html>

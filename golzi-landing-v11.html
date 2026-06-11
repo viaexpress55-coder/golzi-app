@@ -440,7 +440,43 @@ footer{background:rgba(0,0,0,.92);border-top:1px solid rgba(201,168,76,.1);paddi
 @media(max-width:899px){
   .plans-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
 }
+
+/* TICKER ROTATIVO */
+.ticker-wrap{background:rgba(255,215,0,0.08);border-top:1px solid rgba(255,215,0,0.2);border-bottom:1px solid rgba(255,215,0,0.2);padding:10px 0;overflow:hidden;position:relative;}
+.ticker-wrap::before{content:'';position:absolute;left:0;top:0;bottom:0;width:60px;background:linear-gradient(to right,#020408,transparent);z-index:2;}
+.ticker-wrap::after{content:'';position:absolute;right:0;top:0;bottom:0;width:60px;background:linear-gradient(to left,#020408,transparent);z-index:2;}
+.ticker{display:flex;gap:60px;animation:ticker 40s linear infinite;white-space:nowrap;}
+.ticker:hover{animation-play-state:paused;}
+.ticker-item{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:#FFD700;letter-spacing:0.5px;flex-shrink:0;}
+.ticker-dot{color:rgba(255,215,0,0.4);margin:0 8px;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* WHATSAPP FLOTANTE */
+.wa-float{position:fixed;bottom:24px;right:20px;z-index:9999;display:flex;align-items:center;gap:10px;background:#25D366;border-radius:50px;padding:12px 20px 12px 14px;box-shadow:0 4px 20px rgba(37,211,102,0.4);cursor:pointer;text-decoration:none;transition:all .3s;animation:waPulse 2s infinite;}
+.wa-float:hover{transform:scale(1.05);box-shadow:0 6px 28px rgba(37,211,102,0.6);}
+.wa-float svg{width:26px;height:26px;flex-shrink:0;}
+.wa-float-txt{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:#fff;letter-spacing:0.5px;white-space:nowrap;}
+@keyframes waPulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,0.4)}50%{box-shadow:0 4px 30px rgba(37,211,102,0.7)}}
+@media(max-width:480px){.wa-float-txt{display:none;}.wa-float{padding:14px;border-radius:50%;}}
 </style>
+
+  <!-- Open Graph / WhatsApp / Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://golzi.app/mundial">
+  <meta property="og:title" content="GOLZI — Quiniela Mundial 2026">
+  <meta property="og:description" content="Predice los partidos del Mundial 2026 y compite con tus amigos. Crea tu liga privada. 72 partidos. Gratis para todos.">
+  <meta property="og:image" content="https://storage.googleapis.com/golzi-2026.firebasestorage.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="GOLZI">
+  <meta property="og:locale" content="es_ES">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GOLZI — Quiniela Mundial 2026">
+  <meta name="twitter:description" content="Predice los partidos del Mundial 2026 y compite con tus amigos.">
+  <meta name="twitter:image" content="https://storage.googleapis.com/golzi-2026.firebasestorage.app/og-image.png">
+  <!-- WhatsApp específico -->
+  <meta property="og:image:secure_url" content="https://storage.googleapis.com/golzi-2026.firebasestorage.app/og-image.png">
 </head>
 <body>
 
@@ -470,6 +506,52 @@ footer{background:rgba(0,0,0,.92);border-top:1px solid rgba(201,168,76,.1);paddi
   </div>
   <button class="menu-btn" id="menuBtn" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
 </nav>
+<!-- TICKER ROTATIVO -->
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker">
+    <span class="ticker-item">🔥 ¡El Mundial empieza HOY! Predice y gana con tus amigos</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⚡ 25% descuento de lanzamiento · Solo por tiempo limitado</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🏆 ¿Quién hace la quiniela del grupo? Tú pagas · Todos juegan</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⚽ 72 partidos · 48 equipos · 1 campeón · ¿Lo adivinas?</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🎯 $1.60 por jugador · El plan más barato del Mundial</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🔥 Primeras 500 ligas con precio de lanzamiento · ¡Corre!</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">👥 Crea tu liga en 30 segundos · Invita por link · Gratis para todos</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">📺 Sigue los partidos EN VIVO · Resultados en tiempo real</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⭐ Sports bars, oficinas y grupos — Plan BUSINESS desde $349.99</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🌍 +200 GOLZAIRs ya prediciendo · ¿Y tú?</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⚡ Sin apuestas · Sin riesgo · Pura competencia entre amigos</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">📅 Calendario completo · 72 partidos · Fechas y horas exactas</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🏆 Colombia, México, Brasil — ¿Quién llega a la final?</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🔥 Oferta válida solo para el Mundial 2026 · No vuelve</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">👑 GOLZAIR · 100 jugadores · $74.99 · $0.75 por persona</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⚽ Predice el marcador exacto y sube al top del ranking</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🌍 Clasificación de grupos · Tabla de posiciones actualizada</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🎯 Ya empezó el Mundial · Cada partido que pasa pierdes puntos</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🚀 Tu empresa en el Mundial · Activa a tu equipo con GOLZI</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⏰ Notificaciones antes de cada partido · Nunca te pierdas uno</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⚡ Descarga gratis · Predice gratis · Crea tu liga desde $7.99</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">📊 Estadísticas de equipos · Historial · Análisis por partido</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🏆 El que más exactas tenga gana · ¿Eres el crack del grupo?</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🔥 Link de invitación · QR · Token · Comparte como quieras</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⭐ Mundial 2026 · Una vez en la vida · No te lo pierdas</span><span class="ticker-dot">·</span>
+    <!-- Duplicado para loop infinito -->
+    <span class="ticker-item">🔥 ¡El Mundial empieza HOY! Predice y gana con tus amigos</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⚡ 25% descuento de lanzamiento · Solo por tiempo limitado</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🏆 ¿Quién hace la quiniela del grupo? Tú pagas · Todos juegan</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">⚽ 72 partidos · 48 equipos · 1 campeón · ¿Lo adivinas?</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">🎯 $1.60 por jugador · El plan más barato del Mundial</span><span class="ticker-dot">·</span>
+  </div>
+</div>
+
+<!-- SEO TEXT (invisible para usuarios, indexable por Google) -->
+<div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
+  GOLZI app quiniela Mundial 2026 predecir partidos fútbol gratis descargar Android iOS web Colombia México Brasil Argentina.
+  Predice marcadores del Mundial FIFA 2026. Crea tu liga privada. Compite con amigos. Calendario partidos Mundial 2026.
+  Clasificación grupos Mundial 2026. Resultados en vivo. Estadísticas equipos. Rankings jugadores.
+  Quiniela gratis Mundial 2026. App predicciones fútbol. Liga privada amigos trabajo oficina.
+  GOLZI planes precio lanzamiento descuento 25% 30% 35%. Sports bar restaurante empresa activación Mundial.
+</div>
+
 
 
 <!-- HERO -->
@@ -497,7 +579,7 @@ footer{background:rgba(0,0,0,.92);border-top:1px solid rgba(201,168,76,.1);paddi
     <p class="hero-sub">Compite. Domina. Deja tu legado.</p>
     <p class="hero-tagline">Predices los partidos. Si aciertas, ganas puntos. El que más puntos tenga, gana.</p>
     <p class="hero-identity">
-      <span><i class="cross">✗</i> No es quiniela &nbsp;·&nbsp; <i class="cross">✗</i> No es prode &nbsp;·&nbsp; <i class="cross">✗</i> No es polla</span>
+      <span>Quiniela · Prode · Polla · Bolão · Fantasy · Pronóstico · Tipping</span>
       <strong class="golzi-line">Es GOLZI.</strong>
     </p>
     <div class="hero-ctas">
@@ -617,8 +699,8 @@ footer{background:rgba(0,0,0,.92);border-top:1px solid rgba(201,168,76,.1);paddi
         <div class="fomo-sublabel">ya inscritos en GOLZI</div>
       </div>
       <div class="fomo-card reveal">
-        <div class="fomo-num" id="stat-days">18</div>
-        <div class="fomo-label">Días para el arranque</div>
+        <div class="fomo-num" id="stat-days">🔥</div>
+        <div class="fomo-label">¡HOY COMIENZA!</div>
         <div class="fomo-sublabel">11 junio 2026</div>
       </div>
     </div>
@@ -1717,7 +1799,7 @@ countries.forEach((c,i)=>{
 
 // ─── TRANSLATIONS ───────────────────────────────────────────────────────────
 const T={
-es:{lang:'ES',nav_cta:'⚡ Precio de lanzamiento',badge_text:'Mundial 2026 · Inscripciones abiertas',hero_h1:'PREDICE<br>EL MUNDIAL',hero_sub:'Compite. Domina. Deja tu legado.',hero_tagline:'Predices los partidos. Si aciertas, ganas puntos. El que más puntos tenga, gana.',not_1:'No es quiniela',not_2:'No es prode',not_3:'No es polla',is_golzi:'Es GOLZI.',cta_create:'⚡ Crear mi liga',cta_reserve:'⚡ Precio de lanzamiento',micro_1:'Sin tarjeta',micro_2:'Acceso anticipado',micro_3:'Precio de lanzamiento',micro_4:'30 segundos',stat_users:'Usuarios inscritos',stat_users_sub:'y creciendo cada día',stat_leagues:'Ligas creadas',stat_leagues_sub:'activas desde el 11 de junio',stat_countries:'Países representados',stat_countries_sub:'ya en GOLZI',stat_days:'Días para el arranque',cd_title:'⏳ El Mundial arranca en',cd_days:'Días',cd_hours:'Horas',cd_mins:'Minutos',cd_secs:'Segundos',cd_note:'Inscríbete ahora · Las predicciones inician con el primer partido',urgency_deadline:'⏰ Solo hasta el 10 de junio · Precio de lanzamiento',urgency_h:'CREA TU CUENTA<br><span class="gold">Y LIGA AHORA.</span>',urgency_body:'Al crear tu cuenta hoy garantizas el precio promocional de lanzamiento y predices desde el partido inaugural. Configura tu liga antes del torneo.',lose_1:'Los precios subirán tras el lanzamiento',lose_2:'Perderás acceso anticipado para tu liga',lose_3:'Los cupos de precio de lanzamiento son limitados',lose_4:'Te perderás los primeros partidos',urgency_cta:'⚡ Crear mi cuenta GOLZI',compare_header:'Comparativa FREE vs Planes',cf1:'Liga pública GOLZI',cf2:'Predicciones en liga global',cf3:'Calendario y equipos',cf4:'Ligas privadas',cf5:'Chat de liga',cf_note:'Explora gratis. Ideal para conocer la app.',cp_label:'Con LIGA · PRO · MASTER · GOLZAIR',cp1:'Ligas privadas propias',cp2:'Chat en vivo en cada liga',cp3:'Retos diarios para puntos extra',cp4:'Sin anuncios',cp_btn:'Ver todos los planes ↓',price_free:'GRATIS',price_forever:'Por todo el torneo',price_torneo:'Precio de lanzamiento · Por el torneo completo',badge_popular:'MÁS POPULAR',badge_limited:'EARLY ACCESS',cta_free:'Inscribirme gratis',cta_starter:'Reservar GOLZAIR',cta_liga:'⚡ Quiero LIGA',cta_pro:'Reservar PRO',comment_label:'👉 ¿Quieres decir algo antes de entrar a GOLZI?',comment_sub:'Opcional. Algunos comentarios aparecen en la comunidad ⚽🔥',comment_ph:'Wow… justo lo que necesitaba 🔥',form_btn:'⚡ Crear mi cuenta GOLZI',comm_h:'💬 <span class="gold">La comunidad ya está jugando</span>',comm_sub:'Miles ya están creando sus ligas. Tú puedes ser el próximo ⚽',footer_tag:'Predice · Compite · Domina · Mundial 2026',footer_copy:'© 2026 GOLZI · Todos los derechos reservados · golzi.app',
+es:{lang:'ES',nav_cta:'⚡ Precio de lanzamiento',badge_text:'Mundial 2026 · Inscripciones abiertas',hero_h1:'PREDICE<br>EL MUNDIAL',hero_sub:'Compite. Domina. Deja tu legado.',hero_tagline:'Predices los partidos. Si aciertas, ganas puntos. El que más puntos tenga, gana.',not_1:'Quiniela',not_2:'Prode · Polla · Bolão',not_3:'Fantasy · Tipping',is_golzi:'Es GOLZI.',cta_create:'⚡ Crear mi liga',cta_reserve:'⚡ Precio de lanzamiento',micro_1:'Sin tarjeta',micro_2:'Acceso anticipado',micro_3:'Precio de lanzamiento',micro_4:'30 segundos',stat_users:'Usuarios inscritos',stat_users_sub:'y creciendo cada día',stat_leagues:'Ligas creadas',stat_leagues_sub:'activas desde el 11 de junio',stat_countries:'Países representados',stat_countries_sub:'ya en GOLZI',stat_days:'⚽ ¡HOY COMIENZA!',cd_title:'🔥 ¡El Mundial arranca HOY!',cd_days:'Días',cd_hours:'Horas',cd_mins:'Minutos',cd_secs:'Segundos',cd_note:'Inscríbete ahora · Las predicciones inician con el primer partido',urgency_deadline:'⏰ Oferta de lanzamiento · Primeras 500 ligas',urgency_h:'CREA TU CUENTA<br><span class="gold">Y LIGA AHORA.</span>',urgency_body:'Al crear tu cuenta hoy garantizas el precio promocional de lanzamiento y predices desde el partido inaugural. Configura tu liga antes del torneo.',lose_1:'Los precios subirán tras el lanzamiento',lose_2:'Perderás acceso anticipado para tu liga',lose_3:'Los cupos de precio de lanzamiento son limitados',lose_4:'Te perderás los primeros partidos',urgency_cta:'⚡ Crear mi cuenta GOLZI',compare_header:'Comparativa FREE vs Planes',cf1:'Liga pública GOLZI',cf2:'Predicciones en liga global',cf3:'Calendario y equipos',cf4:'Ligas privadas',cf5:'Chat de liga',cf_note:'Explora gratis. Ideal para conocer la app.',cp_label:'Con LIGA · PRO · MASTER · GOLZAIR',cp1:'Ligas privadas propias',cp2:'Chat en vivo en cada liga',cp3:'Retos diarios para puntos extra',cp4:'Sin anuncios',cp_btn:'Ver todos los planes ↓',price_free:'GRATIS',price_forever:'Por todo el torneo',price_torneo:'Precio de lanzamiento · Por el torneo completo',badge_popular:'MÁS POPULAR',badge_limited:'EARLY ACCESS',cta_free:'Inscribirme gratis',cta_starter:'Reservar GOLZAIR',cta_liga:'⚡ Quiero LIGA',cta_pro:'Reservar PRO',comment_label:'👉 ¿Quieres decir algo antes de entrar a GOLZI?',comment_sub:'Opcional. Algunos comentarios aparecen en la comunidad ⚽🔥',comment_ph:'Wow… justo lo que necesitaba 🔥',form_btn:'⚡ Crear mi cuenta GOLZI',comm_h:'💬 <span class="gold">La comunidad ya está jugando</span>',comm_sub:'Miles ya están creando sus ligas. Tú puedes ser el próximo ⚽',footer_tag:'Predice · Compite · Domina · Mundial 2026',footer_copy:'© 2026 GOLZI · Todos los derechos reservados · golzi.app',
 faq:[
   {q:'¿Qué es GOLZI?',a:'GOLZI es una plataforma global de predicción del Mundial 2026. Predices partidos, acumulas puntos y compites contra amigos o el mundo entero. No es apuesta — es conocimiento futbolístico.'},
   {q:'¿Cuándo puedo empezar a predecir?',a:'Las predicciones inician el 11 de junio con el primer partido del Mundial. Si te inscribes ahora, accedes antes para configurar tu liga con calma.'},
@@ -1733,7 +1815,7 @@ faq:[
   {q:'¿Mi país tiene que estar en el Mundial?',a:'No. GOLZI es para todos. Tengas o no equipo clasificado, puedes predecir todos los partidos y representar tu bandera en el ranking por países.'},
   {q:'Soy un negocio con plan Business — ¿mis clientes entran gratis?',a:'El plan Business te permite crear la liga, administrarla y compartir el QR con tus clientes. Para participar en la liga privada, cada cliente necesita el plan GOLZAIR — igual que en cualquier liga privada de GOLZI. Tú pones el espacio, ellos se registran con su propio plan.'},
 ]},
-en:{lang:'EN',nav_cta:'⚡ Launch price',badge_text:'World Cup 2026 · Registrations open',hero_h1:'PREDICT<br>THE WORLD CUP',hero_sub:'Compete. Dominate. Leave your legacy.',hero_tagline:'Predict matches, earn points, most points wins.',not_1:'Not a pool',not_2:'Not a sweepstake',not_3:'Not a prode',is_golzi:"It's GOLZI.",cta_create:'⚡ Create my league',cta_reserve:'⚡ Launch price',micro_1:'No card needed',micro_2:'Early access',micro_3:'Launch price',micro_4:'30 seconds',stat_users:'Registered users',stat_users_sub:'growing every day',stat_leagues:'Leagues created',stat_leagues_sub:'active from June 11',stat_countries:'Countries represented',stat_countries_sub:'already in GOLZI',stat_days:'Days to kick-off',cd_title:'⏳ World Cup kicks off in',cd_days:'Days',cd_hours:'Hours',cd_mins:'Minutes',cd_secs:'Seconds',cd_note:'Register now · Predictions start with the first match',urgency_deadline:'⏰ Until June 10 only · Launch price',urgency_h:'CREATE YOUR ACCOUNT<br><span class="gold">AND LEAGUE NOW.</span>',urgency_body:"Create your account today to lock the launch price and predict from the opening match. Set up your league before the tournament starts.",lose_1:'Prices go up after launch',lose_2:'You lose early access to set up your league',lose_3:'Launch price spots are limited',lose_4:"You'll miss the first matches",urgency_cta:'⚡ Create my GOLZI account',compare_header:'FREE vs Paid Plans',cf1:'GOLZI public league',cf2:'Global league predictions',cf3:'Calendar & teams',cf4:'Private leagues',cf5:'League chat',cf_note:'Explore free. Perfect to discover the app.',cp_label:'With LIGA · PRO · MASTER · GOLZAIR',cp1:'Your own private leagues',cp2:'Live chat in each league',cp3:'Daily challenges for extra points',cp4:'No ads',cp_btn:'See all plans ↓',price_free:'FREE',price_forever:'For the whole tournament',price_torneo:'Launch price · Full tournament',badge_popular:'MOST POPULAR',badge_limited:'EARLY ACCESS',cta_free:'Register free',cta_starter:'Reserve GOLZAIR',cta_liga:'⚡ Get LIGA',cta_pro:'Reserve PRO',comment_label:'👉 Anything you want to say before joining GOLZI?',comment_sub:'Optional. Some comments appear in the community ⚽🔥',comment_ph:'Wow… exactly what I needed 🔥',form_btn:'⚡ Create my GOLZI account',comm_h:'💬 <span class="gold">The community is already playing</span>',comm_sub:'Thousands are already creating their leagues. You could be next ⚽',footer_tag:'Predict · Compete · Dominate · World Cup 2026',footer_copy:'© 2026 GOLZI · All rights reserved · golzi.app',
+en:{lang:'EN',nav_cta:'⚡ Launch price',badge_text:'World Cup 2026 · Registrations open',hero_h1:'PREDICT<br>THE WORLD CUP',hero_sub:'Compete. Dominate. Leave your legacy.',hero_tagline:'Predict matches, earn points, most points wins.',not_1:'Pool · Sweepstake',not_2:'Prode · Fantasy',not_3:'Tipping · Predictor',is_golzi:"It's GOLZI.",cta_create:'⚡ Create my league',cta_reserve:'⚡ Launch price',micro_1:'No card needed',micro_2:'Early access',micro_3:'Launch price',micro_4:'30 seconds',stat_users:'Registered users',stat_users_sub:'growing every day',stat_leagues:'Leagues created',stat_leagues_sub:'active from June 11',stat_countries:'Countries represented',stat_countries_sub:'already in GOLZI',stat_days:'⚽ STARTS TODAY!',cd_title:'🔥 World Cup starts TODAY!',cd_days:'Days',cd_hours:'Hours',cd_mins:'Minutes',cd_secs:'Seconds',cd_note:'Register now · Predictions start with the first match',urgency_deadline:'⏰ Launch offer · First 500 leagues',urgency_h:'CREATE YOUR ACCOUNT<br><span class="gold">AND LEAGUE NOW.</span>',urgency_body:"Create your account today to lock the launch price and predict from the opening match. Set up your league before the tournament starts.",lose_1:'Prices go up after launch',lose_2:'You lose early access to set up your league',lose_3:'Launch price spots are limited',lose_4:"You'll miss the first matches",urgency_cta:'⚡ Create my GOLZI account',compare_header:'FREE vs Paid Plans',cf1:'GOLZI public league',cf2:'Global league predictions',cf3:'Calendar & teams',cf4:'Private leagues',cf5:'League chat',cf_note:'Explore free. Perfect to discover the app.',cp_label:'With LIGA · PRO · MASTER · GOLZAIR',cp1:'Your own private leagues',cp2:'Live chat in each league',cp3:'Daily challenges for extra points',cp4:'No ads',cp_btn:'See all plans ↓',price_free:'FREE',price_forever:'For the whole tournament',price_torneo:'Launch price · Full tournament',badge_popular:'MOST POPULAR',badge_limited:'EARLY ACCESS',cta_free:'Register free',cta_starter:'Reserve GOLZAIR',cta_liga:'⚡ Get LIGA',cta_pro:'Reserve PRO',comment_label:'👉 Anything you want to say before joining GOLZI?',comment_sub:'Optional. Some comments appear in the community ⚽🔥',comment_ph:'Wow… exactly what I needed 🔥',form_btn:'⚡ Create my GOLZI account',comm_h:'💬 <span class="gold">The community is already playing</span>',comm_sub:'Thousands are already creating their leagues. You could be next ⚽',footer_tag:'Predict · Compete · Dominate · World Cup 2026',footer_copy:'© 2026 GOLZI · All rights reserved · golzi.app',
 faq:[
   {q:'What is GOLZI?',a:'GOLZI is a global World Cup 2026 prediction platform. Predict matches, earn points and compete against friends or the whole world. No betting — pure football knowledge.'},
   {q:'When can I start predicting?',a:'Predictions start June 11 with the first match. Register now and get early access to set up your league in advance.'},
@@ -1749,7 +1831,7 @@ faq:[
   {q:"Does my country need to be in the World Cup?",a:'No. GOLZI is for everyone. With or without a qualified team, you can predict all matches and represent your flag in the country ranking.'},
   {q:"I have a Business plan — do my customers get in for free?",a:"The Business plan lets you create the league, manage it and share the QR with your customers. To join your private league, each customer needs the GOLZAIR plan — just like any private league on GOLZI. You provide the space, they register with their own plan."},
 ]},
-pt:{lang:'PT',nav_cta:'⚡ Preço de lançamento',badge_text:'Copa 2026 · Inscrições abertas',hero_h1:'PREVEJA<br>A COPA',hero_sub:'Compete. Domina. Deixa o teu legado.',hero_tagline:'Preveja partidas, ganhe pontos, quem tiver mais pontos vence.',not_1:'Não é bolão',not_2:'Não é loteria',not_3:'Não é apostas',is_golzi:'É GOLZI.',cta_create:'⚡ Criar minha liga',cta_reserve:'⚡ Preço de lançamento',micro_1:'Sem cartão',micro_2:'Acesso antecipado',micro_3:'Preço de lançamento',micro_4:'30 segundos',stat_users:'Usuários inscritos',stat_users_sub:'crescendo todo dia',stat_leagues:'Ligas criadas',stat_leagues_sub:'ativas a partir de 11 de junho',stat_countries:'Países representados',stat_countries_sub:'já no GOLZI',stat_days:'Dias para o início',cd_title:'⏳ A Copa começa em',cd_days:'Dias',cd_hours:'Horas',cd_mins:'Minutos',cd_secs:'Segundos',cd_note:'Inscreva-se agora · As previsões começam com a primeira partida',urgency_deadline:'⏰ Até 10 de junho · Preço de lançamento',urgency_h:'CRIE SUA CONTA<br><span class="gold">E LIGA AGORA.</span>',urgency_body:'Ao criar sua conta hoje você garante o preço promocional de lançamento e pode prever a partir da partida inaugural. Configure sua liga antes do torneio.',lose_1:'Os preços subirão após o lançamento',lose_2:'Perderá acesso antecipado para configurar sua liga',lose_3:'As vagas com preço de lançamento são limitadas',lose_4:'Perderá os primeiros jogos do torneio',urgency_cta:'⚡ Criar minha conta GOLZI',compare_header:'Comparativo FREE vs Planos',cf1:'Liga pública GOLZI',cf2:'Previsões na liga global',cf3:'Calendário e equipes',cf4:'Ligas privadas',cf5:'Chat da liga',cf_note:'Explore grátis. Ideal para conhecer o app.',cp_label:'Com LIGA · PRO · MASTER · GOLZAIR',cp1:'Suas próprias ligas privadas',cp2:'Chat ao vivo em cada liga',cp3:'Desafios diários para pontos extras',cp4:'Sem anúncios',cp_btn:'Ver todos os planos ↓',price_free:'GRÁTIS',price_forever:'Por todo o torneio',price_torneo:'Preço de lançamento · Pelo torneio completo',badge_popular:'MAIS POPULAR',badge_limited:'EARLY ACCESS',cta_free:'Inscrever grátis',cta_starter:'Reservar GOLZAIR',cta_liga:'⚡ Quero LIGA',cta_pro:'Reservar PRO',comment_label:'👉 Quer dizer algo antes de entrar no GOLZI?',comment_sub:'Opcional. Alguns comentários aparecem na comunidade ⚽🔥',comment_ph:'Uau… exatamente o que eu precisava 🔥',form_btn:'⚡ Criar minha conta GOLZI',comm_h:'💬 <span class="gold">A comunidade já está jogando</span>',comm_sub:'Milhares já estão criando suas ligas. Você pode ser o próximo ⚽',footer_tag:'Preveja · Compete · Domina · Copa 2026',footer_copy:'© 2026 GOLZI · Todos os direitos reservados · golzi.app',
+pt:{lang:'PT',nav_cta:'⚡ Preço de lançamento',badge_text:'Copa 2026 · Inscrições abertas',hero_h1:'PREVEJA<br>A COPA',hero_sub:'Compete. Domina. Deixa o teu legado.',hero_tagline:'Preveja partidas, ganhe pontos, quem tiver mais pontos vence.',not_1:'Não é bolão',not_2:'Não é loteria',not_3:'Não é apostas',is_golzi:'É GOLZI.',cta_create:'⚡ Criar minha liga',cta_reserve:'⚡ Preço de lançamento',micro_1:'Sem cartão',micro_2:'Acesso antecipado',micro_3:'Preço de lançamento',micro_4:'30 segundos',stat_users:'Usuários inscritos',stat_users_sub:'crescendo todo dia',stat_leagues:'Ligas criadas',stat_leagues_sub:'ativas a partir de 11 de junho',stat_countries:'Países representados',stat_countries_sub:'já no GOLZI',stat_days:'⚽ COMEÇA HOJE!',cd_title:'⏳ A Copa começa em',cd_days:'Dias',cd_hours:'Horas',cd_mins:'Minutos',cd_secs:'Segundos',cd_note:'Inscreva-se agora · As previsões começam com a primeira partida',urgency_deadline:'⏰ Até 10 de junho · Preço de lançamento',urgency_h:'CRIE SUA CONTA<br><span class="gold">E LIGA AGORA.</span>',urgency_body:'Ao criar sua conta hoje você garante o preço promocional de lançamento e pode prever a partir da partida inaugural. Configure sua liga antes do torneio.',lose_1:'Os preços subirão após o lançamento',lose_2:'Perderá acesso antecipado para configurar sua liga',lose_3:'As vagas com preço de lançamento são limitadas',lose_4:'Perderá os primeiros jogos do torneio',urgency_cta:'⚡ Criar minha conta GOLZI',compare_header:'Comparativo FREE vs Planos',cf1:'Liga pública GOLZI',cf2:'Previsões na liga global',cf3:'Calendário e equipes',cf4:'Ligas privadas',cf5:'Chat da liga',cf_note:'Explore grátis. Ideal para conhecer o app.',cp_label:'Com LIGA · PRO · MASTER · GOLZAIR',cp1:'Suas próprias ligas privadas',cp2:'Chat ao vivo em cada liga',cp3:'Desafios diários para pontos extras',cp4:'Sem anúncios',cp_btn:'Ver todos os planos ↓',price_free:'GRÁTIS',price_forever:'Por todo o torneio',price_torneo:'Preço de lançamento · Pelo torneio completo',badge_popular:'MAIS POPULAR',badge_limited:'EARLY ACCESS',cta_free:'Inscrever grátis',cta_starter:'Reservar GOLZAIR',cta_liga:'⚡ Quero LIGA',cta_pro:'Reservar PRO',comment_label:'👉 Quer dizer algo antes de entrar no GOLZI?',comment_sub:'Opcional. Alguns comentários aparecem na comunidade ⚽🔥',comment_ph:'Uau… exatamente o que eu precisava 🔥',form_btn:'⚡ Criar minha conta GOLZI',comm_h:'💬 <span class="gold">A comunidade já está jogando</span>',comm_sub:'Milhares já estão criando suas ligas. Você pode ser o próximo ⚽',footer_tag:'Preveja · Compete · Domina · Copa 2026',footer_copy:'© 2026 GOLZI · Todos os direitos reservados · golzi.app',
 faq:[
   {q:'O que é GOLZI?',a:'GOLZI é uma plataforma global de previsão da Copa 2026. Preveja partidas, acumule pontos e compita com amigos ou o mundo todo. Não é aposta — é conhecimento futebolístico.'},
   {q:'Quando posso começar a prever?',a:'As previsões começam em 11 de junho com a primeira partida. Inscreva-se agora e acesse antes para configurar sua liga.'},
@@ -1976,5 +2058,14 @@ document.querySelector('.form-submit').addEventListener('click', function(e) {
 const ro=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.08});
 document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 </script>
+
+<!-- WHATSAPP FLOTANTE -->
+<a class="wa-float" href="https://wa.me/573054325588?text=Hola%20GOLZI%20%F0%9F%94%A5%20Quiero%20informaci%C3%B3n%20sobre%20los%20planes%20para%20el%20Mundial%202026" target="_blank" rel="noopener">
+  <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+  <span class="wa-float-txt">¿Tienes dudas? Escríbenos</span>
+</a>
+
 </body>
 </html>

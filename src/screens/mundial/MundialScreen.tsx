@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../services/firebase';
@@ -233,7 +233,7 @@ export default function MundialScreen() {
               <View style={s.groupPreview}>
                 {g.teams.map((team,i) => (
                   <View key={i} style={s.previewTeam}>
-                    <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(team.flag)}.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
+                    <Image source={{ uri: `https://flagsapi.com/${getFlagCode(team.flag).toUpperCase()}/flat/64.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
                     <Text style={s.previewName}>{team.name}</Text>
                   </View>
                 ))}
@@ -257,7 +257,7 @@ export default function MundialScreen() {
                       i === g.teams.length-1 && { borderBottomWidth:0 }
                     ]}>
                       <View style={[s.tdTeam, { flex:2 }]}>
-                        <Image source={{ uri: `https://flagcdn.com/w40/${getFlagCode(team.flag)}.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
+                        <Image source={{ uri: `https://flagsapi.com/${getFlagCode(team.flag).toUpperCase()}/flat/64.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
                         <Text style={s.tdName}>{team.name}</Text>
                       </View>
                       <Text style={s.td}>{calcStandings(g.name).find(st=>st.name===team.name)?.pj ?? 0}</Text>
@@ -311,7 +311,7 @@ export default function MundialScreen() {
                           style={s.fixtureCard}
                         >
                           <View style={{ flex:1, alignItems:'center' }}>
-                            <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(m.homeFlag || '🌍')}.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                            <Image source={{ uri: `https://flagsapi.com/${getFlagCode(m.homeFlag || '🌍').toUpperCase()}/flat/64.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                             <Text style={s.fixtureName}>{(m.homeTeam||'').slice(0,3).toUpperCase()}</Text>
                           </View>
                           <View style={s.fixtureCenter}>
@@ -328,7 +328,7 @@ export default function MundialScreen() {
                             <Text style={s.fixtureStadium} numberOfLines={1}>{m.stadium || m.city || ''}</Text>
                           </View>
                           <View style={{ flex:1, alignItems:'center' }}>
-                            <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(m.awayFlag || '🌍')}.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                            <Image source={{ uri: `https://flagsapi.com/${getFlagCode(m.awayFlag || '🌍').toUpperCase()}/flat/64.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                             <Text style={s.fixtureName}>{(m.awayTeam||'').slice(0,3).toUpperCase()}</Text>
                           </View>
                         </LinearGradient>
@@ -349,7 +349,7 @@ export default function MundialScreen() {
                 {GROUPS.flatMap(g => g.teams).map((team,i) => (
                   <TouchableOpacity key={i} onPress={() => setSelGroup(team.name)} activeOpacity={0.8}>
                     <LinearGradient colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']} style={s.teamCard}>
-                      <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(team.flag)}.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
+                      <Image source={{ uri: `https://flagsapi.com/${getFlagCode(team.flag).toUpperCase()}/flat/64.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
                       <Text style={s.teamCardName}>{team.name}</Text>
                     </LinearGradient>
                   </TouchableOpacity>
@@ -376,7 +376,7 @@ export default function MundialScreen() {
                     return (
                       <LinearGradient key={i} colors={['rgba(255,215,0,0.06)','rgba(255,215,0,0.01)']} style={[s.fixtureCard, { marginBottom:8 }]}>
                         <View style={{ flex:1, alignItems:'center' }}>
-                          <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(isHome ? (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍') : (rivalFlag || '🌍'))}.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                          <Image source={{ uri: `https://flagsapi.com/${getFlagCode(isHome ? (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍') : (rivalFlag || '🌍')).toUpperCase()}/flat/64.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                           <Text style={s.fixtureName}>{(isHome ? selGroup : rival || '').slice(0,3).toUpperCase()}</Text>
                         </View>
                         <View style={s.fixtureCenter}>
@@ -385,7 +385,7 @@ export default function MundialScreen() {
                           <Text style={s.fixtureStadium} numberOfLines={1}>{m.stadium || m.city || ''}</Text>
                         </View>
                         <View style={{ flex:1, alignItems:'center' }}>
-                          <Image source={{ uri: `https://flagcdn.com/w80/${getFlagCode(isHome ? (rivalFlag || '🌍') : (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍'))}.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                          <Image source={{ uri: `https://flagsapi.com/${getFlagCode(isHome ? (rivalFlag || '🌍') : (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍')).toUpperCase()}/flat/64.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                           <Text style={s.fixtureName}>{(isHome ? rival : selGroup || '').slice(0,3).toUpperCase()}</Text>
                         </View>
                       </LinearGradient>

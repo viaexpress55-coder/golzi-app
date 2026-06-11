@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   TextInput, ScrollView, Pressable, Animated, Image, Modal, FlatList,
@@ -11,8 +11,9 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { registerWithEmail } from '../../services/auth';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
+
 import { useTranslation } from 'react-i18next';
 
 const C = {
@@ -304,6 +305,40 @@ export default function RegisterScreen() {
     BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
     Barlow_400Regular, Barlow_500Medium,
   });
+
+  async function handleGoogleRegister() {
+    try {
+      const auth = getAuth();
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Bogota';
+        await setDoc(userRef, {
+          userId: user.uid,
+          username: user.displayName?.replace(/\s+/g, '_').toLowerCase() || 'golzair_' + user.uid.slice(0,6),
+          country: 'OT',
+          language: 'es',
+          timezone,
+          plan: 'free',
+          planExpiry: null,
+          totalPoints: 0,
+          currentStreak: 0,
+          maxStreak: 0,
+          fcmToken: null,
+          createdAt: serverTimestamp(),
+          lastActive: serverTimestamp(),
+        });
+      }
+      navigation.navigate('Main');
+    } catch(e: any) {
+      if (e.code !== 'auth/popup-closed-by-user') {
+        setError('Error con Google. Intenta con email.');
+      }
+    }
+  }
 
   if (!fontsLoaded) return <View style={s.root} />;
 

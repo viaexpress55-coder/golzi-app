@@ -11,6 +11,9 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { loginWithEmail, loginAnonymous } from '../../services/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../services/firebase';
 import { useTranslation } from 'react-i18next';
 
 const C = {
@@ -198,6 +201,10 @@ export default function LoginScreen() {
 const s = StyleSheet.create({
   root:{ flex:1, backgroundColor:C.dark },
 
+  googleBtn:{ borderRadius:14, overflow:'hidden', marginBottom:12, borderWidth:1, borderColor:'rgba(255,255,255,0.15)', backgroundColor:'rgba(255,255,255,0.06)' },
+  googleBtnInner:{ flexDirection:'row', alignItems:'center', justifyContent:'center', paddingVertical:14, gap:10 },
+  googleIcon:{ fontSize:18, color:'#fff', fontWeight:'900' },
+  googleTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:15, color:'#fff', letterSpacing:0.5 },
   topLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:'rgba(255,215,0,0.5)', zIndex:10 },
   bottomLine:{ position:'absolute', bottom:0, left:0, right:0, height:1, backgroundColor:'rgba(255,215,0,0.15)' },
 

@@ -1,8 +1,10 @@
-// functions/src/predictions/onMatchFinishChallenges.ts
+﻿// functions/src/predictions/onMatchFinishChallenges.ts
 import * as admin from 'firebase-admin';
 import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
+import { defineSecret } from 'firebase-functions/params';
 
 const db = admin.firestore();
+const API_FOOTBALL_KEY = defineSecret('API_FOOTBALL_KEY');
 
 const RETO_POINTS: Record<string, number> = {
   first_goal:   5,
@@ -10,16 +12,8 @@ const RETO_POINTS: Record<string, number> = {
   yellow_cards: 3,
   ht_result:    4,
   penalty:      4,
+  red_card:     4,
 };
-
-async function fetchMatchDetails(apiId: number): Promise<any> {
-  const API_KEY = process.env.FOOTBALL_API_KEY || '';
-  const res = await fetch(`https://api.football-data.org/v4/matches/${apiId}`, {
-    headers: { 'X-Auth-Token': API_KEY },
-  });
-  if (!res.ok) return null;
-  return res.json();
-}
 
 interface ChallengeData {
   firstGoalTeam:    'home' | 'away' | 'none';
@@ -30,60 +24,80 @@ interface ChallengeData {
   hasPenalty:       boolean;
 }
 
-function extractChallengeData(apiData: any, homeTeam: string, awayTeam: string): ChallengeData {
-  const goals     = apiData.goals     || [];
-  const bookings  = apiData.bookings  || [];
-  const score     = apiData.score     || {};
-  const fullHome  = score.fullTime?.home ?? 0;
-  const fullAway  = score.fullTime?.away ?? 0;
-  const htHome    = score.halfTime?.home ?? 0;
-  const htAway    = score.halfTime?.away ?? 0;
-  const penalties = score.penalties;
+async function fetchChallengeData(fixtureId: number, apiKey: string, homeTeam: string, awayTeam: string): Promise<ChallengeData | null> {
+  try {
+    // Eventos del partido
+    const evRes = await fetch(
+      'https://v3.football.api-sports.io/fixtures/events?fixture=' + fixtureId,
+      { headers: { 'x-apisports-key': apiKey } }
+    );
+    const evData: any = await evRes.json();
+    const events = evData.response || [];
 
-  // Primer gol
-  let firstGoalTeam: 'home' | 'away' | 'none' = 'none';
-  if (goals.length > 0) {
-    const sorted = [...goals].sort((a: any, b: any) => a.minute - b.minute);
-    const scorerTeam = sorted[0]?.team?.name ?? '';
-    if (scorerTeam === homeTeam) firstGoalTeam = 'home';
-    else if (scorerTeam === awayTeam) firstGoalTeam = 'away';
+    // Fixture para score de medio tiempo
+    const fixRes = await fetch(
+      'https://v3.football.api-sports.io/fixtures?id=' + fixtureId,
+      { headers: { 'x-apisports-key': apiKey } }
+    );
+    const fixData: any = await fixRes.json();
+    const fixture = fixData.response?.[0];
+
+    const htHome = fixture?.score?.halftime?.home ?? 0;
+    const htAway = fixture?.score?.halftime?.away ?? 0;
+    const fullHome = fixture?.goals?.home ?? 0;
+    const fullAway = fixture?.goals?.away ?? 0;
+    const penHome = fixture?.score?.penalty?.home;
+    const penAway = fixture?.score?.penalty?.away;
+
+    // Primer gol
+    let firstGoalTeam: 'home' | 'away' | 'none' = 'none';
+    const goals = events.filter((e: any) => e.type === 'Goal' && e.detail !== 'Missed Penalty');
+    if (goals.length > 0) {
+      const sorted = [...goals].sort((a: any, b: any) => (a.time?.elapsed || 0) - (b.time?.elapsed || 0));
+      const scorerTeamName = sorted[0]?.team?.name || '';
+      if (scorerTeamName === homeTeam) firstGoalTeam = 'home';
+      else if (scorerTeamName === awayTeam) firstGoalTeam = 'away';
+      else firstGoalTeam = 'home'; // fallback equipo local
+    }
+
+    // Más de 2.5 goles
+    const overGoals = (fullHome + fullAway) > 2;
+
+    // Tarjeta roja
+    const hasRedCard = events.some((e: any) => e.detail === 'Red Card' || e.detail === 'Second Yellow card');
+
+    // Rango tarjetas amarillas
+    const totalYellows = events.filter((e: any) => e.detail === 'Yellow Card').length;
+    let yellowCardsRange: '0-2' | '3-4' | '5-6' | '7+' = '0-2';
+    if (totalYellows <= 2) yellowCardsRange = '0-2';
+    else if (totalYellows <= 4) yellowCardsRange = '3-4';
+    else if (totalYellows <= 6) yellowCardsRange = '5-6';
+    else yellowCardsRange = '7+';
+
+    // Resultado al descanso
+    let htResult: '1' | 'x' | '2' = 'x';
+    if (htHome > htAway) htResult = '1';
+    else if (htAway > htHome) htResult = '2';
+
+    // Penaltis
+    const hasPenalty = penHome !== null && penHome !== undefined && penAway !== null && penAway !== undefined;
+
+    return { firstGoalTeam, overGoals, hasRedCard, yellowCardsRange, htResult, hasPenalty };
+  } catch (e) {
+    console.error('Error fetchChallengeData:', e);
+    return null;
   }
-
-  // Más de 2.5 goles
-  const overGoals = (fullHome + fullAway) > 2;
-
-  // Tarjeta roja
-  const hasRedCard = bookings.some((b: any) => b.card === 'RED_CARD');
-
-  // Rango tarjetas amarillas
-  const totalYellows = bookings.filter((b: any) => b.card === 'YELLOW_CARD').length;
-  let yellowCardsRange: '0-2' | '3-4' | '5-6' | '7+' = '0-2';
-  if (totalYellows <= 2) yellowCardsRange = '0-2';
-  else if (totalYellows <= 4) yellowCardsRange = '3-4';
-  else if (totalYellows <= 6) yellowCardsRange = '5-6';
-  else yellowCardsRange = '7+';
-
-  // Resultado al descanso
-  let htResult: '1' | 'x' | '2' = 'x';
-  if (htHome > htAway) htResult = '1';
-  else if (htAway > htHome) htResult = '2';
-
-  // Tanda de penaltis
-  const hasPenalty = penalties !== null && penalties !== undefined &&
-                     penalties.home !== null && penalties.away !== null;
-
-  return { firstGoalTeam, overGoals, hasRedCard, yellowCardsRange, htResult, hasPenalty };
 }
 
 function evaluateChallenge(retoId: string, answer: string, data: ChallengeData): boolean {
   switch (retoId) {
-    case 'first_goal':    return answer === data.firstGoalTeam;
-    case 'over_goals':    return (answer === 'yes') === data.overGoals;
-    case 'red_card':      return (answer === 'yes') === data.hasRedCard;
-    case 'yellow_cards':  return answer === data.yellowCardsRange;
-    case 'ht_result':     return answer === data.htResult;
-    case 'penalty':       return (answer === 'yes') === data.hasPenalty;
-    default:              return false;
+    case 'first_goal':   return answer === data.firstGoalTeam;
+    case 'over_goals':   return (answer === 'yes') === data.overGoals;
+    case 'red_card':     return (answer === 'yes') === data.hasRedCard;
+    case 'yellow_cards': return answer === data.yellowCardsRange;
+    case 'ht_result':    return answer === data.htResult;
+    case 'penalty':      return (answer === 'yes') === data.hasPenalty;
+    default:             return false;
   }
 }
 
@@ -93,6 +107,7 @@ export const onMatchFinishChallenges = onDocumentUpdated(
     timeoutSeconds: 540,
     memory:         '1GiB',
     maxInstances:   10,
+    secrets:        [API_FOOTBALL_KEY],
   },
   async (event) => {
     const before = event.data?.before.data();
@@ -118,22 +133,22 @@ export const onMatchFinishChallenges = onDocumentUpdated(
       throw err;
     }
 
-    const apiId    = after.apiId    as number | undefined;
-    const homeTeam = after.homeTeam as string;
-    const awayTeam = after.awayTeam as string;
+    const fixtureId = after.fixtureId as number | undefined;
+    const homeTeam  = after.homeTeam as string;
+    const awayTeam  = after.awayTeam as string;
 
-    if (!apiId) {
-      console.warn(`Partido ${matchId} sin apiId`);
+    if (!fixtureId) {
+      console.warn('Partido ' + matchId + ' sin fixtureId — no se pueden evaluar retos');
       return;
     }
 
-    const apiData = await fetchMatchDetails(apiId);
-    if (!apiData) {
-      console.error(`No se pudieron obtener datos de la API para ${matchId}`);
+    const apiKey = API_FOOTBALL_KEY.value();
+    const challengeData = await fetchChallengeData(fixtureId, apiKey, homeTeam, awayTeam);
+
+    if (!challengeData) {
+      console.error('No se pudieron obtener datos para ' + matchId);
       return;
     }
-
-    const challengeData = extractChallengeData(apiData, homeTeam, awayTeam);
 
     await matchRef.update({
       challengeData: {
@@ -148,7 +163,10 @@ export const onMatchFinishChallenges = onDocumentUpdated(
       .where('status',  '==', 'pending')
       .get();
 
-    if (challengesSnap.empty) return;
+    if (challengesSnap.empty) {
+      console.log('No hay retos pendientes para ' + matchId);
+      return;
+    }
 
     const batchSize = 500;
     const docs      = challengesSnap.docs;
@@ -196,9 +214,9 @@ export const onMatchFinishChallenges = onDocumentUpdated(
       }
 
       await batch.commit();
-      console.log(`Batch ${Math.floor(i / batchSize) + 1} completado`);
+      console.log('Batch ' + (Math.floor(i / batchSize) + 1) + ' completado');
     }
 
-    console.log(`Retos del partido ${matchId} procesados`);
+    console.log('Retos del partido ' + matchId + ' procesados');
   }
 );

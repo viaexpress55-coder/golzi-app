@@ -267,8 +267,8 @@ export default function LiveScreen() {
   const today = liveMatches.filter(m => {
     if (m.status !== 'SCHEDULED' && m.status !== 'TIMED' && m.status !== 'scheduled') return false;
     const kickoff = m.kickoffTime?.seconds ? m.kickoffTime.seconds * 1000 : m.kickoffTime ? new Date(m.kickoffTime).getTime() : 0;
-    const in24h = now + 24 * 3600000;
-    return kickoff > now && kickoff < in24h;
+    const endOfDay=new Date();endOfDay.setHours(23,59,59,999);
+    return kickoff > now && kickoff <= endOfDay.getTime();
   }).slice(0, 6);
   const finished = liveMatches.filter(m => m.status==='FINISHED' || m.status==='finished').slice(-3);
   const isEmpty  = live.length === 0 && finished.length === 0;

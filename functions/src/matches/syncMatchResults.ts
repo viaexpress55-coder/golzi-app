@@ -14,7 +14,7 @@ const NAME_MAP: Record<string, string[]> = {
   'Ivory Coast':    ["Côte d'Ivoire", 'Costa de Marfil', 'Ivory Coast'],
   'DR Congo':       ['Congo DR', 'RD Congo'],
   'Turkiye':        ['Turkey', 'Turquía', 'Türkiye', 'Turkiye'],
-  'Bosnia':         ['Bosnia y Herz.', 'Bosnia and Herzegovina', 'Bosnia-Herzegovina', 'Bosnia y Herzegovina'],
+  'Bosnia':         ['Bosnia y Herz.', 'Bosnia and Herzegovina', 'Bosnia-Herzegovina', 'Bosnia y Herzegovina', 'Bosnia & Herzegovina'],
   'Saudi Arabia':   ['Arabia Saudita', 'Saudi Arabia'],
   'Czech Republic': ['Chequia', 'Czechia', 'Czech Republic'],
   'Curacao':        ['Curazao', 'Curaçao', 'Curacao'],

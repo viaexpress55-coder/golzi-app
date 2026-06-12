@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, Image, ActivityIndicator, Share, Alert, Modal
@@ -182,60 +182,19 @@ export default function LigaScreen() {
   // ─── Cargar tabla de predicciones ────────────────────────────────────────────
   async function loadTabla() {
     if (!selectedLeague || !members.length) return;
-    if (tablaLoaded === selectedLeague.id) return;
-
     setTablaLoading(true);
+    console.log("TABLA_DEBUG members:"+members.length+" league:"+selectedLeague?.id);
     try {
-      // Obtener predicciones para stats de exactas/resultados
-      const memberIds = members.map(m => m.id);
-      const chunks: string[][] = [];
-      for (let i = 0; i < memberIds.length; i += 30) {
-        chunks.push(memberIds.slice(i, i + 30));
-      }
+      // Stats leidas del usuario directamente
 
-      // Partidos finalizados
-      const matchesSnap = await getDocs(
-        query(collection(db, 'matches'), where('status', 'in', ['FINISHED', 'finished']))
-      );
-      const finishedMatches: Record<string, any> = {};
-      matchesSnap.docs.forEach(d => {
-        finishedMatches[d.id] = { id: d.id, ...d.data() };
-      });
-
-      const allPredictions: any[] = [];
-      for (const chunk of chunks) {
-        const predSnap = await getDocs(
-          query(collection(db, 'predictions'), where('userId', 'in', chunk))
-        );
-        predSnap.docs.forEach(d => allPredictions.push({ id: d.id, ...d.data() }));
-      }
-
-      // Calcular exactas y resultados por miembro
-      const statsMap: Record<string, { exact: number; winner: number; draw: number; miss: number; total: number }> = {};
-      memberIds.forEach(uid => {
-        statsMap[uid] = { exact: 0, winner: 0, draw: 0, miss: 0, total: 0 };
-      });
-
-      allPredictions.forEach(pred => {
-        const match = finishedMatches[pred.matchId];
-        if (!match || pred.homeScore === undefined) return;
-        if (match.homeScore === null || match.homeScore === undefined) return;
-        if (!statsMap[pred.userId]) return;
-
-        const result = calcPoints(
-          { homeScore: pred.homeScore, awayScore: pred.awayScore },
-          { homeScore: match.homeScore, awayScore: match.awayScore }
-        );
-        statsMap[pred.userId][result.type]++;
-        statsMap[pred.userId].total++;
-      });
-
-      // Usar totalPoints real del usuario (predicciones + retos)
       const tabla = members.map(m => ({
         ...m,
         tablaStats: {
-          ...statsMap[m.id],
-          pts: m.totalPoints || 0, // totalPoints ya incluye predicciones + retos
+          exact:  m.exactPredictions   || 0,
+          winner: m.correctPredictions || 0,
+          draw:   m.drawPredictions    || 0,
+          total:  m.totalPredictions   || 0,
+          pts:    (m.totalPoints || 0),
         },
       })).sort((a, b) => b.tablaStats.pts - a.tablaStats.pts);
 
@@ -250,10 +209,15 @@ export default function LigaScreen() {
 
   // Cargar tabla cuando se abre el tab
   useEffect(() => {
-    if (tab === 4 && selectedLeague && members.length > 0) {
+    if (tab === TABS.indexOf('TABLA') && TABS.includes('TABLA') && selectedLeague && members.length > 0) {
       loadTabla();
     }
   }, [tab, selectedLeague, members]);
+  useEffect(() => {
+    if (members.length > 0 && tablaData.length === 0 && selectedLeague) {
+      setTablaLoaded(null); loadTabla();
+    }
+  }, [members]);
 
   // Reset tabla si cambia de liga
   useEffect(() => {
@@ -1264,9 +1228,9 @@ export default function LigaScreen() {
                 <View style={s.tablaColHeader}>
                   <Text style={[s.tablaColTxt, { flex: 0.4 }]}>#</Text>
                   <Text style={[s.tablaColTxt, { flex: 2.2, textAlign: 'left' }]}>JUGADOR</Text>
-                  <Text style={[s.tablaColTxt, { flex: 0.8 }]}>✅</Text>
-                  <Text style={[s.tablaColTxt, { flex: 0.8 }]}>〜</Text>
-                  <Text style={[s.tablaColTxt, { flex: 0.8 }]}>PRED</Text>
+                  <Text style={[s.tablaColTxt, { flex: 0.8 }]}>EXACTA</Text>
+                  <Text style={[s.tablaColTxt, { flex: 0.8 }]}>RESULT</Text>
+                  <Text style={[s.tablaColTxt, { flex: 0.8 }]}>PREDS</Text>
                   <Text style={[s.tablaColTxt, { flex: 1, color: C.gold }]}>PTS</Text>
                 </View>
 

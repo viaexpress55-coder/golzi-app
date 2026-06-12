@@ -1,4 +1,4 @@
-// functions/src/index.ts 
+﻿// functions/src/index.ts 
 import * as admin from 'firebase-admin'; 
  
 if (!admin.apps.length) { 
@@ -22,3 +22,4 @@ export { createWompiPayment }      from './payments/createWompiPayment';
 export { wompiWebhook }       from './payments/wompiWebhook'; 
 export { wompiWebhookRouter } from './payments/wompiWebhookRouter';
 export { syncMatchResults } from './matches/syncMatchResults';
+export { syncMatchStats }    from './matches/syncMatchStats';

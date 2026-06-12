@@ -1,0 +1,13 @@
+const fs = require('fs');
+const loginPath = 'src/screens/auth/LoginScreen.tsx';
+let src = fs.readFileSync(loginPath, 'utf8');
+
+// Eliminar cualquier referencia a getRedirectResult
+src = src.replace(/getRedirectResult[^;]*;/g, '');
+src = src.replace(/getRedirectResult/g, '');
+
+// Limpiar líneas vacías múltiples
+src = src.replace(/\n\n\n+/g, '\n\n');
+
+fs.writeFileSync(loginPath, src, 'utf8');
+console.log('✅ getRedirectResult eliminado');

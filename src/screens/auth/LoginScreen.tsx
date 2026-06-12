@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   TextInput, ScrollView, Animated, Image,
@@ -14,6 +14,9 @@ import { loginWithEmail, loginAnonymous } from '../../services/auth';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../services/firebase';
+
+
+
 import { useTranslation } from 'react-i18next';
 
 const C = {
@@ -42,6 +45,47 @@ export default function LoginScreen() {
     BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
     Barlow_400Regular,
   });
+
+
+
+
+  async function handleGoogleLogin() {
+    try {
+      const auth = getAuth();
+      const provider = new GoogleAuthProvider();
+      await signInWithRedirect(auth, provider);
+    } catch(e: any) {
+      setError('Error con Google. Intenta con email.');
+    }
+  }
+
+
+
+
+  async function handleGoogleLogin() {
+    try {
+      setLoading(true); setError('');
+      const result = await signInWithPopup(getAuth(), new GoogleAuthProvider());
+      const u = result.user;
+      const ref = doc(db, 'users', u.uid);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, {
+          userId:u.uid, username:(u.displayName||'golzair').replace(/\s+/g,'_').toLowerCase()+'_'+u.uid.slice(0,4),
+          country:'OT', language:'es', timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'America/Bogota',
+          plan:'free', planExpiry:null, totalPoints:0, currentStreak:0, maxStreak:0,
+          fcmToken:null, createdAt:serverTimestamp(), lastActive:serverTimestamp(),
+        });
+      }
+      navigation.navigate('Main');
+    } catch(e:any) {
+      if (e.code === 'auth/popup-blocked') {
+        setError('Permite popups en tu navegador para usar Google.');
+      } else if (e.code !== 'auth/popup-closed-by-user') {
+        setError('Error con Google. Intenta con email.');
+      }
+    } finally { setLoading(false); }
+  }
 
   if (!fontsLoaded) return <View style={s.root} />;
 
@@ -172,6 +216,15 @@ export default function LoginScreen() {
           <Text style={s.dividerTxt}>O</Text>
           <View style={s.dividerLine} />
         </View>
+        <TouchableOpacity onPress={handleGoogleLogin} disabled={loading} activeOpacity={0.85} style={{borderRadius:14,marginBottom:10,borderWidth:1,borderColor:'rgba(255,255,255,0.15)',backgroundColor:'#fff'}}>
+          <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',paddingVertical:13,gap:8}}>
+            <Text style={{fontSize:15,fontWeight:'900'}}><Text style={{color:'#4285F4'}}>G</Text><Text style={{color:'#EA4335'}}>o</Text><Text style={{color:'#FBBC05'}}>o</Text><Text style={{color:'#4285F4'}}>g</Text><Text style={{color:'#34A853'}}>l</Text><Text style={{color:'#EA4335'}}>e</Text></Text>
+            <Text style={{fontFamily:'BarlowCondensed_600SemiBold',fontSize:15,color:'#333',letterSpacing:0.5}}>Continuar con Google</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* Google Sign-In */}
+
 
         {/* Links */}
         <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={s.anonBtn}>

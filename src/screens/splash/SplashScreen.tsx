@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   Pressable, Animated, Dimensions, Image,
@@ -65,8 +65,6 @@ export default function SplashScreen() {
   const fontsLoaded = useAppFonts();
 
  useEffect(() => {
-    const timer = setInterval(() => setCD(getCD()), 1000);
-
     const savedLang = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('golzi_language') : null;
     // Detectar deep link de liga — desde URL directa o desde redirect SPA
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
@@ -167,7 +165,6 @@ export default function SplashScreen() {
       Animated.timing(stadiumScale, { toValue:1, duration:0, useNativeDriver:false }),
     ]).start();
 
-    return () => clearInterval(timer);
   }, []);
   if (!fontsLoaded) return null;
 
@@ -215,20 +212,7 @@ export default function SplashScreen() {
         {/* Fechas */}
         <Text style={s.dateRange}>11 JUN – 19 JUL 2026</Text>
 
-        {/* Countdown */}
-        <View style={s.cdRow}>
-          {[
-            { v:cd.d, l:t('splash_days') },
-            { v:cd.h, l:t('splash_hours') },
-            { v:cd.m, l:t('splash_mins') },
-            { v:cd.s, l:t('splash_secs') },
-          ].map((item, i) => (
-            <View key={i} style={s.cdUnit}>
-              <Text style={s.cdNum}>{item.v}</Text>
-              <Text style={s.cdLbl}>{item.l}</Text>
-            </View>
-          ))}
-        </View>
+
 
         {/* Selector de idioma */}
         <Text style={s.langTitle}>{t('splash_select_lang') === 'splash_select_lang' ? 'SELECCIONA TU IDIOMA' : t('splash_select_lang')}</Text>

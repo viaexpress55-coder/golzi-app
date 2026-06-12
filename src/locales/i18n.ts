@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+﻿import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import * as Localization from 'expo-localization';
 
@@ -236,6 +236,19 @@ ranking_no_league: 'No estás en ninguna liga', ranking_join_create: 'Únete o c
       live_your_prediction: 'TU PREDICCION',
       live_winning: 'Vas ganando! Si termina asi...',
       live_other_matches: 'OTROS PARTIDOS HOY',
+      live_estadio: 'ESTADIO',
+      live_first_half: 'PRIMER TIEMPO',
+      live_second_half: 'SEGUNDO TIEMPO',
+      live_possession: 'POSESIÓN',
+      live_shots: 'TIROS A GOLES',
+      live_fouls: 'FALTAS',
+      live_cards: 'TARJETAS',
+      live_corners: 'CORNERS',
+      live_goal: 'GOL',
+      live_yellow: 'TARJETA AMARILLA',
+      live_red: 'TARJETA ROJA',
+      live_sub: 'SUSTITUCIÓN',
+      live_penalty: 'PENALTY',
       mundial_title: 'MUNDIAL 2026',
       mundial_groups: 'GRUPOS', mundial_fixture: 'FIXTURE', mundial_teams: 'EQUIPOS',
       liga_title: 'LIGA', liga_chat: 'CHAT', liga_join: 'UNIRSE', liga_create: 'CREAR',

@@ -89,6 +89,9 @@ export const syncMatchResults = onSchedule({
         for (const av of awayV) {
           snap = await db.collection('matches').where('homeTeam','==',hv).where('awayTeam','==',av).limit(1).get();
           if (!snap.empty) break outer;
+          // Buscar también con equipos invertidos
+          snap = await db.collection('matches').where('homeTeam','==',av).where('awayTeam','==',hv).limit(1).get();
+          if (!snap.empty) break outer;
         }
       }
       if (snap.empty) { console.log('No encontrado: ' + homeApi + ' vs ' + awayApi); continue; }

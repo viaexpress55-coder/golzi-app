@@ -779,6 +779,14 @@ export default function HomeScreen() {
                       <View style={s.retosToggleLeft}>
                         <Text style={s.retosToggleTitle}>{t('home_retos_rapidos')}</Text>
                         <Text style={s.retosToggleSub}>{retos.length} retos · hasta +{retos.reduce((a,r) => a + r.pts, 0)} pts extra</Text>
+                        {userPlan === 'free' && !isInLeague && (() => {
+                          const used = Object.keys(retosSaved).length;
+                          const left = 5 - used;
+                          if(left <= 0) return <Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:10,color:'#FF3355',letterSpacing:1}}>🔒 Sin retos gratis · ¡Únete a una liga!</Text>;
+                          if(left === 1) return <Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:10,color:'#FF6B00',letterSpacing:1}}>🔥 ¡Solo 1 partido gratis restante!</Text>;
+                          if(left <= 2) return <Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:10,color:'#FFD700',letterSpacing:1}}>⚡ Te quedan {left} partidos con retos gratis</Text>;
+                          return <Text style={{fontFamily:'BarlowCondensed_400Regular',fontSize:10,color:'#00FF87',letterSpacing:1}}>✓ {left} partidos con retos gratis disponibles</Text>;
+                        })()}
                       </View>
                       {answeredCount > 0 && !savedRetos && (
                         <View style={s.retosAnsweredBadge}><Text style={s.retosAnsweredTxt}>{answeredCount}/{retos.length}</Text></View>
@@ -801,7 +809,7 @@ export default function HomeScreen() {
                           retoResults={retoResults[m.id] ?? {}}
                         />
                       ))}
-                      {userPlan !== 'free' && !savedRetos && answeredCount > 0 && (
+                      {!savedRetos && answeredCount > 0 && (userPlan !== 'free' || isInLeague || Object.keys(retosSaved).length < 5) && (
                         <TouchableOpacity style={s.retosGuardarBtn} onPress={() => saveRetos(m.id)} activeOpacity={0.85}>
                           <LinearGradient colors={[C.purple,'#7C3AED']} start={{x:0,y:0}} end={{x:1,y:0}} style={s.retosGuardarInner}>
                             <Text style={s.retosGuardarTxt}>CONFIRMAR {answeredCount} RETO{answeredCount > 1 ? 'S' : ''} ⚡</Text>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, FlatList,
   TouchableOpacity, TextInput, ActivityIndicator, Animated, Image, Modal,
@@ -89,6 +89,7 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
   const { t } = useTranslation();
   const isFreeWithSlots = userPlan === 'free' && !isInLeague && (saved || freeRetosCount < 5);
   const isPaid = !isFinished && (userPlan !== 'free' || isInLeague || isFreeWithSlots);
+  const canView = isFinished;
   const options = reto.type === 'yn'
     ? [{ val:'yes', label:t('home_si') }, { val:'no', label:t('home_no') }]
     : reto.type === 'range'
@@ -108,7 +109,18 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
         <Text style={rs.retoLabel}>{t(reto.label)}</Text>
         <View style={rs.retoPtsBadge}><Text style={rs.retoPtsTxt}>+{reto.pts}</Text></View>
       </View>
-      {!isPaid ? (
+      {canView && !answer ? (
+        <View style={[rs.savedRow,{opacity:0.4}]}>
+          <Text style={rs.savedCheck}>—</Text>
+          <Text style={rs.savedTxt}>No participaste</Text>
+          <Text style={rs.savedPts}>0 pts</Text>
+        </View>
+      ) : isFinished && answer ? (
+        <View style={rs.savedRow}>
+          <Text style={rs.savedCheck}>{retoResult?.correct ? '✅' : retoResult ? '❌' : '✓'}</Text>
+          <Text style={rs.savedTxt}>{options.find(o => o.val === answer)?.label ?? answer}</Text>
+          <Text style={[rs.savedPts,{color:retoResult?.correct?'#00FF87':retoResult?'#FF3355':'#9AAABB'}]}>{retoResult?.correct?'+'+retoResult.pts+' pts':retoResult?'0 pts':'Procesando...'}</Text>
+        </View>) : !isPaid ? (
         <TouchableOpacity style={rs.paywall} onPress={() => Platform.OS === 'web' ? (typeof window !== 'undefined' && (window.location.href = 'https://golzi.app/planes')) : navigation.navigate('Plans')} activeOpacity={0.85}>
           <LinearGradient colors={[C.purple+'22', C.purple+'08']} style={rs.paywallInner}>
             <Text style={rs.paywallLock}>🔒</Text>
@@ -971,3 +983,4 @@ const s = StyleSheet.create({
   ptsVal:{ fontFamily:'BebasNeue_400Regular', fontSize:22 },
   ptsLbl:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted, textAlign:'center', marginTop:2 },
 });
+// cache-bust-1781391115208

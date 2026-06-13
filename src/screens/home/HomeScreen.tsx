@@ -88,7 +88,7 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
   const retoResult = retoResults?.[reto.id];
   const { t } = useTranslation();
   const isFreeWithSlots = userPlan === 'free' && !isInLeague && (saved || freeRetosCount < 5);
-  const isPaid = userPlan !== 'free' || isInLeague || isFreeWithSlots;
+  const isPaid = !isFinished && (userPlan !== 'free' || isInLeague || isFreeWithSlots);
   const options = reto.type === 'yn'
     ? [{ val:'yes', label:t('home_si') }, { val:'no', label:t('home_no') }]
     : reto.type === 'range'
@@ -116,6 +116,12 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
             <View style={rs.paywallBtn}><Text style={rs.paywallBtnTxt}>{t('home_join_league')}</Text></View>
           </LinearGradient>
         </TouchableOpacity>
+      ) : isFinished && !answer ? (
+        <View style={[rs.savedRow,{opacity:0.4}]}>
+          <Text style={rs.savedCheck}>—</Text>
+          <Text style={rs.savedTxt}>No participaste</Text>
+          <Text style={rs.savedPts}>0 pts</Text>
+        </View>
       ) : isFinished && answer ? (
         <View style={rs.savedRow}>
           <Text style={rs.savedCheck}>{retoResult?.correct ? '✅' : retoResult ? '❌' : '—'}</Text>

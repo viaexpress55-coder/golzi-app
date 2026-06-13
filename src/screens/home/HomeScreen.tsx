@@ -83,11 +83,12 @@ function AnimatedBorder({ children, style }: { children: React.ReactNode; style?
   );
 }
 
-function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, retoResults, navigation }: any) {
+function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, retoResults, freeRetosCount, navigation }: any) {
   const isFinished = match.status === 'finished' || match.status === 'FINISHED';
   const retoResult = retoResults?.[reto.id];
   const { t } = useTranslation();
-  const isPaid = userPlan !== 'free' || isInLeague;
+  const isFreeWithSlots = userPlan === 'free' && !isInLeague && (saved || freeRetosCount < 5);
+  const isPaid = userPlan !== 'free' || isInLeague || isFreeWithSlots;
   const options = reto.type === 'yn'
     ? [{ val:'yes', label:t('home_si') }, { val:'no', label:t('home_no') }]
     : reto.type === 'range'
@@ -761,7 +762,8 @@ export default function HomeScreen() {
 
               {(!cd.isLive || m.status === 'finished' || m.status === 'FINISHED') && (() => {
                 const kickoff = m.kickoffTime ? new Date(m.kickoffTime?.seconds ? m.kickoffTime.seconds * 1000 : m.kickoffTime) : null;
-                const isLocked = kickoff ? (m.status !== 'finished' && m.status !== 'FINISHED' && new Date() >= kickoff) : false;
+                const isLive = m.status === 'live' || m.status === 'IN_PLAY' || m.status === 'PAUSED' || m.status === 'HALFTIME';
+                const isLocked = kickoff ? (m.status !== 'finished' && m.status !== 'FINISHED' && (isLive || new Date() >= kickoff)) : isLive;
                 return !isLocked;
               })() && (
                 <View style={s.retosSection}>
@@ -786,6 +788,7 @@ export default function HomeScreen() {
                     <View style={s.retosContent}>
                       {retos.map(reto => (
                         <RetoCard key={reto.id} reto={{...reto, label: t(reto.label)}} match={m} userPlan={userPlan} isInLeague={isInLeague} navigation={navigation}
+                          freeRetosCount={Object.keys(retosSaved).length}
                           answer={matchAnswers[reto.id] ?? null}
                           onAnswer={(retoId: string, val: string) => handleRetoAnswer(m.id, retoId, val)}
                           saved={savedRetos}

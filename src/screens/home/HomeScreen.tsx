@@ -652,7 +652,7 @@ export default function HomeScreen() {
                   <Text style={s.teamName} numberOfLines={1}>{m.homeTeam}</Text>
                 </View>
                 <View style={s.centerBox}>
-                  {isConfirmed ? (
+                  {(m.status==='finished'||m.status==='FINISHED') ? (<View style={{alignItems:'center'}}><View style={{flexDirection:'row',alignItems:'center',gap:6}}><Text style={{fontFamily:'BebasNeue_400Regular',fontSize:28,color:'#FFD700'}}>{m.homeScore??0}</Text><Text style={{fontFamily:'BebasNeue_400Regular',fontSize:20,color:'#6B7A99'}}>-</Text><Text style={{fontFamily:'BebasNeue_400Regular',fontSize:28,color:'#FFD700'}}>{m.awayScore??0}</Text></View><Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:9,color:'#00FF87',letterSpacing:1.5}}>FINAL</Text>{isConfirmed&&(<View style={{flexDirection:'row',alignItems:'center',gap:4,marginTop:4}}><Text style={{fontFamily:'BarlowCondensed_400Regular',fontSize:11,color:'#9AAABB'}}>Tu pred: {getScore(m.id)[0]}-{getScore(m.id)[1]}</Text></View>)}</View>) : isConfirmed ? (
                     <LinearGradient colors={['rgba(0,255,135,0.15)','rgba(0,255,135,0.05)']} style={s.confirmedBox}>
                       <Text style={s.confirmedNum}>{getScore(m.id)[0]}</Text>
                       <Text style={s.confirmedDash}>-</Text>
@@ -747,9 +747,9 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               )}
 
-              {m.status !== 'finished' && !cd.isLive && (() => {
+              {(!cd.isLive || m.status === 'finished' || m.status === 'FINISHED') && (() => {
                 const kickoff = m.kickoffTime ? new Date(m.kickoffTime?.seconds ? m.kickoffTime.seconds * 1000 : m.kickoffTime) : null;
-                const isLocked = kickoff ? new Date() >= kickoff : false;
+                const isLocked = kickoff ? (m.status !== 'finished' && m.status !== 'FINISHED' && new Date() >= kickoff) : false;
                 return !isLocked;
               })() && (
                 <View style={s.retosSection}>

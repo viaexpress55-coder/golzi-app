@@ -83,7 +83,9 @@ function AnimatedBorder({ children, style }: { children: React.ReactNode; style?
   );
 }
 
-function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, navigation }: any) {
+function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, retoResults, navigation }: any) {
+  const isFinished = match.status === 'finished' || match.status === 'FINISHED';
+  const retoResult = retoResults?.[reto.id];
   const { t } = useTranslation();
   const isPaid = userPlan !== 'free' || isInLeague;
   const options = reto.type === 'yn'
@@ -113,6 +115,12 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
             <View style={rs.paywallBtn}><Text style={rs.paywallBtnTxt}>{t('home_join_league')}</Text></View>
           </LinearGradient>
         </TouchableOpacity>
+      ) : isFinished && answer ? (
+        <View style={rs.savedRow}>
+          <Text style={rs.savedCheck}>{retoResult?.correct ? '✅' : retoResult ? '❌' : '—'}</Text>
+          <Text style={rs.savedTxt}>{options.find(o => o.val === answer)?.label ?? answer}</Text>
+          <Text style={[rs.savedPts,{color:retoResult?.correct?'#00FF87':retoResult?'#FF3355':'#6B7A99'}]}>{retoResult?.correct?'+'+retoResult.pts+' pts':retoResult?'0 pts':'Pendiente'}</Text>
+        </View>
       ) : saved && answer ? (
         <View style={rs.savedRow}>
           <Text style={rs.savedCheck}>✓</Text>
@@ -240,6 +248,7 @@ export default function HomeScreen() {
   const [showRetos, setShowRetos]       = useState<Record<string,boolean>>({});
   const [retoAnswers, setRetoAnswers]   = useState<Record<string,Record<string,string>>>({});
   const [retosSaved, setRetosSaved]     = useState<Record<string,boolean>>({});
+  const [retoResults, setRetoResults] = useState<Record<string,Record<string,{correct:boolean,pts:number}>>>({});
   const [isInLeague, setIsInLeague]     = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmMatch, setConfirmMatch]         = useState<any>(null);
@@ -298,13 +307,16 @@ export default function HomeScreen() {
           );
           const savedAnswers: Record<string, Record<string, string>> = {};
           const savedRetosSaved: Record<string, boolean> = {};
+          const savedRetoResults: Record<string, Record<string,{correct:boolean,pts:number}>> = {};
           retosSnap.docs.forEach(d => {
             const data = d.data();
             savedAnswers[data.matchId] = data.answers ?? {};
             savedRetosSaved[data.matchId] = true;
+            if (data.retoResults) savedRetoResults[data.matchId] = data.retoResults;
           });
           setRetoAnswers(prev => ({ ...prev, ...savedAnswers }));
           setRetosSaved(prev => ({ ...prev, ...savedRetosSaved }));
+          setRetoResults(prev => ({ ...prev, ...savedRetoResults }));
         } catch (e) {
           console.error('Error cargando retos:', e);
         }
@@ -777,6 +789,7 @@ export default function HomeScreen() {
                           answer={matchAnswers[reto.id] ?? null}
                           onAnswer={(retoId: string, val: string) => handleRetoAnswer(m.id, retoId, val)}
                           saved={savedRetos}
+                          retoResults={retoResults[m.id] ?? {}}
                         />
                       ))}
                       {userPlan !== 'free' && !savedRetos && answeredCount > 0 && (

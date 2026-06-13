@@ -239,7 +239,7 @@ export default function RankingScreen() {
           setLeagueData(leaguesInfo[0]?.members || []);
         }
       }).catch(() => {});
-    getDocs(query(collection(db, 'users'), orderBy('totalPoints', 'desc'), limit(500)))
+    getDocs(query(collection(db, 'users'), orderBy('totalPoints', 'desc'), limit(1000)))
       .then(snap => {
         const users = snap.docs.map(d => ({
           id: d.id,

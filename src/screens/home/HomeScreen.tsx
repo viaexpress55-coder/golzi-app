@@ -752,7 +752,7 @@ export default function HomeScreen() {
                 </View>
               )}
 
-              {m.status !== 'finished' && (
+              {m.status !== 'finished' && m.status !== 'live' && m.status !== 'IN_PLAY' && m.status !== 'PAUSED' && m.status !== 'HALFTIME' && !confirmed[m.id] && (() => { const kickoff = m.kickoffTime ? new Date(m.kickoffTime?.seconds ? m.kickoffTime.seconds * 1000 : m.kickoffTime) : null; return !kickoff || new Date() < kickoff; })() && (
                 <TouchableOpacity
                   style={[s.predictBtn, isSelected && !getScore(m.id)[0] && !getScore(m.id)[1] && { opacity: 0.4 }]}
                   onPress={() => {

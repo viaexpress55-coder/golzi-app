@@ -8,6 +8,15 @@ import { BarlowCondensed_400Regular, BarlowCondensed_600SemiBold, BarlowCondense
 import { useTranslation } from 'react-i18next';
 import i18n from '../../locales/i18n';
 
+function getFlagUrl(flag: string): string {
+  const special: Record<string,string> = {
+    '🏴‍gb-sct': '',
+  };
+  const code = getFlagCode(flag);
+  if (code === 'gb-sct') return 'https://flagcdn.com/w80/gb-sct.png';
+  if (code === 'gb-eng') return 'https://flagcdn.com/w80/gb-eng.png';
+  return `https://flagsapi.com/${code.toUpperCase()}/flat/64.png`;
+}
 function getFlagCode(flag: string): string {
   const codes: Record<string, string> = {
     '🇲🇽':'mx','🇿🇦':'za','🇰🇷':'kr','🇨🇿':'cz','🇨🇦':'ca','🇧🇦':'ba',
@@ -233,7 +242,7 @@ export default function MundialScreen() {
               <View style={s.groupPreview}>
                 {g.teams.map((team,i) => (
                   <View key={i} style={s.previewTeam}>
-                    <Image source={{ uri: `https://flagsapi.com/${getFlagCode(team.flag).toUpperCase()}/flat/64.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
+                    <Image source={{ uri: getFlagUrl(team.flag) }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
                     <Text style={s.previewName}>{team.name}</Text>
                   </View>
                 ))}
@@ -250,22 +259,22 @@ export default function MundialScreen() {
                     <Text style={s.th}>{t('mundial_gd')}</Text>
                     <Text style={[s.th, { color }]}>{t('mundial_pts')}</Text>
                   </View>
-                  {g.teams.map((team,i) => (
+                  {calcStandings(g.name).map((team,i) => (
                     <View key={i} style={[
                       s.tableRow,
                       i < 2 && { borderLeftWidth:2, borderLeftColor:C.green },
-                      i === g.teams.length-1 && { borderBottomWidth:0 }
+                      i === calcStandings(g.name).length-1 && { borderBottomWidth:0 }
                     ]}>
                       <View style={[s.tdTeam, { flex:2 }]}>
-                        <Image source={{ uri: `https://flagsapi.com/${getFlagCode(team.flag).toUpperCase()}/flat/64.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
+                        <Image source={{ uri: getFlagUrl(team.flag) }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
                         <Text style={s.tdName}>{team.name}</Text>
                       </View>
-                      <Text style={s.td}>{calcStandings(g.name).find(st=>st.name===team.name)?.pj ?? 0}</Text>
-                      <Text style={s.td}>{calcStandings(g.name).find(st=>st.name===team.name)?.g ?? 0}</Text>
-                      <Text style={s.td}>{calcStandings(g.name).find(st=>st.name===team.name)?.e ?? 0}</Text>
-                      <Text style={s.td}>{calcStandings(g.name).find(st=>st.name===team.name)?.p ?? 0}</Text>
-                      <Text style={s.td}>{(calcStandings(g.name).find(st=>st.name===team.name)?.gf??0)-(calcStandings(g.name).find(st=>st.name===team.name)?.gc??0)}</Text>
-                      <Text style={[s.td, { color, fontFamily:'BebasNeue_400Regular', fontSize:14 }]}>{calcStandings(g.name).find(st=>st.name===team.name)?.pts ?? 0}</Text>
+                      <Text style={s.td}>{team.pj}</Text>
+                      <Text style={s.td}>{team.g}</Text>
+                      <Text style={s.td}>{team.e}</Text>
+                      <Text style={s.td}>{team.p}</Text>
+                      <Text style={s.td}>{team.gf - team.gc}</Text>
+                      <Text style={[s.td, { color, fontFamily:'BebasNeue_400Regular', fontSize:14 }]}>{team.pts}</Text>
                     </View>
                   ))}
                   <View style={s.classifyLegend}>
@@ -311,7 +320,7 @@ export default function MundialScreen() {
                           style={s.fixtureCard}
                         >
                           <View style={{ flex:1, alignItems:'center' }}>
-                            <Image source={{ uri: `https://flagsapi.com/${getFlagCode(m.homeFlag || '🌍').toUpperCase()}/flat/64.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                            <Image source={{ uri: getFlagUrl(m.homeFlag || '🌍') }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                             <Text style={s.fixtureName}>{(m.homeTeam||'').slice(0,3).toUpperCase()}</Text>
                           </View>
                           <View style={s.fixtureCenter}>
@@ -328,7 +337,7 @@ export default function MundialScreen() {
                             <Text style={s.fixtureStadium} numberOfLines={1}>{m.stadium || m.city || ''}</Text>
                           </View>
                           <View style={{ flex:1, alignItems:'center' }}>
-                            <Image source={{ uri: `https://flagsapi.com/${getFlagCode(m.awayFlag || '🌍').toUpperCase()}/flat/64.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                            <Image source={{ uri: getFlagUrl(m.awayFlag || '🌍') }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                             <Text style={s.fixtureName}>{(m.awayTeam||'').slice(0,3).toUpperCase()}</Text>
                           </View>
                         </LinearGradient>
@@ -349,7 +358,7 @@ export default function MundialScreen() {
                 {GROUPS.flatMap(g => g.teams).map((team,i) => (
                   <TouchableOpacity key={i} onPress={() => setSelGroup(team.name)} activeOpacity={0.8}>
                     <LinearGradient colors={['rgba(255,215,0,0.08)','rgba(255,215,0,0.02)']} style={s.teamCard}>
-                      <Image source={{ uri: `https://flagsapi.com/${getFlagCode(team.flag).toUpperCase()}/flat/64.png` }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
+                      <Image source={{ uri: getFlagUrl(team.flag) }} style={{ width:24, height:17, borderRadius:2 }} resizeMode="contain" />
                       <Text style={s.teamCardName}>{team.name}</Text>
                     </LinearGradient>
                   </TouchableOpacity>
@@ -376,7 +385,7 @@ export default function MundialScreen() {
                     return (
                       <LinearGradient key={i} colors={['rgba(255,215,0,0.06)','rgba(255,215,0,0.01)']} style={[s.fixtureCard, { marginBottom:8 }]}>
                         <View style={{ flex:1, alignItems:'center' }}>
-                          <Image source={{ uri: `https://flagsapi.com/${getFlagCode(isHome ? (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍') : (rivalFlag || '🌍')).toUpperCase()}/flat/64.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                          <Image source={{ uri: getFlagUrl(isHome ? (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍') : (rivalFlag || '🌍')) }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                           <Text style={s.fixtureName}>{(isHome ? selGroup : rival || '').slice(0,3).toUpperCase()}</Text>
                         </View>
                         <View style={s.fixtureCenter}>
@@ -385,7 +394,7 @@ export default function MundialScreen() {
                           <Text style={s.fixtureStadium} numberOfLines={1}>{m.stadium || m.city || ''}</Text>
                         </View>
                         <View style={{ flex:1, alignItems:'center' }}>
-                          <Image source={{ uri: `https://flagsapi.com/${getFlagCode(isHome ? (rivalFlag || '🌍') : (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍')).toUpperCase()}/flat/64.png` }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
+                          <Image source={{ uri: getFlagUrl(isHome ? (rivalFlag || '🌍') : (GROUPS.flatMap(g=>g.teams).find(t=>t.name===selGroup)?.flag || '🌍')) }} style={{ width:40, height:28, borderRadius:3, marginBottom:4 }} resizeMode="contain" />
                           <Text style={s.fixtureName}>{(isHome ? rival : selGroup || '').slice(0,3).toUpperCase()}</Text>
                         </View>
                       </LinearGradient>

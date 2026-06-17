@@ -25,9 +25,9 @@ const COLORS = {
 };
 
 const INTENSITY = {
-  low:    { borderOpacity: 0.2, glowOpacity: 0.06, shadowOpacity: 0.25, elevation: 4  },
-  medium: { borderOpacity: 0.4, glowOpacity: 0.10, shadowOpacity: 0.40, elevation: 8  },
-  high:   { borderOpacity: 0.7, glowOpacity: 0.18, shadowOpacity: 0.60, elevation: 16 },
+  low:    { borderOpacity: 0.15, glowOpacity: 0.04, shadowOpacity: 0.12, elevation: 2 },
+  medium: { borderOpacity: 0.25, glowOpacity: 0.06, shadowOpacity: 0.18, elevation: 3 },
+  high:   { borderOpacity: 0.45, glowOpacity: 0.10, shadowOpacity: 0.28, elevation: 5 },
 };
 
 export default function GlowCard({

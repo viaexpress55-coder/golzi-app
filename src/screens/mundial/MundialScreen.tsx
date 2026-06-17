@@ -436,7 +436,7 @@ const s = StyleSheet.create({
 
   scroll:{ paddingHorizontal:12, paddingBottom:40 },
 
-  groupCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', marginBottom:10, overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.2, shadowRadius:8, elevation:5 },
+  groupCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', marginBottom:10, overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.2, shadowRadius:8, elevation:3 },
   groupCardGlow:{ position:'absolute', top:0, left:0, right:0, bottom:0 },
   groupTopLine:{ height:2 },
   groupHeader:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', padding:14 },

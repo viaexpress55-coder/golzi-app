@@ -506,7 +506,7 @@ export default function LigaScreen() {
           
           {/* Botón cerrar */}
           <View style={{ position:'absolute', top:52, left:16, zIndex:10 }}>
-            <TouchableOpacity onPress={() => setScannerVisible(false)} style={{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:12, padding:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)' }}>
+            <TouchableOpacity onPress={() => setScannerVisible(false)} style={{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:12, padding:12, borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)' }}>
               <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#FFD700', letterSpacing:1 }}>✕ CERRAR</Text>
             </TouchableOpacity>
           </View>
@@ -521,7 +521,7 @@ export default function LigaScreen() {
                 <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:'rgba(255,215,0,0.6)', letterSpacing:1, marginTop:8, textAlign:'center' }}>SCANNER EN APP NATIVA</Text>
               </View>
               <Text style={{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:'#6B7A99', textAlign:'center' }}>En la web ingresa el codigo manualmente o descarga la app GOLZI para escanear QR</Text>
-              <TouchableOpacity onPress={() => setScannerVisible(false)} style={{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:12, paddingVertical:12, paddingHorizontal:24, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)' }}>
+              <TouchableOpacity onPress={() => setScannerVisible(false)} style={{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:12, paddingVertical:12, paddingHorizontal:24, borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)' }}>
                 <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#FFD700', letterSpacing:1 }}>INGRESAR CODIGO MANUAL</Text>
               </TouchableOpacity>
             </View>
@@ -543,7 +543,7 @@ export default function LigaScreen() {
                   </View>
                 </View>
               ) : (
-                <TouchableOpacity onPress={requestPermission} style={{ backgroundColor:'rgba(255,215,0,0.1)', borderRadius:12, padding:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)' }}>
+                <TouchableOpacity onPress={requestPermission} style={{ backgroundColor:'rgba(255,215,0,0.1)', borderRadius:12, padding:16, borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)' }}>
                   <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#FFD700', letterSpacing:1 }}>PERMITIR CAMARA</Text>
                 </TouchableOpacity>
               )}
@@ -603,7 +603,7 @@ export default function LigaScreen() {
 
         {/* Indicador liga cerrada */}
         {selectedLeague?.status === 'closed' && (
-          <View style={{backgroundColor:'rgba(255,51,85,0.08)',borderWidth:StyleSheet.hairlineWidth,borderColor:'rgba(255,51,85,0.3)',borderRadius:10,margin:12,padding:10,alignItems:'center'}}>
+          <View style={{backgroundColor:'rgba(255,51,85,0.08)',borderWidth:0.5,borderColor:'rgba(255,51,85,0.3)',borderRadius:10,margin:12,padding:10,alignItems:'center'}}>
             <Text style={{color:'#FF3355',fontFamily:'BarlowCondensed_700Bold',fontSize:13,letterSpacing:1}}>🔒 LIGA CERRADA · RANKING FINAL CONGELADO</Text>
           </View>
         )}
@@ -636,7 +636,7 @@ export default function LigaScreen() {
                     </LinearGradient>
                   </TouchableOpacity>
                   <TouchableOpacity style={[s.emptyBtn, {flex:1}]} onPress={() => setTab(2)}>
-                    <LinearGradient colors={['rgba(255,215,0,0.1)','rgba(255,215,0,0.05)']} style={[s.emptyBtnInner, {borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)'}]}>
+                    <LinearGradient colors={['rgba(255,215,0,0.1)','rgba(255,215,0,0.05)']} style={[s.emptyBtnInner, {borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)'}]}>
                       <Text style={[s.emptyBtnTxt, {color:C.gold}]}>UNIRSE</Text>
                     </LinearGradient>
                   </TouchableOpacity>
@@ -709,7 +709,7 @@ export default function LigaScreen() {
                     <View style={[s.heroTopLine, {backgroundColor: selectedLeague.brandColor || '#FFD700'}]} />
                     <View style={s.ligaHeroTop}>
                       <View style={{ flex:1 }}>
-                        {selectedLeague.brandLogo && <Image source={{uri:selectedLeague.brandLogo}} style={{width:28,height:28,borderRadius:14,borderWidth:StyleSheet.hairlineWidth,borderColor:selectedLeague.brandColor||'#FFD700',marginBottom:4}}/>}
+                        {selectedLeague.brandLogo && <Image source={{uri:selectedLeague.brandLogo}} style={{width:28,height:28,borderRadius:14,borderWidth:0.5,borderColor:selectedLeague.brandColor||'#FFD700',marginBottom:4}}/>}
                         <Text style={s.ligaName}>{selectedLeague.brandName ? selectedLeague.brandName + ' · ' : ''}{selectedLeague.name}</Text>
                         <Text style={s.ligaInfo}>{members.length}/{selectedLeague.maxMembers || 5} jugadores · Plan {selectedLeague.plan}</Text>
                       </View>
@@ -824,7 +824,7 @@ export default function LigaScreen() {
                     </>
                   )}
                   {selectedLeague && user && selectedLeague.ownerId !== user.uid && !selectedLeague.inviteOpen && (
-                    <View style={{backgroundColor:'rgba(255,51,85,0.06)',borderRadius:12,borderWidth:StyleSheet.hairlineWidth,borderColor:'rgba(255,51,85,0.2)',padding:12,alignItems:'center'}}>
+                    <View style={{backgroundColor:'rgba(255,51,85,0.06)',borderRadius:12,borderWidth:0.5,borderColor:'rgba(255,51,85,0.2)',padding:12,alignItems:'center'}}>
                       <Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:11,color:'#FF3355',letterSpacing:1}}>El administrador ha cerrado las invitaciones</Text>
                     </View>
                   )}
@@ -875,7 +875,7 @@ export default function LigaScreen() {
         {/* TAB CANAL — Canal de Difusión PARTNER+ */}
         {tab === TABS.indexOf('CANAL') && TABS.includes('CANAL') && selectedLeague && (
           <>
-            <View style={{backgroundColor:'rgba(255,215,0,0.06)',borderWidth:StyleSheet.hairlineWidth,borderColor:'rgba(255,215,0,0.2)',borderRadius:10,margin:12,marginBottom:4,padding:10,flexDirection:'row',alignItems:'center',gap:8}}>
+            <View style={{backgroundColor:'rgba(255,215,0,0.06)',borderWidth:0.5,borderColor:'rgba(255,215,0,0.2)',borderRadius:10,margin:12,marginBottom:4,padding:10,flexDirection:'row',alignItems:'center',gap:8}}>
               <Text style={{fontSize:16}}>📢</Text>
               <View style={{flex:1}}>
                 <Text style={{fontFamily:'BarlowCondensed_700Bold',fontSize:11,color:'#FFD700',letterSpacing:1}}>CANAL DE DIFUSIÓN · {selectedLeague?.name}</Text>
@@ -1074,7 +1074,7 @@ export default function LigaScreen() {
                 })()
               }</Text>
               <Text style={s.inputLabel}>NOMBRE DE LA LIGA</Text>
-              <View style={[s.inputWrap, createError && !ligaName.trim() && {borderColor:'#FF3355', borderWidth:StyleSheet.hairlineWidth}]}>
+              <View style={[s.inputWrap, createError && !ligaName.trim() && {borderColor:'#FF3355', borderWidth:0.5}]}>
                 <Text style={s.inputIcon}>🏆</Text>
                 <TextInput
                   style={s.input}
@@ -1110,7 +1110,7 @@ export default function LigaScreen() {
                         style={{
                           paddingHorizontal:14, paddingVertical:8, borderRadius:20,
                           backgroundColor: ligaSize === size ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.05)',
-                          borderWidth:StyleSheet.hairlineWidth,
+                          borderWidth:0.5,
                           borderColor: ligaSize === size ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.1)',
                         }}
                       >
@@ -1123,7 +1123,7 @@ export default function LigaScreen() {
                   <View style={{ flexDirection:'row', alignItems:'center', gap:8, marginTop:4 }}>
                     <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'#6B7A99', letterSpacing:1 }}>O INGRESA:</Text>
                     <TextInput
-                      style={{ flex:1, backgroundColor:'rgba(255,255,255,0.05)', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)', borderRadius:10, paddingHorizontal:12, paddingVertical:8, color:'#FFFFFF', fontFamily:'BarlowCondensed_700Bold', fontSize:14 }}
+                      style={{ flex:1, backgroundColor:'rgba(255,255,255,0.05)', borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)', borderRadius:10, paddingHorizontal:12, paddingVertical:8, color:'#FFFFFF', fontFamily:'BarlowCondensed_700Bold', fontSize:14 }}
                       placeholder="Ej: 50"
                       placeholderTextColor="#6B7A99"
                       keyboardType="numeric"
@@ -1380,7 +1380,7 @@ const s = StyleSheet.create({
   // Tabs — ahora en ScrollView horizontal para acomodar el tab extra
   tabRowScroll:{ maxHeight:50, marginTop:10, marginBottom:2 },
   tabRow:{ flexDirection:'row', paddingHorizontal:12, gap:8, paddingBottom:2 },
-  tab:{ paddingVertical:9, paddingHorizontal:14, borderRadius:10, backgroundColor:'rgba(255,255,255,0.04)', alignItems:'center', justifyContent:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.06)', minWidth:64 },
+  tab:{ paddingVertical:9, paddingHorizontal:14, borderRadius:10, backgroundColor:'rgba(255,255,255,0.04)', alignItems:'center', justifyContent:'center', borderWidth:0.5, borderColor:'rgba(255,255,255,0.06)', minWidth:64 },
   tabOn:{ backgroundColor:'rgba(255,215,0,0.1)', borderColor:'rgba(255,215,0,0.3)' },
   tabTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.muted, letterSpacing:1 },
   tabTxtOn:{ color:C.gold },
@@ -1402,32 +1402,32 @@ const s = StyleSheet.create({
   emptyBtnInner:{ paddingVertical:14, alignItems:'center', borderRadius:12 },
   emptyBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:'#000', letterSpacing:2 },
   leagueSelector:{ marginBottom:8 },
-  leagueChip:{ paddingHorizontal:14, paddingVertical:8, borderRadius:20, backgroundColor:'rgba(255,255,255,0.04)', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.08)', marginRight:8 },
+  leagueChip:{ paddingHorizontal:14, paddingVertical:8, borderRadius:20, backgroundColor:'rgba(255,255,255,0.04)', borderWidth:0.5, borderColor:'rgba(255,255,255,0.08)', marginRight:8 },
   leagueChipOn:{ backgroundColor:'rgba(255,215,0,0.1)', borderColor:'rgba(255,215,0,0.3)' },
   leagueChipTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:12, color:C.muted },
   leagueChipTxtOn:{ color:C.gold },
-  ligaHero:{ borderRadius:18, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.4)', padding:16, overflow:'hidden', position:'relative' },
+  ligaHero:{ borderRadius:18, borderWidth:0.5, borderColor:'rgba(255,215,0,0.4)', padding:16, overflow:'hidden', position:'relative' },
   heroTopLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:C.gold },
   ligaHeroTop:{ flexDirection:'row', alignItems:'flex-start', justifyContent:'space-between', marginBottom:14, gap:12 },
   ligaName:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold, letterSpacing:1 },
   ligaInfo:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:C.muted, marginTop:2 },
-  qrBox:{ backgroundColor:'rgba(255,255,255,0.05)', borderRadius:10, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', padding:10, alignItems:'center' },
+  qrBox:{ backgroundColor:'rgba(255,255,255,0.05)', borderRadius:10, borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)', padding:10, alignItems:'center' },
   qrLabel:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.gold },
   qrCode:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:7, color:C.muted, marginTop:2 },
   qrLockTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:'rgba(255,215,0,0.4)', marginTop:3, letterSpacing:1 },
 
   // QR Real (GOLZAIR+)
-  qrBoxReal:{ backgroundColor:'#020408', borderRadius:10, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.4)', padding:8, alignItems:'center', gap:4 },
+  qrBoxReal:{ backgroundColor:'#020408', borderRadius:10, borderWidth:0.5, borderColor:'rgba(255,215,0,0.4)', padding:8, alignItems:'center', gap:4 },
   qrTapTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.gold, letterSpacing:1 },
 
   // Modal QR
   qrModalOverlay:{ flex:1, backgroundColor:'rgba(0,0,0,0.92)', alignItems:'center', justifyContent:'center', padding:24 },
-  qrModalCard:{ width:'100%', maxWidth:340, borderRadius:24, overflow:'hidden', padding:28, alignItems:'center', gap:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)' },
+  qrModalCard:{ width:'100%', maxWidth:340, borderRadius:24, overflow:'hidden', padding:28, alignItems:'center', gap:12, borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)' },
   qrModalTopLine:{ position:'absolute', top:0, left:0, right:0, height:3, backgroundColor:C.gold },
   qrModalTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold, letterSpacing:2, textAlign:'center' },
   qrModalSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:C.muted, textAlign:'center' },
   qrModalQR:{ backgroundColor:'#020408', borderRadius:16, borderWidth:2, borderColor:'rgba(255,215,0,0.4)', padding:16, marginVertical:4 },
-  qrModalCodeRow:{ flexDirection:'row', alignItems:'center', gap:10, backgroundColor:'rgba(255,215,0,0.08)', borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', paddingHorizontal:16, paddingVertical:10 },
+  qrModalCodeRow:{ flexDirection:'row', alignItems:'center', gap:10, backgroundColor:'rgba(255,215,0,0.08)', borderRadius:12, borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)', paddingHorizontal:16, paddingVertical:10 },
   qrModalCodeLabel:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:2 },
   qrModalCode:{ fontFamily:'BebasNeue_400Regular', fontSize:20, color:C.gold, letterSpacing:2 },
   qrModalLink:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted },
@@ -1435,41 +1435,41 @@ const s = StyleSheet.create({
   qrModalShareInner:{ paddingVertical:14, alignItems:'center', borderRadius:14 },
   qrModalShareTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:'#000', letterSpacing:2 },
   qrModalClose:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:'rgba(255,255,255,0.2)' },
-  inviteClosedBox:{ backgroundColor:'rgba(255,51,85,0.06)', borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,51,85,0.2)', padding:12, alignItems:'center' },
+  inviteClosedBox:{ backgroundColor:'rgba(255,51,85,0.06)', borderRadius:12, borderWidth:0.5, borderColor:'rgba(255,51,85,0.2)', padding:12, alignItems:'center' },
   inviteClosedTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:'#FF3355', letterSpacing:1 },
   scanBtn:{ borderRadius:12, overflow:'hidden' },
-  scanBtnInner:{ borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(0,198,255,0.3)', paddingVertical:14, alignItems:'center' },
+  scanBtnInner:{ borderRadius:12, borderWidth:0.5, borderColor:'rgba(0,198,255,0.3)', paddingVertical:14, alignItems:'center' },
   scanBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:'#00C6FF', letterSpacing:2 },
   codeRow:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between' },
   codeLabel:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2 },
-  codePill:{ borderRadius:10, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)', paddingHorizontal:12, paddingVertical:6 },
+  codePill:{ borderRadius:10, borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)', paddingHorizontal:12, paddingVertical:6 },
   codeTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:14, color:C.gold, letterSpacing:1 },
-  rankCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', padding:16 },
+  rankCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)', padding:16 },
   rankTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:12 },
   memberRow:{ flexDirection:'row', alignItems:'center', borderRadius:12, padding:10, marginBottom:6, gap:10 },
-  memberRowMe:{ borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)' },
+  memberRowMe:{ borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)' },
   memberPos:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.muted, width:28, textAlign:'center' },
   memberAvatar:{ width:38, height:38, borderRadius:19, alignItems:'center', justifyContent:'center' },
   memberAvatarTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.muted2 },
   memberInfo:{ flex:1, gap:2 },
   memberNameRow:{ flexDirection:'row', alignItems:'center', gap:6 },
   memberName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:13, color:C.text },
-  youBadge:{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:6, paddingHorizontal:6, paddingVertical:1, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)' },
+  youBadge:{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:6, paddingHorizontal:6, paddingVertical:1, borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)' },
   youTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.gold, letterSpacing:1 },
   memberFlag:{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:C.muted },
   memberPtsBox:{ alignItems:'center' },
   memberPts:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.text },
   memberPtsLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2 },
   shareBtn:{ borderRadius:14, overflow:'hidden' },
-  shareBtnInner:{ borderRadius:14, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(0,255,135,0.4)', paddingVertical:14, alignItems:'center' },
+  shareBtnInner:{ borderRadius:14, borderWidth:0.5, borderColor:'rgba(0,255,135,0.4)', paddingVertical:14, alignItems:'center' },
   shareBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:C.green, letterSpacing:2 },
-  formCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.12)', padding:16, gap:10 },
+  formCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:0.5, borderColor:'rgba(255,215,0,0.12)', padding:16, gap:10 },
   formEyebrow:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'rgba(255,215,0,0.5)', letterSpacing:3 },
   formTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:32, color:C.gold, letterSpacing:1 },
   formTitleLine:{ width:48, height:3, backgroundColor:C.gold, borderRadius:2 },
   formSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:C.muted },
   inputLabel:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2, marginTop:4 },
-  inputWrap:{ flexDirection:'row', alignItems:'center', backgroundColor:'rgba(255,255,255,0.05)', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.08)', borderRadius:12, paddingHorizontal:12, height:50 },
+  inputWrap:{ flexDirection:'row', alignItems:'center', backgroundColor:'rgba(255,255,255,0.05)', borderWidth:0.5, borderColor:'rgba(255,255,255,0.08)', borderRadius:12, paddingHorizontal:12, height:50 },
   inputIcon:{ fontSize:16, marginRight:8 },
   input:{ flex:1, fontFamily:'BarlowCondensed_400Regular', fontSize:15, color:C.text } as any,
   errorTxt:{ color:C.red, fontFamily:'BarlowCondensed_400Regular', fontSize:12 },
@@ -1477,28 +1477,28 @@ const s = StyleSheet.create({
   actionBtnInner:{ paddingVertical:15, alignItems:'center' },
   actionBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:17, letterSpacing:2, color:'#000' },
   chatContainer:{ flex:1, height:500 },
-  chatMessages:{ flex:1, backgroundColor:'rgba(255,255,255,0.02)', borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.06)', marginHorizontal:12, marginBottom:10, maxHeight:380 },
+  chatMessages:{ flex:1, backgroundColor:'rgba(255,255,255,0.02)', borderRadius:16, borderWidth:0.5, borderColor:'rgba(255,255,255,0.06)', marginHorizontal:12, marginBottom:10, maxHeight:380 },
   chatBubbleWrap:{ flexDirection:'row', alignItems:'flex-end', gap:8, marginBottom:8 },
   chatBubbleWrapMe:{ flexDirection:'row-reverse' },
   chatAvatar:{ width:32, height:32, borderRadius:16, backgroundColor:'rgba(255,215,0,0.2)', alignItems:'center', justifyContent:'center' },
   chatAvatarTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:C.gold },
   chatBubble:{ backgroundColor:'rgba(255,255,255,0.06)', borderRadius:16, borderBottomLeftRadius:4, padding:10, maxWidth:'75%', gap:3 },
-  chatBubbleMe:{ backgroundColor:'rgba(255,215,0,0.12)', borderRadius:16, borderBottomRightRadius:4, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.25)' },
+  chatBubbleMe:{ backgroundColor:'rgba(255,215,0,0.12)', borderRadius:16, borderBottomRightRadius:4, borderWidth:0.5, borderColor:'rgba(255,215,0,0.25)' },
   chatUser:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.gold, letterSpacing:0.5 },
   chatText:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted2, lineHeight:18 },
   chatTextMe:{ color:C.text },
   chatInputRow:{ flexDirection:'row', alignItems:'center', gap:8, paddingHorizontal:12, paddingBottom:8 },
-  chatInput:{ flex:1, backgroundColor:'rgba(255,255,255,0.05)', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.25)', borderRadius:12, paddingHorizontal:14, paddingVertical:10, color:C.text, fontFamily:'BarlowCondensed_400Regular', fontSize:14 } as any,
-  chatSendBtn:{ width:44, height:44, borderRadius:12, backgroundColor:'rgba(255,215,0,0.15)', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)', alignItems:'center', justifyContent:'center' },
+  chatInput:{ flex:1, backgroundColor:'rgba(255,255,255,0.05)', borderWidth:0.5, borderColor:'rgba(255,215,0,0.25)', borderRadius:12, paddingHorizontal:14, paddingVertical:10, color:C.text, fontFamily:'BarlowCondensed_400Regular', fontSize:14 } as any,
+  chatSendBtn:{ width:44, height:44, borderRadius:12, backgroundColor:'rgba(255,215,0,0.15)', borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)', alignItems:'center', justifyContent:'center' },
   chatSendTxt:{ fontSize:18 },
-  featCard:{ borderRadius:14, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', padding:14, gap:8 },
+  featCard:{ borderRadius:14, borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)', padding:14, gap:8 },
   featTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:13, color:C.gold, marginBottom:4 },
   featRow:{ flexDirection:'row', alignItems:'center', gap:8 },
   featCheck:{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:C.green },
   featTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:C.muted2 },
 
   // ─── TABLA styles ────────────────────────────────────────────────────────────
-  tablaHeader:{ borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.35)', padding:16, overflow:'hidden', position:'relative', gap:14 },
+  tablaHeader:{ borderRadius:16, borderWidth:0.5, borderColor:'rgba(255,215,0,0.35)', padding:16, overflow:'hidden', position:'relative', gap:14 },
   tablaHeaderTopLine:{ position:'absolute', top:0, left:0, right:0, height:2, backgroundColor:C.gold },
   tablaTitleTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:20, color:C.gold, letterSpacing:2 },
   tablaSubTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:C.muted, marginTop:1 },
@@ -1511,9 +1511,9 @@ const s = StyleSheet.create({
   tablaColHeader:{ flexDirection:'row', alignItems:'center', paddingHorizontal:12, paddingVertical:8, marginTop:4 },
   tablaColTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:1.5, textAlign:'center' },
 
-  tablaRow:{ flexDirection:'row', alignItems:'center', borderRadius:14, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.04)', padding:10, marginBottom:6, gap:4 },
-  tablaRowMe:{ borderColor:'rgba(255,215,0,0.3)', borderWidth:StyleSheet.hairlineWidth },
-  tablaRowTop:{ borderColor:'rgba(0,255,135,0.2)', borderWidth:StyleSheet.hairlineWidth },
+  tablaRow:{ flexDirection:'row', alignItems:'center', borderRadius:14, borderWidth:0.5, borderColor:'rgba(255,255,255,0.04)', padding:10, marginBottom:6, gap:4 },
+  tablaRowMe:{ borderColor:'rgba(255,215,0,0.3)', borderWidth:0.5 },
+  tablaRowTop:{ borderColor:'rgba(0,255,135,0.2)', borderWidth:0.5 },
 
   tablaPos:{ alignItems:'center', justifyContent:'center' },
   tablaPosNum:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:C.muted },
@@ -1522,7 +1522,7 @@ const s = StyleSheet.create({
   tablaAvatar:{ width:32, height:32, borderRadius:16, alignItems:'center', justifyContent:'center', flexShrink:0 },
   tablaAvatarTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:15, color:C.muted2 },
   tablaPlayerName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:12, color:C.text },
-  tablaMeBadge:{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:5, paddingHorizontal:5, paddingVertical:1, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)' },
+  tablaMeBadge:{ backgroundColor:'rgba(255,215,0,0.15)', borderRadius:5, paddingHorizontal:5, paddingVertical:1, borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)' },
   tablaMeTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.gold, letterSpacing:1 },
 
   tablaAccRow:{ flexDirection:'row', alignItems:'center', gap:4 },
@@ -1541,9 +1541,9 @@ const s = StyleSheet.create({
   tablaEmptySub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:12, color:C.muted, textAlign:'center', paddingHorizontal:24 },
 
   tablaRefreshBtn:{ borderRadius:12, overflow:'hidden', marginTop:4 },
-  tablaRefreshInner:{ borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', paddingVertical:12, alignItems:'center' },
+  tablaRefreshInner:{ borderRadius:12, borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)', paddingVertical:12, alignItems:'center' },
   tablaRefreshTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.muted, letterSpacing:1 },
 
-  tablaNota:{ backgroundColor:'rgba(255,215,0,0.04)', borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.1)', padding:12, marginTop:4 },
+  tablaNota:{ backgroundColor:'rgba(255,215,0,0.04)', borderRadius:12, borderWidth:0.5, borderColor:'rgba(255,215,0,0.1)', padding:12, marginTop:4 },
   tablaNotaTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted, textAlign:'center', lineHeight:15 },
 });

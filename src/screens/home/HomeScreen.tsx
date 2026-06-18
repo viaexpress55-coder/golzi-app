@@ -160,18 +160,18 @@ function RetoCard({ reto, match, userPlan, isInLeague, answer, onAnswer, saved, 
 }
 
 const rs = StyleSheet.create({
-  retoCard:{ backgroundColor:'rgba(168,85,247,0.06)', borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.2)', padding:12, marginBottom:8 },
+  retoCard:{ backgroundColor:'rgba(168,85,247,0.06)', borderRadius:12, borderWidth:0.5, borderColor:'rgba(168,85,247,0.2)', padding:12, marginBottom:8 },
   retoHeader:{ flexDirection:'row', alignItems:'center', gap:8, marginBottom:10 },
   retoIcon:{ fontSize:16 }, retoLabel:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:'#E9D5FF', flex:1 },
-  retoPtsBadge:{ backgroundColor:'rgba(168,85,247,0.2)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.4)' },
+  retoPtsBadge:{ backgroundColor:'rgba(168,85,247,0.2)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:0.5, borderColor:'rgba(168,85,247,0.4)' },
   retoPtsTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:'#C084FC' },
   paywall:{ borderRadius:10, overflow:'hidden' },
-  paywallInner:{ padding:12, alignItems:'center', gap:6, borderRadius:10, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.25)' },
+  paywallInner:{ padding:12, alignItems:'center', gap:6, borderRadius:10, borderWidth:0.5, borderColor:'rgba(168,85,247,0.25)' },
   paywallLock:{ fontSize:20 }, paywallTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#C084FC' },
-  paywallBtn:{ backgroundColor:'rgba(168,85,247,0.3)', borderRadius:20, paddingHorizontal:16, paddingVertical:6, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.5)' },
+  paywallBtn:{ backgroundColor:'rgba(168,85,247,0.3)', borderRadius:20, paddingHorizontal:16, paddingVertical:6, borderWidth:0.5, borderColor:'rgba(168,85,247,0.5)' },
   paywallBtnTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:'#E9D5FF', letterSpacing:1 },
   optionsRow:{ flexDirection:'row', gap:8 },
-  optionBtn:{ flex:1, paddingVertical:10, borderRadius:10, backgroundColor:'rgba(255,255,255,0.05)', alignItems:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.1)' },
+  optionBtn:{ flex:1, paddingVertical:10, borderRadius:10, backgroundColor:'rgba(255,255,255,0.05)', alignItems:'center', borderWidth:0.5, borderColor:'rgba(255,255,255,0.1)' },
   optionBtnSelected:{ backgroundColor:'rgba(168,85,247,0.25)', borderColor:'rgba(168,85,247,0.6)' },
   optionTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:12, color:'#9B7AC4', letterSpacing:1 },
   optionTxtSelected:{ color:'#E9D5FF' },
@@ -587,13 +587,13 @@ export default function HomeScreen() {
 
       <Modal visible={showConfirmModal} transparent animationType="fade" onRequestClose={() => setShowConfirmModal(false)}>
         <View style={{ flex:1, backgroundColor:'rgba(0,0,0,0.85)', alignItems:'center', justifyContent:'center', padding:24 }}>
-          <View style={{ backgroundColor:'#0A0F1A', borderRadius:20, padding:24, width:'100%', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)', gap:16 }}>
+          <View style={{ backgroundColor:'#0A0F1A', borderRadius:20, padding:24, width:'100%', borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)', gap:16 }}>
             <View style={{ height:2, backgroundColor:'#FFD700', borderRadius:1 }} />
             <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:24, color:'#FFD700', letterSpacing:3, textAlign:'center' }}>¿CONFIRMAS TU PREDICCIÓN?</Text>
             {confirmMatch && (
               <View style={{ alignItems:'center', gap:8 }}>
                 <Text style={{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:16, color:'#9AAABB', textAlign:'center' }}>{confirmMatch.homeTeam} vs {confirmMatch.awayTeam}</Text>
-                <View style={{ flexDirection:'row', alignItems:'center', gap:16, backgroundColor:'rgba(255,215,0,0.1)', borderRadius:14, paddingHorizontal:24, paddingVertical:14, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.25)' }}>
+                <View style={{ flexDirection:'row', alignItems:'center', gap:16, backgroundColor:'rgba(255,215,0,0.1)', borderRadius:14, paddingHorizontal:24, paddingVertical:14, borderWidth:0.5, borderColor:'rgba(255,215,0,0.25)' }}>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:'#FFD700' }}>{getScore(confirmMatch.id)[0] || '0'}</Text>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:'#6B7A99' }}>-</Text>
                   <Text style={{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:'#FFD700' }}>{getScore(confirmMatch.id)[1] || '0'}</Text>
@@ -602,7 +602,7 @@ export default function HomeScreen() {
               </View>
             )}
             <View style={{ flexDirection:'row', gap:10 }}>
-              <TouchableOpacity style={{ flex:1, borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.1)', paddingVertical:14, alignItems:'center' }} onPress={() => setShowConfirmModal(false)}>
+              <TouchableOpacity style={{ flex:1, borderRadius:12, borderWidth:0.5, borderColor:'rgba(255,255,255,0.1)', paddingVertical:14, alignItems:'center' }} onPress={() => setShowConfirmModal(false)}>
                 <Text style={{ fontFamily:'BarlowCondensed_700Bold', fontSize:14, color:'#6B7A99', letterSpacing:1 }}>{t('home_cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex:2, borderRadius:12, overflow:'hidden' }} onPress={() => { setShowConfirmModal(false); if (confirmMatch) confirm(confirmMatch.id); }}>
@@ -884,7 +884,7 @@ const s = StyleSheet.create({
   goalTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold, letterSpacing:4, marginBottom:8 },
   goalPts:{ fontFamily:'BebasNeue_400Regular', fontSize:52, color:C.green, letterSpacing:4 },
   modalOverlay:{ flex:1, backgroundColor:'rgba(0,0,0,0.85)', alignItems:'center', justifyContent:'flex-end' },
-  modalCard:{ width:'100%', borderTopLeftRadius:24, borderTopRightRadius:24, overflow:'hidden', padding:24, alignItems:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)' },
+  modalCard:{ width:'100%', borderTopLeftRadius:24, borderTopRightRadius:24, overflow:'hidden', padding:24, alignItems:'center', borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)' },
   modalTopLine:{ position:'absolute', top:0, left:0, right:0, height:3, backgroundColor:C.gold },
   modalTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:26, color:C.gold, letterSpacing:3, marginBottom:6 },
   modalSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:13, color:C.muted, marginBottom:20, textAlign:'center' },
@@ -901,24 +901,24 @@ const s = StyleSheet.create({
   headerTitle:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold, letterSpacing:3 },
   headerSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted, letterSpacing:2 },
   bellBtn:{ width:40, height:40, borderRadius:12, backgroundColor:'rgba(255,255,255,0.05)', alignItems:'center', justifyContent:'center' },
-  statsBanner:{ flexDirection:'row', marginHorizontal:12, marginTop:12, marginBottom:8, borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:C.goldBorder, padding:14, alignItems:'center', justifyContent:'space-around', overflow:'hidden' },
+  statsBanner:{ flexDirection:'row', marginHorizontal:12, marginTop:12, marginBottom:8, borderRadius:16, borderWidth:0.5, borderColor:C.goldBorder, padding:14, alignItems:'center', justifyContent:'space-around', overflow:'hidden' },
   statsBannerGlow:{ position:'absolute', top:0, left:0, right:0, bottom:0, backgroundColor:'rgba(255,215,0,0.03)' },
   statItem:{ alignItems:'center' },
   statVal:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold },
   statLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2, marginTop:2 },
   statDivider:{ width:1, height:36, backgroundColor:'rgba(255,215,0,0.2)' },
   scroll:{ paddingBottom:40 },
-  card:{ marginHorizontal:12, marginBottom:10, backgroundColor:C.surface2, borderRadius:18, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.35)', overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:6}, shadowOpacity:0.35, shadowRadius:12, elevation:10 },
+  card:{ marginHorizontal:12, marginBottom:10, backgroundColor:C.surface2, borderRadius:18, borderWidth:0.5, borderColor:'rgba(255,215,0,0.35)', overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:6}, shadowOpacity:0.35, shadowRadius:12, elevation:10 },
   cardTopLine:{ height:2 },
   cardGlow:{ position:'absolute', top:0, left:0, right:0, height:80, zIndex:0 },
   cardHeader:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:14, paddingTop:12, paddingBottom:6, zIndex:1 },
   cardHeaderLeft:{ flexDirection:'row', alignItems:'center', gap:8, flex:1 },
-  groupPill:{ backgroundColor:'rgba(255,215,0,0.12)', borderRadius:6, borderWidth:StyleSheet.hairlineWidth, borderColor:C.goldBorder, paddingHorizontal:8, paddingVertical:3 },
+  groupPill:{ backgroundColor:'rgba(255,215,0,0.12)', borderRadius:6, borderWidth:0.5, borderColor:C.goldBorder, paddingHorizontal:8, paddingVertical:3 },
   groupPillTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:12, color:C.gold, letterSpacing:1 },
   stadiumTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:10, color:C.muted, flex:1 },
-  countdownPill:{ backgroundColor:'rgba(255,215,0,0.08)', borderRadius:20, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', paddingHorizontal:10, paddingVertical:4 },
+  countdownPill:{ backgroundColor:'rgba(255,215,0,0.08)', borderRadius:20, borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)', paddingHorizontal:10, paddingVertical:4 },
   countdownTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.gold },
-  liveBadge:{ flexDirection:'row', alignItems:'center', gap:5, backgroundColor:'rgba(255,51,85,0.12)', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,51,85,0.35)', borderRadius:20, paddingHorizontal:10, paddingVertical:4 },
+  liveBadge:{ flexDirection:'row', alignItems:'center', gap:5, backgroundColor:'rgba(255,51,85,0.12)', borderWidth:0.5, borderColor:'rgba(255,51,85,0.35)', borderRadius:20, paddingHorizontal:10, paddingVertical:4 },
   liveDot:{ width:7, height:7, borderRadius:4, backgroundColor:C.red },
   liveTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.red, letterSpacing:1 },
   teamsRow:{ flexDirection:'row', alignItems:'center', paddingHorizontal:10, paddingVertical:14, zIndex:1 },
@@ -927,25 +927,25 @@ const s = StyleSheet.create({
   teamCode:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.gold, letterSpacing:2 },
   teamName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted2, textAlign:'center' },
   centerBox:{ alignItems:'center', justifyContent:'center', paddingHorizontal:8, width:84 },
-  vsCircle:{ width:68, height:68, borderRadius:34, borderWidth:StyleSheet.hairlineWidth * 2, borderColor:C.goldBorder, alignItems:'center', justifyContent:'center' },
+  vsCircle:{ width:68, height:68, borderRadius:34, borderWidth:0.5 * 2, borderColor:C.goldBorder, alignItems:'center', justifyContent:'center' },
   vsTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.gold },
   inputRow:{ flexDirection:'row', alignItems:'center', gap:4 },
-  scoreInput:{ width:58, height:58, backgroundColor:'rgba(255,215,0,0.1)', borderWidth:StyleSheet.hairlineWidth * 2, borderColor:C.gold, borderRadius:10, color:C.gold, fontFamily:'BebasNeue_400Regular', fontSize:28, textAlign:'center' } as any,
+  scoreInput:{ width:58, height:58, backgroundColor:'rgba(255,215,0,0.1)', borderWidth:0.5 * 2, borderColor:C.gold, borderRadius:10, color:C.gold, fontFamily:'BebasNeue_400Regular', fontSize:28, textAlign:'center' } as any,
   inputDash:{ fontFamily:'BebasNeue_400Regular', fontSize:18, color:C.muted },
-  confirmedBox:{ flexDirection:'row', alignItems:'center', gap:6, borderRadius:12, paddingHorizontal:14, paddingVertical:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(0,255,135,0.25)' },
+  confirmedBox:{ flexDirection:'row', alignItems:'center', gap:6, borderRadius:12, paddingHorizontal:14, paddingVertical:12, borderWidth:0.5, borderColor:'rgba(0,255,135,0.25)' },
   confirmedNum:{ fontFamily:'BebasNeue_400Regular', fontSize:34, color:C.green },
   confirmedDash:{ fontFamily:'BebasNeue_400Regular', fontSize:20, color:C.green },
   dateRow:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:14, paddingBottom:10, zIndex:1 },
   dateTxt:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:10, color:C.muted },
   confirmedActions:{ flexDirection:'row', alignItems:'center', gap:8 },
-  ptsPill:{ backgroundColor:'rgba(0,255,135,0.1)', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(0,255,135,0.3)', borderRadius:20, paddingHorizontal:10, paddingVertical:3 },
+  ptsPill:{ backgroundColor:'rgba(0,255,135,0.1)', borderWidth:0.5, borderColor:'rgba(0,255,135,0.3)', borderRadius:20, paddingHorizontal:10, paddingVertical:3 },
   ptsPillTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.green, letterSpacing:1 },
-  shareSmallBtn:{ width:32, height:32, borderRadius:16, backgroundColor:'rgba(255,215,0,0.1)', alignItems:'center', justifyContent:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)' },
+  shareSmallBtn:{ width:32, height:32, borderRadius:16, backgroundColor:'rgba(255,215,0,0.1)', alignItems:'center', justifyContent:'center', borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)' },
   shareSmallTxt:{ fontSize:14 },
   predictBtn:{ marginHorizontal:14, marginBottom:14, zIndex:1, borderRadius:12, overflow:'hidden' },
-  predictBtnInner:{ borderRadius:12, paddingVertical:14, alignItems:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)' },
+  predictBtnInner:{ borderRadius:12, paddingVertical:14, alignItems:'center', borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)' },
   predictBtnTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:17, letterSpacing:3 },
-  analysisBox:{ marginHorizontal:14, marginBottom:10, backgroundColor:'rgba(0,198,255,0.05)', borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(0,198,255,0.2)', padding:12 },
+  analysisBox:{ marginHorizontal:14, marginBottom:10, backgroundColor:'rgba(0,198,255,0.05)', borderRadius:12, borderWidth:0.5, borderColor:'rgba(0,198,255,0.2)', padding:12 },
   analysisHeader:{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:10 },
   analysisTitleTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.cyan, letterSpacing:1 },
   analysisDisclaimer:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted },
@@ -960,26 +960,26 @@ const s = StyleSheet.create({
   analysisBar:{ height:4, borderRadius:2 },
   retosSection:{ marginHorizontal:14, marginBottom:14 },
   retosToggle:{ borderRadius:12, overflow:'hidden' },
-  retosToggleInner:{ flexDirection:'row', alignItems:'center', gap:10, padding:12, borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.25)' },
+  retosToggleInner:{ flexDirection:'row', alignItems:'center', gap:10, padding:12, borderRadius:12, borderWidth:0.5, borderColor:'rgba(168,85,247,0.25)' },
   retosToggleIcon:{ fontSize:16 },
   retosToggleLeft:{ flex:1 },
   retosToggleTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:12, color:'#C084FC', letterSpacing:2 },
   retosToggleSub:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:'#9B7AC4', marginTop:1 },
   retosChevron:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:'#9B7AC4' },
-  retosAnsweredBadge:{ backgroundColor:'rgba(168,85,247,0.3)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(168,85,247,0.5)' },
+  retosAnsweredBadge:{ backgroundColor:'rgba(168,85,247,0.3)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:0.5, borderColor:'rgba(168,85,247,0.5)' },
   retosAnsweredTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'#E9D5FF' },
-  retosSavedBadge:{ backgroundColor:'rgba(0,255,135,0.15)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(0,255,135,0.3)' },
+  retosSavedBadge:{ backgroundColor:'rgba(0,255,135,0.15)', borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:0.5, borderColor:'rgba(0,255,135,0.3)' },
   retosSavedTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:'#00FF87' },
   retosContent:{ paddingTop:8 },
   retosGuardarBtn:{ borderRadius:12, overflow:'hidden', marginTop:4 },
   retosGuardarInner:{ paddingVertical:13, alignItems:'center', borderRadius:12 },
   retosGuardarTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:16, color:'#fff', letterSpacing:2 },
-  retosDoneBox:{ backgroundColor:'rgba(0,255,135,0.06)', borderRadius:10, padding:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(0,255,135,0.2)', marginTop:4 },
+  retosDoneBox:{ backgroundColor:'rgba(0,255,135,0.06)', borderRadius:10, padding:12, borderWidth:0.5, borderColor:'rgba(0,255,135,0.2)', marginTop:4 },
   retosDoneTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:11, color:'#00FF87', textAlign:'center' },
-  ptsGuide:{ marginHorizontal:12, marginTop:4, borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.15)', padding:14 },
+  ptsGuide:{ marginHorizontal:12, marginTop:4, borderRadius:16, borderWidth:0.5, borderColor:'rgba(255,215,0,0.15)', padding:14 },
   ptsGuideTitle:{ fontFamily:'BarlowCondensed_700Bold', fontSize:9, color:C.muted, letterSpacing:3, marginBottom:10 },
   ptsRow:{ flexDirection:'row', gap:8 },
-  ptsCard:{ flex:1, borderRadius:10, padding:10, alignItems:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.1)' },
+  ptsCard:{ flex:1, borderRadius:10, padding:10, alignItems:'center', borderWidth:0.5, borderColor:'rgba(255,215,0,0.1)' },
   ptsVal:{ fontFamily:'BebasNeue_400Regular', fontSize:22 },
   ptsLbl:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted, textAlign:'center', marginTop:2 },
 });

@@ -102,7 +102,12 @@ export async function getProducts() {
 
 export async function purchaseProduct(productId: string) {
   try {
-    await IAP.requestPurchase({ sku: productId });
+    await IAP.requestPurchase({
+      request: {
+        google: { skus: [productId] },
+      },
+      type: 'in-app',
+    });
   } catch (e) {
     console.log('❌ Error en compra:', e);
     throw e;

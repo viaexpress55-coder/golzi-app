@@ -154,7 +154,9 @@ export default function MundialScreen() {
       stats[t.name] = { pj:0, g:0, e:0, p:0, gf:0, gc:0, pts:0, name:t.name, flag:t.flag };
     });
     groupMatches.forEach(m => {
-      const h = m.homeTeam; const a = m.awayTeam;
+      const NAME_MAP: Record<string,string> = { 'Bosnia y Herzegovina': 'Bosnia y Herz.' };
+      const h = NAME_MAP[m.homeTeam] || m.homeTeam;
+      const a = NAME_MAP[m.awayTeam] || m.awayTeam;
       const hs = Number(m.homeScore); const as = Number(m.awayScore);
       if (!stats[h]) stats[h] = { pj:0, g:0, e:0, p:0, gf:0, gc:0, pts:0, name:h, flag:m.homeFlag||'' };
       if (!stats[a]) stats[a] = { pj:0, g:0, e:0, p:0, gf:0, gc:0, pts:0, name:a, flag:m.awayFlag||'' };

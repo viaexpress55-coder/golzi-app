@@ -99,7 +99,7 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
       )}
       <View style={s.scoreRow}>
         <View style={s.scoreTeam}>
-          <Image source={{ uri: `https://flagsapi.com/${getTeamCode(match.homeTeam)}/flat/64.png` }} style={s.scoreFlagImg} resizeMode="contain" />
+          <Image source={{ uri: getFlagImageUrl(match.homeTeam) }} style={s.scoreFlagImg} resizeMode="contain" />
           <Text style={s.scoreCode}>{(match.homeTeam||'').slice(0,3).toUpperCase()}</Text>
           <Text style={s.scoreName}>{match.homeTeam}</Text>
         </View>
@@ -148,7 +148,7 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
           )}
         </View>
         <View style={s.scoreTeam}>
-          <Image source={{ uri: `https://flagsapi.com/${getTeamCode(match.awayTeam)}/flat/64.png` }} style={s.scoreFlagImg} resizeMode="contain" />
+          <Image source={{ uri: getFlagImageUrl(match.awayTeam) }} style={s.scoreFlagImg} resizeMode="contain" />
           <Text style={s.scoreCode}>{(match.awayTeam||'').slice(0,3).toUpperCase()}</Text>
           <Text style={s.scoreName}>{match.awayTeam}</Text>
         </View>
@@ -202,6 +202,14 @@ function Scoreboard({ match, t }: { match: any; t: (k: string) => string }) {
       )}
     </View>
   );
+}
+
+
+function getFlagImageUrl(team: string): string {
+  const code = getTeamCode(team);
+  if (code === 'GB-SCT') return 'https://flagcdn.com/w80/gb-sct.png';
+  if (code === 'GB-ENG') return 'https://flagcdn.com/w80/gb-eng.png';
+  return `https://flagsapi.com/${code}/flat/64.png`;
 }
 
 function getTeamCode(team: string): string {
@@ -319,7 +327,7 @@ export default function LiveScreen() {
             {today.map((m,i) => (
               <LinearGradient key={i} colors={['rgba(255,255,255,0.04)','rgba(255,255,255,0.01)']} style={s.miniCard}>
                 <View style={s.miniTeamBox}>
-                  <Image source={{ uri: `https://flagsapi.com/${getTeamCode(m.homeTeam)}/flat/64.png` }} style={{ width:28, height:20, borderRadius:2 }} resizeMode="contain" />
+                  <Image source={{ uri: getFlagImageUrl(m.homeTeam) }} style={{ width:28, height:20, borderRadius:2 }} resizeMode="contain" />
                   <Text style={s.miniName}>{m.homeTeam}</Text>
                 </View>
                 <View style={s.miniCenter}>
@@ -327,7 +335,7 @@ export default function LiveScreen() {
                   <Text style={s.miniTime}>{m.kickoffTime ? new Date(m.kickoffTime?.seconds ? m.kickoffTime.seconds * 1000 : m.kickoffTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}</Text>
                 </View>
                 <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
-                  <Image source={{ uri: `https://flagsapi.com/${getTeamCode(m.awayTeam)}/flat/64.png` }} style={{ width:28, height:20, borderRadius:2 }} resizeMode="contain" />
+                  <Image source={{ uri: getFlagImageUrl(m.awayTeam) }} style={{ width:28, height:20, borderRadius:2 }} resizeMode="contain" />
                   <Text style={s.miniName}>{m.awayTeam}</Text>
                 </View>
               </LinearGradient>
@@ -343,7 +351,7 @@ export default function LiveScreen() {
             {finished.map((m,i) => (
               <LinearGradient key={i} colors={['rgba(0,255,135,0.06)','rgba(0,255,135,0.01)']} style={[s.miniCard, { borderColor:'rgba(0,255,135,0.15)' }]}>
                 <View style={s.miniTeamBox}>
-                  <Image source={{ uri: `https://flagsapi.com/${getTeamCode(m.homeTeam)}/flat/64.png` }} style={{ width:28, height:20, borderRadius:2 }} resizeMode="contain" />
+                  <Image source={{ uri: getFlagImageUrl(m.homeTeam) }} style={{ width:28, height:20, borderRadius:2 }} resizeMode="contain" />
                   <Text style={s.miniName}>{m.homeTeam}</Text>
                 </View>
                 <View style={s.miniCenter}>
@@ -351,7 +359,7 @@ export default function LiveScreen() {
                   <Text style={s.miniFinal}>{t('live_final')}</Text>
                 </View>
                 <View style={[s.miniTeamBox, { alignItems:'flex-end' }]}>
-                  <Image source={{ uri: `https://flagsapi.com/${getTeamCode(m.awayTeam)}/flat/64.png` }} style={{ width:28, height:20, borderRadius:2 }} resizeMode="contain" />
+                  <Image source={{ uri: getFlagImageUrl(m.awayTeam) }} style={{ width:28, height:20, borderRadius:2 }} resizeMode="contain" />
                   <Text style={s.miniName}>{m.awayTeam}</Text>
                 </View>
               </LinearGradient>

@@ -436,7 +436,7 @@ const s = StyleSheet.create({
 
   scroll:{ paddingHorizontal:12, paddingBottom:40 },
 
-  groupCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', marginBottom:10, overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.2, shadowRadius:8, elevation:3 },
+  groupCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', marginBottom:10, overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.08, shadowRadius:3, elevation:1 },
   groupCardGlow:{ position:'absolute', top:0, left:0, right:0, bottom:0 },
   groupTopLine:{ height:2 },
   groupHeader:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', padding:14 },
@@ -482,7 +482,7 @@ const s = StyleSheet.create({
   fixtureScore:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.green },
   fixtureStadium:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted, textAlign:'center' },
   teamsGrid:{ flexDirection:'row', flexWrap:'wrap', gap:8 },
-  teamCard:{ borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)', padding:12, alignItems:'center', width:100, shadowColor:'#FFD700', shadowOffset:{width:0,height:3}, shadowOpacity:0.2, shadowRadius:6, elevation:4 },
+  teamCard:{ borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)', padding:12, alignItems:'center', width:100, shadowColor:'#FFD700', shadowOffset:{width:0,height:3}, shadowOpacity:0.08, shadowRadius:2, elevation:1 },
   teamCardFlag:{ fontSize:28, marginBottom:6 },
   teamCardName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:9, color:C.text, textAlign:'center' },
 });

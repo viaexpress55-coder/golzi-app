@@ -908,7 +908,7 @@ const s = StyleSheet.create({
   statLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:2, marginTop:2 },
   statDivider:{ width:1, height:36, backgroundColor:'rgba(255,215,0,0.2)' },
   scroll:{ paddingBottom:40 },
-  card:{ marginHorizontal:12, marginBottom:10, backgroundColor:C.surface2, borderRadius:18, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.35)', overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:6}, shadowOpacity:0.35, shadowRadius:12, elevation:10 },
+  card:{ marginHorizontal:12, marginBottom:10, backgroundColor:C.surface2, borderRadius:18, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.35)', overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:6}, shadowOpacity:0.1, shadowRadius:4, elevation:2 },
   cardTopLine:{ height:2 },
   cardGlow:{ position:'absolute', top:0, left:0, right:0, height:80, zIndex:0 },
   cardHeader:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:14, paddingTop:12, paddingBottom:6, zIndex:1 },

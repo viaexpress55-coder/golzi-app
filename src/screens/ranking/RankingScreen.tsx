@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
-import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, orderBy, limit, getDocs, getCountFromServer } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { getAuth } from 'firebase/auth';
 
@@ -182,6 +182,7 @@ export default function RankingScreen() {
   const TABS = [t('ranking_global'), t('ranking_league'), t('ranking_country'), t('ranking_paises')];
   const [tab, setTab]           = useState(0);
   const [globalData, setGlobalData] = useState<any[]>([]);
+  const [totalUsersCount, setTotalUsersCount] = useState<number>(0);
   const [leagueData, setLeagueData] = useState<any[]>([]);
   const [allLeagues, setAllLeagues] = useState<any[]>([]);
   const [selectedLeagueIdx, setSelectedLeagueIdx] = useState(0);
@@ -239,6 +240,9 @@ export default function RankingScreen() {
           setLeagueData(leaguesInfo[0]?.members || []);
         }
       }).catch(() => {});
+    getCountFromServer(collection(db, 'users')).then(snap => {
+      setTotalUsersCount(snap.data().count);
+    }).catch(() => {});
     getDocs(query(collection(db, 'users'), orderBy('totalPoints', 'desc'), limit(1000)))
       .then(snap => {
         const users = snap.docs.map(d => ({
@@ -372,7 +376,7 @@ export default function RankingScreen() {
           </View>
         </View>
         <View style={s.playerCount}>
-          <Text style={s.playerCountTxt}>{globalData.length}</Text>
+          <Text style={s.playerCountTxt}>{totalUsersCount || globalData.length}</Text>
           <Text style={s.playerCountLbl}>GOLZAIRES</Text>
         </View>
       </LinearGradient>

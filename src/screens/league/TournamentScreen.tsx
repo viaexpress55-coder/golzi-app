@@ -165,29 +165,29 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
     }
   }
 
-  async function joinTournament(t: Tournament) {
-    if (t.participants.includes(userId)) {
+  async function joinTournament(torneo: Tournament) {
+    if (torneo.participants.includes(userId)) {
       Alert.alert(t('tourn_already_joined'), t('tourn_already_joined_msg'));
       return;
     }
     await updateDoc(doc(db, 'leagues', ligaId, 'tournaments', t.id), {
-      participants: [...t.participants, userId],
+      participants: [...torneo.participants, userId],
     });
-    Alert.alert('✅ Inscrito', `Te uniste al torneo ${t.name}`);
+    Alert.alert('✅ Inscrito', `Te uniste al torneo ${torneo.name}`);
   }
 
-  async function loadRanking(t: Tournament) {
-    setSelectedTournament(t);
+  async function loadRanking(torneo: Tournament) {
+    setSelectedTournament(torneo);
     setRankingLoading(true);
     try {
       // Obtener predicciones de los partidos del torneo
       const chunks: string[][] = [];
-      for (let i = 0; i < t.matchIds.length; i += 10) chunks.push(t.matchIds.slice(i, i + 10));
+      for (let i = 0; i < torneo.matchIds.length; i += 10) chunks.push(torneo.matchIds.slice(i, i + 10));
 
       const matchesSnap = await getDocs(query(collection(db, 'matches'), where('status', '==', 'FINISHED')));
       const finishedMatches: Record<string, any> = {};
       matchesSnap.docs.forEach(d => {
-        if (t.matchIds.includes(d.id)) finishedMatches[d.id] = d.data();
+        if (torneo.matchIds.includes(d.id)) finishedMatches[d.id] = d.data();
       });
 
       const allPreds: any[] = [];
@@ -199,10 +199,10 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
 
       // Calcular puntos por participante
       const ptsMap: Record<string, number> = {};
-      t.participants.forEach(uid => ptsMap[uid] = 0);
+      torneo.participants.forEach(uid => ptsMap[uid] = 0);
 
       allPreds.forEach(pred => {
-        if (!t.participants.includes(pred.userId)) return;
+        if (!torneo.participants.includes(pred.userId)) return;
         const match = finishedMatches[pred.matchId];
         if (!match) return;
         const h = pred.homeScore; const a = pred.awayScore;
@@ -212,7 +212,7 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
           ptsMap[pred.userId] = (ptsMap[pred.userId] || 0) + 5;
       });
 
-      const rankData = t.participants.map(uid => {
+      const rankData = torneo.participants.map(uid => {
         const member = members.find(m => m.id === uid);
         return {
           uid,
@@ -274,16 +274,16 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
             <Text style={s.emptyTitle}>{t('tourn_empty_title')}</Text>
             <Text style={s.emptySub}>{canCreate ? t('tourn_empty_admin') : t('tourn_empty_member')}</Text>
           </View>
-        ) : tournaments.map(t => (
-          <View key={t.id} style={s.card}>
-            <View style={[s.cardTopLine, {backgroundColor: statusColor(t.status)}]}/>
+        ) : tournaments.map(torneo => (
+          <View key={torneo.id} style={s.card}>
+            <View style={[s.cardTopLine, {backgroundColor: statusColor(torneo.status)}]}/>
             <View style={s.cardHeader}>
               <View style={{flex:1}}>
-                <Text style={s.cardName}>{t.name}</Text>
-                {t.description && <Text style={s.cardDesc}>{t.description}</Text>}
-                <Text style={[s.cardStatus, {color: statusColor(t.status)}]}>{statusLabel(t.status)}</Text>
+                <Text style={s.cardName}>{torneo.name}</Text>
+                {torneo.description && <Text style={s.cardDesc}>{torneo.description}</Text>}
+                <Text style={[s.cardStatus, {color: statusColor(torneo.status)}]}>{statusLabel(torneo.status)}</Text>
               </View>
-              {t.isPublic && (
+              {torneo.isPublic && (
                 <View style={s.publicBadge}>
                   <Text style={s.publicBadgeTxt}>{t('tourn_public_badge')}</Text>
                 </View>
@@ -293,30 +293,30 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
             <View style={s.cardInfo}>
               <View style={s.cardInfoItem}>
                 <Text style={s.cardInfoLabel}>{t('tourn_label_start')}</Text>
-                <Text style={s.cardInfoValue}>{t.startDate}</Text>
+                <Text style={s.cardInfoValue}>{torneo.startDate}</Text>
               </View>
               <View style={s.cardInfoItem}>
                 <Text style={s.cardInfoLabel}>{t('tourn_label_end')}</Text>
-                <Text style={s.cardInfoValue}>{t.endDate}</Text>
+                <Text style={s.cardInfoValue}>{torneo.endDate}</Text>
               </View>
               <View style={s.cardInfoItem}>
                 <Text style={s.cardInfoLabel}>{t('tourn_label_matches')}</Text>
-                <Text style={s.cardInfoValue}>{t.matchIds?.length || 0}</Text>
+                <Text style={s.cardInfoValue}>{torneo.matchIds?.length || 0}</Text>
               </View>
               <View style={s.cardInfoItem}>
                 <Text style={s.cardInfoLabel}>{t('tourn_label_members')}</Text>
-                <Text style={s.cardInfoValue}>{t.participants?.length || 0}</Text>
+                <Text style={s.cardInfoValue}>{torneo.participants?.length || 0}</Text>
               </View>
             </View>
 
-            {t.prize && (
+            {torneo.prize && (
               <View style={s.prizeBox}>
-                <Text style={s.prizeTxt}>🎁 PREMIO: {t.prize}</Text>
+                <Text style={s.prizeTxt}>🎁 PREMIO: {torneo.prize}</Text>
               </View>
             )}
 
             {/* Botón eliminar — solo admin, solo si 1 inscrito */}
-            {isAdmin && (t.participants?.length || 0) <= 1 && (
+            {isAdmin && (torneo.participants?.length || 0) <= 1 && (
               <TouchableOpacity
                 onPress={async () => {
                 const ok = typeof window !== 'undefined'
@@ -324,9 +324,9 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
                   : await new Promise(resolve => Alert.alert('¿Eliminar torneo?', 'Solo puedes eliminar si no hay otros inscritos.', [{ text: 'Cancelar', style: 'cancel', onPress: () => resolve(false) }, { text: 'Eliminar', style: 'destructive', onPress: () => resolve(true) }]));
                 if (!ok) return;
                 try {
-                  await deleteDoc(doc(db, 'leagues', ligaId, 'tournaments', t.id));
-                  if (t.isPublic) {
-                    await deleteDoc(doc(db, 'public_tournaments', t.id));
+                  await deleteDoc(doc(db, 'leagues', ligaId, 'tournaments', torneo.id));
+                  if (torneo.isPublic) {
+                    await deleteDoc(doc(db, 'public_tournaments', torneo.id));
                   }
                 } catch(e) {
                   Alert.alert('Error', 'No se pudo eliminar el torneo');
@@ -339,8 +339,8 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
               </TouchableOpacity>
             )}
             <View style={s.cardActions}>
-              {!t.participants?.includes(userId) ? (
-                <TouchableOpacity onPress={() => joinTournament(t)} style={s.joinBtn}>
+              {!torneo.participants?.includes(userId) ? (
+                <TouchableOpacity onPress={() => joinTournament(torneo)} style={s.joinBtn}>
                   <Text style={s.joinBtnTxt}>{t('tourn_join_btn')}</Text>
                 </TouchableOpacity>
               ) : (
@@ -348,7 +348,7 @@ export default function TournamentScreen({ ligaId, ligaName, ligaBrandLogo, liga
                   <Text style={s.joinedTxt}>✅ INSCRITO</Text>
                 </View>
               )}
-              <TouchableOpacity onPress={() => loadRanking(t)} style={s.rankingBtn}>
+              <TouchableOpacity onPress={() => loadRanking(torneo)} style={s.rankingBtn}>
                 <Text style={s.rankingBtnTxt}>{t('tourn_ranking_btn')}</Text>
               </TouchableOpacity>
             </View>

@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -29,6 +30,24 @@ async function updateFCMToken(userId: string): Promise<void> {
   }
 }
 
+
+function detectSignupSource(): string {
+  if (typeof window === 'undefined') return 'app_native';
+  try {
+    const params = new URLSearchParams(window.location.search || '');
+    const ref = params.get('ref');
+    if (ref === 'landing') return 'web_landing';
+    if (ref === 'planes') return 'web_planes';
+    if (ref === 'mundial') return 'web_landing';
+    const path = window.location.pathname || '';
+    if (path.includes('/liga/')) return 'web_invite_liga';
+    if (path.includes('/client/')) return 'web_whitelabel';
+    return 'web_direct';
+  } catch (e) {
+    return 'app_native';
+  }
+}
+
 export async function registerWithEmail(
   email: string, password: string, username: string, country: string
 ): Promise<User> {
@@ -41,6 +60,7 @@ export async function registerWithEmail(
     currentStreak: 0, maxStreak: 0,
     referralCode: `GOLZ-${username.toUpperCase().slice(0, 6)}`,
     referredBy: null, fcmToken: null,
+    signupSource: detectSignupSource(),
     createdAt: serverTimestamp(), lastActive: serverTimestamp(),
   });
   await updateFCMToken(cred.user.uid);

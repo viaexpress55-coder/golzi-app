@@ -429,14 +429,14 @@ const s = StyleSheet.create({
   teamCountLbl:{ fontFamily:'BarlowCondensed_700Bold', fontSize:7, color:C.muted, letterSpacing:2 },
 
   tabRow:{ flexDirection:'row', paddingHorizontal:12, gap:8, marginVertical:10 },
-  tab:{ flex:1, paddingVertical:9, borderRadius:10, backgroundColor:'rgba(255,255,255,0.04)', alignItems:'center', borderWidth:0.5, borderColor:'rgba(255,255,255,0.06)' },
+  tab:{ flex:1, paddingVertical:9, borderRadius:10, backgroundColor:'rgba(255,255,255,0.04)', alignItems:'center', borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,255,255,0.06)' },
   tabOn:{ backgroundColor:'rgba(255,215,0,0.1)', borderColor:'rgba(255,215,0,0.3)' },
   tabTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:10, color:C.muted, letterSpacing:1 },
   tabTxtOn:{ color:C.gold },
 
   scroll:{ paddingHorizontal:12, paddingBottom:40 },
 
-  groupCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)', marginBottom:10, overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.2, shadowRadius:8, elevation:3 },
+  groupCard:{ backgroundColor:'rgba(255,255,255,0.03)', borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', marginBottom:10, overflow:'hidden', shadowColor:'#FFD700', shadowOffset:{width:0,height:4}, shadowOpacity:0.2, shadowRadius:8, elevation:3 },
   groupCardGlow:{ position:'absolute', top:0, left:0, right:0, bottom:0 },
   groupTopLine:{ height:2 },
   groupHeader:{ flexDirection:'row', alignItems:'center', justifyContent:'space-between', padding:14 },
@@ -463,17 +463,17 @@ const s = StyleSheet.create({
   classifyDot:{ width:8, height:8, borderRadius:2, backgroundColor:C.green },
   classifyTxt:{ fontFamily:'BarlowCondensed_400Regular', fontSize:9, color:C.muted },
 
-  comingSoon:{ borderRadius:16, borderWidth:0.5, borderColor:'rgba(255,215,0,0.2)', padding:40, alignItems:'center', marginTop:8 },
+  comingSoon:{ borderRadius:16, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.2)', padding:40, alignItems:'center', marginTop:8 },
   comingSoonLogo:{ width:70, height:70, marginBottom:16 },
   comingSoonTxt:{ fontFamily:'BebasNeue_400Regular', fontSize:28, color:C.gold, letterSpacing:3, marginBottom:8 },
   comingSoonSub:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:13, color:C.muted2, letterSpacing:1, marginBottom:12 },
-  comingSoonBadge:{ backgroundColor:'rgba(255,215,0,0.1)', borderRadius:20, borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)', paddingHorizontal:16, paddingVertical:6 },
+  comingSoonBadge:{ backgroundColor:'rgba(255,215,0,0.1)', borderRadius:20, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)', paddingHorizontal:16, paddingVertical:6 },
   comingSoonBadgeTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.gold, letterSpacing:1 },
 
   divider:{ flexDirection:'row', alignItems:'center', marginVertical:8, gap:10 },
   dividerLine:{ flex:1, height:1, backgroundColor:'rgba(255,215,0,0.15)' },
   dividerTxt:{ fontFamily:'BarlowCondensed_700Bold', fontSize:8, color:C.muted, letterSpacing:3 },
-  fixtureCard:{ flexDirection:'row', alignItems:'center', borderRadius:12, borderWidth:0.5, borderColor:'rgba(255,215,0,0.15)', padding:10, marginBottom:6 },
+  fixtureCard:{ flexDirection:'row', alignItems:'center', borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.15)', padding:10, marginBottom:6 },
   fixtureFlag:{ fontSize:24, marginBottom:4 },
   fixtureName:{ fontFamily:'BarlowCondensed_700Bold', fontSize:11, color:C.text },
   fixtureCenter:{ flex:1, alignItems:'center', gap:2 },
@@ -482,7 +482,7 @@ const s = StyleSheet.create({
   fixtureScore:{ fontFamily:'BebasNeue_400Regular', fontSize:22, color:C.green },
   fixtureStadium:{ fontFamily:'BarlowCondensed_400Regular', fontSize:8, color:C.muted, textAlign:'center' },
   teamsGrid:{ flexDirection:'row', flexWrap:'wrap', gap:8 },
-  teamCard:{ borderRadius:12, borderWidth:0.5, borderColor:'rgba(255,215,0,0.3)', padding:12, alignItems:'center', width:100, shadowColor:'#FFD700', shadowOffset:{width:0,height:3}, shadowOpacity:0.2, shadowRadius:6, elevation:4 },
+  teamCard:{ borderRadius:12, borderWidth:StyleSheet.hairlineWidth, borderColor:'rgba(255,215,0,0.3)', padding:12, alignItems:'center', width:100, shadowColor:'#FFD700', shadowOffset:{width:0,height:3}, shadowOpacity:0.2, shadowRadius:6, elevation:4 },
   teamCardFlag:{ fontSize:28, marginBottom:6 },
   teamCardName:{ fontFamily:'BarlowCondensed_600SemiBold', fontSize:9, color:C.text, textAlign:'center' },
 });

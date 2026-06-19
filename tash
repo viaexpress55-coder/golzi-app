@@ -1,0 +1,15 @@
+[33m5150f64[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m)[m fix: revert hairlineWidth a 0.5 - crash en Android v16
+[33m68648ae[m chore: cierre torneo SOEMEX con 1000 usuarios + predicciones + fix requestPurchase v4
+[33meab7585[m fix: requestPurchase nueva firma expo-iap v4 - request.google.skus
+[33m2bb017a[m[33m ([m[1;31morigin/develop[m[33m)[m fix: reducir intensidad de glow/shadow en GlowCard y cards para evitar efecto excesivo en Android
+[33m944d735[m fix: tabla de grupos ordenada por pts/GD/GF, banderas Escocia/Inglaterra via flagcdn
+[33m90d2118[m fix: predicción bloqueada al pitazo inicial live/IN_PLAY/PAUSED/kickoff
+[33mc6cd0e7[m fix: RetoCard muestra resultados en partidos finalizados, orden correcto de condiciones
+[33m534c519[m feat: retos gratis FREE con contador créditos, botón guardar habilitado, No participaste en finalizados
+[33m74c0d0c[m fix: retos bloqueados en partidos finalizados, No participaste para sin respuesta
+[33ma911842[m fix: retos gratis 5 partidos para FREE, bloqueo pitazo inicial live/IN_PLAY
+[33m7044267[m fix: retos rápidos muestran resultado y puntos reales en partidos terminados
+[33m4721c60[m fix: HomeScreen muestra FINAL con score real, retos visibles en partidos terminados
+[33mc8ce936[m fix: ranking limit 1000, nombres naturales fake users sin códigos país
+[33m7b17d11[m fix: syncMatchResults equipos invertidos y Bosnia variante, 500 fake users con nombres reales por país
+[33medeea0a[m fix: LiveScreen solo partidos de hoy, syncMatchResults agrega Bosnia & Herzegovina variante

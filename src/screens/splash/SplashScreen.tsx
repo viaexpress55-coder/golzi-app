@@ -104,7 +104,7 @@ export default function SplashScreen() {
     Animated.timing(fadeAnim, { toValue:1, duration:800, useNativeDriver:false }).start();
 
     // Detectar parámetro plan en URL → ir directo a PaymentScreen
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof window.location !== 'undefined' && typeof window.location.search === 'string') {
       const params = new URLSearchParams(window.location.search);
       const planParam = params.get('plan');
       const PLAN_DATA: Record<string, { name: string; price: number; emoji: string }> = {

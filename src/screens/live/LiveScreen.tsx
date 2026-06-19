@@ -278,7 +278,14 @@ export default function LiveScreen() {
     const endOfDay=new Date();endOfDay.setHours(23,59,59,999);
     return kickoff > now && kickoff <= endOfDay.getTime();
   }).slice(0, 6);
-  const finished = liveMatches.filter(m => m.status==='FINISHED' || m.status==='finished').slice(-3);
+  const finished = liveMatches
+    .filter(m => m.status==='FINISHED' || m.status==='finished')
+    .sort((a,b) => {
+      const ta = a.kickoffTime?.seconds ? a.kickoffTime.seconds * 1000 : (a.kickoffTime ? new Date(a.kickoffTime).getTime() : 0);
+      const tb = b.kickoffTime?.seconds ? b.kickoffTime.seconds * 1000 : (b.kickoffTime ? new Date(b.kickoffTime).getTime() : 0);
+      return tb - ta;
+    })
+    .slice(0, 3);
   const isEmpty  = live.length === 0 && finished.length === 0;
 
 

@@ -92,7 +92,7 @@ export async function initIAP() {
 
 export async function getProducts() {
   try {
-    const products = await IAP.fetchProducts({ productIds: Object.values(PRODUCT_IDS) });
+    const products = await IAP.fetchProducts({ skus: Object.values(PRODUCT_IDS), type: 'in-app' });
     return products;
   } catch (e) {
     console.log('❌ Error obteniendo productos:', e);

@@ -4,6 +4,7 @@ export default ({ config }) => ({
   plugins: [
     ...(config.plugins || []),
     "expo-iap",
+    "expo-web-browser",
   ],
 
   extra: {

@@ -12,6 +12,12 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { registerWithEmail } from '../../services/auth';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { Platform } from 'react-native';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import { signInWithGoogleCredential, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } from '../../services/auth';
+
+WebBrowser.maybeCompleteAuthSession();
 import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 
 import { useTranslation } from 'react-i18next';
@@ -306,7 +312,28 @@ export default function RegisterScreen() {
     Barlow_400Regular, Barlow_500Medium,
   });
 
+
+  const [googleRequest, googleResponse, promptGoogleAsync] = Google.useAuthRequest({
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+    webClientId: GOOGLE_WEB_CLIENT_ID,
+  });
+
+  React.useEffect(() => {
+    if (googleResponse?.type === 'success') {
+      const idToken = googleResponse.authentication?.idToken;
+      if (idToken) {
+        signInWithGoogleCredential(idToken)
+          .then(() => navigation.navigate('Main'))
+          .catch(() => setError('Error con Google. Intenta con email.'));
+      }
+    }
+  }, [googleResponse]);
+
   async function handleGoogleRegister() {
+    if (Platform.OS === 'android' || Platform.OS === 'ios') {
+      await promptGoogleAsync();
+      return;
+    }
     try {
       const auth = getAuth();
       const provider = new GoogleAuthProvider();

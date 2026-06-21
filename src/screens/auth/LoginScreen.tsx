@@ -12,6 +12,12 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/AppNavigator';
 import { loginWithEmail, loginAnonymous } from '../../services/auth';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { Platform } from 'react-native';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import { signInWithGoogleCredential, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } from '../../services/auth';
+
+WebBrowser.maybeCompleteAuthSession();
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 
@@ -49,20 +55,29 @@ export default function LoginScreen() {
 
 
 
-  async function handleGoogleLogin() {
-    try {
-      const auth = getAuth();
-      const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
-    } catch(e: any) {
-      setError('Error con Google. Intenta con email.');
+  const [googleRequest, googleResponse, promptGoogleAsync] = Google.useAuthRequest({
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+    webClientId: GOOGLE_WEB_CLIENT_ID,
+  });
+
+  React.useEffect(() => {
+    if (googleResponse?.type === 'success') {
+      const idToken = googleResponse.authentication?.idToken;
+      if (idToken) {
+        setLoading(true);
+        signInWithGoogleCredential(idToken)
+          .then(() => navigation.navigate('Main'))
+          .catch(() => setError('Error con Google. Intenta con email.'))
+          .finally(() => setLoading(false));
+      }
     }
-  }
-
-
-
+  }, [googleResponse]);
 
   async function handleGoogleLogin() {
+    if (Platform.OS === 'android' || Platform.OS === 'ios') {
+      await promptGoogleAsync();
+      return;
+    }
     try {
       setLoading(true); setError('');
       const result = await signInWithPopup(getAuth(), new GoogleAuthProvider());
@@ -86,9 +101,6 @@ export default function LoginScreen() {
       }
     } finally { setLoading(false); }
   }
-
-  if (!fontsLoaded) return <View style={s.root} />;
-
   function shake() {
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue:10, duration:60, useNativeDriver:true }),

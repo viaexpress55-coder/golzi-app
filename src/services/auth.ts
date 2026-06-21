@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import {
   createUserWithEmailAndPassword,
+  sendEmailVerification,
   signInWithEmailAndPassword,
   signInAnonymously,
   signOut,
@@ -88,6 +89,11 @@ export async function registerWithEmail(
 ): Promise<User> {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(cred.user, { displayName: username });
+  try {
+    await sendEmailVerification(cred.user);
+  } catch (e) {
+    console.log('Error enviando verificación de email:', e);
+  }
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Bogota';
   await setDoc(doc(db, 'users', cred.user.uid), {
     userId: cred.user.uid, username, country, language: 'es', timezone,

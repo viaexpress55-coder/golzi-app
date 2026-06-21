@@ -19,6 +19,7 @@ import { signInWithGoogleCredential, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT
 
 WebBrowser.maybeCompleteAuthSession();
 import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../services/firebase';
 
 import { useTranslation } from 'react-i18next';
 

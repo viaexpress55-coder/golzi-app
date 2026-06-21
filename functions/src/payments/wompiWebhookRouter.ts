@@ -6,6 +6,7 @@ import * as crypto from 'crypto';
 const wompiEventsKey = defineSecret('WOMPI_EVENTS_KEY');
 const wompiEventsKeyTest = defineSecret('WOMPI_EVENTS_KEY_TEST');
 const galicixServiceAccount = defineSecret('GALICIX_SERVICE_ACCOUNT');
+const resendApiKey = defineSecret('RESEND_API_KEY');
 
 const JUMPSELLER_WEBHOOK = 'https://soemex.jumpseller.com/checkout/wompi/ipn';
 
@@ -20,8 +21,65 @@ function getGalicixApp(): admin.app.App {
   return galicixApp;
 }
 
+async function setupCustomerAccount(businessId: string, galicixDb: admin.firestore.Firestore): Promise<void> {
+  try {
+    const bizSnap = await galicixDb.collection('businesses').doc(businessId).get();
+    const bizData = bizSnap.data();
+    const customerEmail: string | undefined = bizData?.email;
+    const bizName: string = bizData?.name || 'tu negocio';
+
+    if (!customerEmail) {
+      console.error('No se encontro email para el negocio ' + businessId + ', no se pudo crear cuenta.');
+      return;
+    }
+
+    const galicixAuth = getGalicixApp().auth();
+    let userRecord;
+    try {
+      userRecord = await galicixAuth.getUserByEmail(customerEmail);
+    } catch (e) {
+      userRecord = await galicixAuth.createUser({
+        email: customerEmail,
+        emailVerified: false,
+      });
+    }
+
+    await galicixDb.collection('businesses').doc(businessId).update({
+      ownerUid: userRecord.uid,
+    });
+
+    const actionCodeSettings = {
+      url: 'https://galicix.com/panel',
+      handleCodeInApp: false,
+    };
+    const resetLink = await galicixAuth.generatePasswordResetLink(customerEmail, actionCodeSettings);
+
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + resendApiKey.value(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'onboarding@resend.dev',
+        to: customerEmail,
+        subject: 'Activa el panel de tu negocio en GALICIX',
+        html:
+          '<h2>Tu pago fue aprobado</h2>' +
+          '<p>Hola, tu negocio <strong>' + bizName + '</strong> ya esta activo en GALICIX.</p>' +
+          '<p>Haz clic en el siguiente link para crear tu contrasena y entrar a tu panel:</p>' +
+          '<p><a href="' + resetLink + '">Configurar mi contrasena</a></p>'
+      })
+    }).catch(err => console.error('Error enviando email de bienvenida:', err.message));
+
+    console.log('Cuenta lista para ' + customerEmail + ' (uid: ' + userRecord.uid + ')');
+  } catch (accountError: any) {
+    console.error('Error creando cuenta de cliente:', accountError.message);
+  }
+}
+
 export const wompiWebhookRouter = onRequest(
-  { secrets: ['WOMPI_EVENTS_KEY', 'WOMPI_EVENTS_KEY_TEST', 'GALICIX_SERVICE_ACCOUNT'] },
+  { secrets: ['WOMPI_EVENTS_KEY', 'WOMPI_EVENTS_KEY_TEST', 'GALICIX_SERVICE_ACCOUNT', 'RESEND_API_KEY'] },
   async (req, res) => {
     if (req.method !== 'POST') {
       res.status(405).send('Method Not Allowed');
@@ -133,6 +191,8 @@ export const wompiWebhookRouter = onRequest(
                     transactionId,
                   });
                   console.log('GALICIX business ' + businessId + ' activated with plan ' + planId);
+
+                  await setupCustomerAccount(businessId, galicixDb);
                 }
               } else {
                 console.error('GALICIX pendingPayments doc not found for reference:', reference);

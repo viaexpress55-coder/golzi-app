@@ -61,7 +61,7 @@ async function setupCustomerAccount(businessId: string, galicixDb: admin.firesto
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'onboarding@resend.dev',
+        from: 'notificaciones@galicix.com',
         to: customerEmail,
         subject: 'Activa el panel de tu negocio en GALICIX',
         html:
